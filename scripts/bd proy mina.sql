@@ -40,7 +40,8 @@ CREATE TABLE IF NOT EXISTS desktop_empresa_contrata(
     user_actualizacion character varying(20),
     user_registro character varying(20)	
 );
-
+alter table desktop_empresa_contrata add 	direccion character varying(200);
+select *from desktop_empresa_contrata;
 create table IF NOT EXISTS desktop_vistas(
 	nombre_vista character varying(100) primary key,
 	descripcion character varying(50),
