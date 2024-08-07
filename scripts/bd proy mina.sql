@@ -1,3 +1,70 @@
+drop table desktop_datos_pacientes;
+CREATE TABLE IF NOT EXISTS desktop_datos_pacientes
+(
+	dni bigint primary key,
+    apellidos character varying(50),
+	nombres character varying(50),
+	sexo character varying(20),
+	estado_civil character varying(20),
+	celular bigint,
+	lugar_nacimiento character varying(100),
+	ubigeo character varying(6),
+    direccion character varying(255),
+	fecha_nacimiento date,
+    cargo character varying(50),
+	nivel_estudio character varying(50),
+    correo_elect character varying(255),
+    fecha_actualizacion date,
+    fecha_registro date,
+    user_actualizacion character varying(20),
+    user_registro character varying(20)
+);
+
+
+create table IF NOT EXISTS desktop_datos_historia_clinica(
+	n_orden bigint primary key,
+	dni_paciente bigint,
+	ruc_empresa bigint,
+	ruc_contrata bigint,
+	foreign key(dni_paciente) references desktop_datos_pacientes(dni),
+	fecha_actualizacion date,
+    fecha_registro date,
+    user_actualizacion character varying(20),
+    user_registro character varying(20),
+	unique(dni_paciente,fecha_registro)
+);
+
+
+select * from desktop_datos_historia_clinica
+
+CREATE TABLE desktop_triaje
+(
+  n_orden integer,
+  foreign key(n_orden) references desktop_datos_historia_clinica(n_orden),
+  edad text,
+  fecha_triaje date NOT NULL,
+  talla text,
+  peso text,
+  imc text,
+  cintura text,
+  icc text,
+  cadera text,
+  temperatura text,
+  f_cardiaca text,
+  sat_02 text,
+  perimetro_cuello text,
+  sistolica text,
+  diastolica text,
+  f_respiratoria text,
+  fvc text,
+  fev_1 text,
+  fev1_fvc text,
+  fef25_75 text,
+  conclusion text
+)
+
+	select * from desktop_triaje
+
 CREATE TABLE IF NOT EXISTS desktop_empleado
 (
 	dni bigint primary key,
@@ -20,8 +87,9 @@ CREATE TABLE IF NOT EXISTS desktop_empleado
     user_actualizacion character varying(20),
     user_registro character varying(20)
 );
-
+""SOLTERO""
 alter table desktop_empleado add unique(name_user);
+alter table desktop_empleado DROP COLUMN tel_fijo;
 
 insert into desktop_empleado values (76574022,'ROJAS SIGÜENZA','JOSUE SPENCER','MASCULINO', 942251815, NULL,'ING. INFORMATICO', NULL, 'josuespencerrojas@gmail.com',
 	'130111','MANCO CAPAC #641','1995-07-19',true, 'developer','hm123',null,'2024-07-21',null,'developer');
@@ -83,6 +151,10 @@ create table IF NOT EXISTS desktop_sede(
     user_registro character varying(20)
 );
 
+
+ALTER TABLE desktop_sede ADD fecha_campaña date;
+select * from desktop_sede
+
 create table IF NOT EXISTS desktop_asignacion_empleado_sede(
 	id_asignacion bigint primary key,
 	dni_empleado bigint,
@@ -120,11 +192,14 @@ create table IF NOT EXISTS desktop_asignacion_empleado_emp_cont(
     user_registro character varying(20)
 );
 
-create table IF NOT EXISTS desktop_asignacion_empleado_vista(
+select * from desktop_asignacion_empleado_rol;
+drop table desktop_asignacion_empleado_vista;
+
+create table IF NOT EXISTS desktop_asignacion_rol_vista(
 	id_asignacion bigint primary key,
-	dni_empleado bigint,
+	nombre_rol character varying(50),
 	nombre_vista character varying(100),
-	foreign key(dni_empleado) references desktop_empleado(dni),
+	foreign key(nombre_rol) references desktop_rol(nombre_rol),
 	foreign key(nombre_vista) references desktop_vistas(nombre_vista),
 	fecha_actualizacion date,
     fecha_registro date,
@@ -132,11 +207,13 @@ create table IF NOT EXISTS desktop_asignacion_empleado_vista(
     user_registro character varying(20)
 );
 
-create table IF NOT EXISTS desktop_asignacion_empleado_opciones_interfaz(
+drop table desktop_asignacion_empleado_opciones_interfaz;
+
+create table IF NOT EXISTS desktop_asignacion_rol_opciones_interfaz(
 	id_asignacion bigint primary key,
-	dni_empleado bigint,
+	nombre_rol character varying(50),
 	nombre_opcion character varying(100),
-	foreign key(dni_empleado) references desktop_empleado(dni),
+	foreign key(nombre_rol) references desktop_rol(nombre_rol),
 	foreign key(nombre_opcion) references desktop_opciones_interfaz(nombre_opcion),
 	fecha_actualizacion date,
     fecha_registro date,
