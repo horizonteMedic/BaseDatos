@@ -1,4 +1,172 @@
-drop table desktop_datos_pacientes;
+delete from desktop_farmacia_inventario;
+
+insert into desktop_farmacia_inventario (id_farmacia,
+	nombre_sede,tipo,nombre_producto,marca,
+	cantidad,descripcion,fecha_registro,user_registro)
+	values 
+	(1, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','CIPROCTAL  500MG','PORTUGAL G',
+	300,'ANTIBIÓTICO','2024-08-16','developer'),
+	(2, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','AZITROMICINA 500mg','INSTITUTO Q',
+	200,'ANTIBIÓTICO','2024-08-16','developer'),
+	(3, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','AMOXICILINA 500MG','PORTUGAL G',
+	200,'ANTIBIÓTICO','2024-08-16','developer'),
+	(4, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','CLINDAMICINA 300MG','FARMAINFUSTRIA',
+	300,'ANTIBIÓTICO','2024-08-16','developer'),
+	(5, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','DICLOXACICLINA 500MG','INSTITUTO Q',
+	200,'ANTIBIÓTICO','2024-08-16','developer'),
+	(6, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','METRONIDAZOL 500MG','PORTUGAL G',
+	600,'ANTIBIÓTICO','2024-08-16','developer'),
+	(7, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','DOXICICLINA 100MG','PORTUGAL G',
+	300,'ANTIBIÓTICO','2024-08-16','developer'),
+	(8, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','MELOXICAN 15MG','PORTUGAL G',
+	400,'ANTIBIÓTICO','2024-08-16','developer'),
+	(9, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','SULFAMETOXAZOL + TRIMETROPRIMA  800MG/160MG','PORTUGAL G',
+	600,'ANTIBIÓTICO','2024-08-16','developer')
+	
+
+CREATE TABLE desktop_historia_oftalmologia
+(
+  n_orden integer,
+  fecha_of date NOT NULL,
+  rbecptosisod boolean,
+  rbecptosisoi boolean,
+  rbecestrabismood boolean,
+  rbecestrabismooi boolean,
+  rbecconjuntivitisod boolean,
+  rbecconjuntivitisoi boolean,
+  rbeccataratasod boolean,
+  rbeccataratasoi boolean,
+  rbecpterigionod boolean,
+  rbecpterigionoi boolean,
+  rbecpingueculaod boolean,
+  rbecpingueculaoi boolean,
+  rbecclalacionod boolean,
+  rbecclalacionoi boolean,
+  rbecotrosod boolean,
+  rbecotrosoi boolean,
+  txtechallazgos text,
+  rbfonormalod boolean,
+  rbfonormaloi boolean,
+  rbfoanormalod boolean,
+  rbfoanormaloi boolean,
+  txtfohallazgos text,
+  txtpiood text,
+  txtpiooi text,
+  txtpiona text,
+  rbco_si boolean,
+  rbco_no boolean,
+  rbco_cerca boolean,
+  rbco_lejos boolean,
+  chkntcc boolean,
+  chkntcl boolean,
+  txtcercasincorregirod text,
+  txtcercasincorregiroi text,
+  txtlejossincorregirod text,
+  txtlejossincorregiroi text,
+  txtcercacorregidaod text,
+  txtcercacorregidaoi text,
+  txtlejoscorregidaod text,
+  txtlejoscorregidaoi text,
+  txtcercaagujerood text,
+  txtcercaagujerooi text,
+  txtlejosagujerood text,
+  txtlejosagujerooi text,
+  txtbinocularsincorregir text,
+  txtbinocularcorregida text,
+  rbtecishihara_normal boolean,
+  rbtecishihara_anormal boolean,
+  rbtecishihara_nc boolean,
+  rbteccoleres_normal boolean,
+  rbteccoleres_anormal boolean,
+  rbteccoleres_nc boolean,
+  txttecestereopsia text,
+  rbtecestereopsia_normal boolean,
+  rbtecestereopsia_anormal boolean,
+  rbtecestereopsia_nc boolean,
+  chkrefraccionaplica boolean,
+  chkrefraccionnoaplica boolean,
+  txtlejosodsf text,
+  txtlejosodcil text,
+  txtlejosodeje text,
+  txtlejosoisf text,
+  txtlejosoicil text,
+  txtlejosoieje text,
+  txtlejosoddip text,
+  txtcercaodsf text,
+  txtcercaodcil text,
+  txtcercaodeje text,
+  txtcercaoisf text,
+  txtcercaoicil text,
+  txtcercaoieje text,
+  txtcercaoddip text,
+  txtavconrefraccionlejosod text,
+  txtavconrefraccionlejosoi text,
+  txtavconrefraccioncercaod text,
+  txtavconrefraccioncercaoi text,
+  txtdiagnostico text,
+  chkininguna boolean,
+  chki2 boolean,
+  chki3 boolean,
+  chki4_cerca boolean,
+  chki4_lejos boolean,
+  chki5 boolean,
+  chki6 boolean,
+  chki7 boolean,
+  chkr1 boolean,
+  chkr2_lejos boolean,
+  chkr2_cerca boolean,
+  chkr3 boolean,
+  chkr4 boolean,
+  txtrp text
+);
+
+
+
+create table IF NOT EXISTS desktop_especialidades(
+	nombre_especialidad character varying(50) primary key,
+	estado boolean,
+    fecha_actualizacion date,
+    fecha_registro date,
+    user_actualizacion character varying(20),
+    user_registro character varying(20)
+);
+select * from desktop_especialidades;
+select * from desktop_datos_historia_clinica;
+insert into desktop_especialidades (nombre_especialidad,estado) values('GERIATRIA',true);
+insert into desktop_especialidades (nombre_especialidad,estado) values('PEDIATRIA',true);
+insert into desktop_especialidades (nombre_especialidad,estado) values('GINECOLOGIA',true);
+insert into desktop_especialidades (nombre_especialidad,estado) values('OTORRINOLARINGOLOGIA',true);
+insert into desktop_especialidades (nombre_especialidad,estado) values('MEDICINA GENERAL',true);
+insert into desktop_especialidades (nombre_especialidad,estado) values('PODOLOGIA',true);
+insert into desktop_especialidades (nombre_especialidad,estado) values('FISIOTERAPIA',true);
+insert into desktop_especialidades (nombre_especialidad,estado) values('CORRECTORES OCULARES',true);
+select nombre_especialidad from desktop_especialidades WHERE estado=true;
+
+select * from desktop_ticket_espcialidad
+
+delete from desktop_ticket_espcialidad where nombre_especialidad='' 
+	and n_orden= and estado_registro=false;
+
+create table IF NOT EXISTS desktop_ticket_espcialidad(
+	nombre_especialidad character varying(50),
+	n_orden bigint,
+	estado boolean,
+    fecha_actualizacion date,
+    fecha_registro date,
+    user_actualizacion character varying(20),
+    user_registro character varying(20),
+	unique(n_orden,nombre_especialidad)
+);
+select * from desktop_ticket_espcialidad
+alter table desktop_ticket_espcialidad add column estado_registro boolean default false;
+
+select n_orden, nombre_especialidad,estado 
+	from desktop_ticket_espcialidad where n_orden=4;
+select nombre_especialidad  from desktop_ticket_espcialidad where n_orden= 4 and nombre_especialidad='GERIATRIA';
+
+
+select * from desktop_ticket_espcialidad
+
 CREATE TABLE IF NOT EXISTS desktop_datos_pacientes
 (
 	dni bigint primary key,
@@ -20,7 +188,7 @@ CREATE TABLE IF NOT EXISTS desktop_datos_pacientes
     user_registro character varying(20)
 );
 
-
+select * from desktop_datos_pacientes
 create table IF NOT EXISTS desktop_datos_historia_clinica(
 	n_orden bigint primary key,
 	dni_paciente bigint,
@@ -34,8 +202,233 @@ create table IF NOT EXISTS desktop_datos_historia_clinica(
 	unique(dni_paciente,fecha_registro)
 );
 
+insert into desktop_farmacia_inventario (id_farmacia,
+	nombre_sede,tipo,nombre_producto,marca,
+	cantidad,descripcion,fecha_registro,user_registro)
+	values 
+	(1, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','CIPROCTAL  500MG','PORTUGAL G',
+	300,'ANTIBIÓTICO','2024-08-16','developer'),
+	(2, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','AZITROMICINA 500mg','INSTITUTO Q',
+	200,'ANTIBIÓTICO','2024-08-16','developer'),
+	(3, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','AMOXICILINA 500MG','PORTUGAL G',
+	200,'ANTIBIÓTICO','2024-08-16','developer'),
+	(4, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','CLINDAMICINA 300MG','FARMAINFUSTRIA',
+	300,'ANTIBIÓTICO','2024-08-16','developer'),
+	(5, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','DICLOXACICLINA 500MG','INSTITUTO Q',
+	200,'ANTIBIÓTICO','2024-08-16','developer'),
+	(6, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','METRONIDAZOL 500MG','PORTUGAL G',
+	600,'ANTIBIÓTICO','2024-08-16','developer'),
+	(7, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','DOXICICLINA 100MG','PORTUGAL G',
+	300,'ANTIBIÓTICO','2024-08-16','developer'),
+	(8, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','MELOXICAN 15MG','PORTUGAL G',
+	400,'ANTIBIÓTICO','2024-08-16','developer'),
+	(9, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','SULFAMETOXAZOL + TRIMETROPRIMA  800MG/160MG','PORTUGAL G',
+	600,'ANTIBIÓTICO','2024-08-16','developer')
+	
+select * from desktop_farmacia_inventario
+select * from desktop_Sede;
+create table IF NOT EXISTS desktop_farmacia_inventario(
+	id_farmacia bigint primary key,
+	nombre_sede character varying(50),
+	foreign key(nombre_sede) references desktop_sede(nombre_sede),
+	tipo character varying(80),
+	nombre_producto character varying(200),
+	marca character varying(200),
+	cantidad bigint,
+	descripcion character varying(500),
+	fecha_vencimiento date,
+	fecha_actualizacion date,
+    fecha_registro date,
+    user_actualizacion character varying(20),
+    user_registro character varying(20)
+);
+select *from desktop_historia_clinica_detalle
+select nombre_sede from desktop_sede;
+drop table desktop_historia_clinica_detalle;
+select * from desktop_historia_clinica_detalle
 
-select * from desktop_datos_historia_clinica
+	
+create table IF NOT EXISTS desktop_historia_clinica_detalle(
+	n_orden bigint,
+	tipo character varying(50),
+	examen_fisico text,
+	anamnesis text,
+	antecedentes_familiares_patologicos text,
+	examen_auxiliar text,
+	unique(n_orden,tipo), 
+	diagnostico1 text,
+	codigo_diag1 text,
+	diagnostico2 text,
+	codigo_diag2 text,
+	diagnostico3 text,
+	codigo_diag3 text,
+	diagnostico4 text,
+	codigo_diag4 text,	
+	diagnostico5 text,
+
+	trata1 text,
+	cantidad1 bigint,
+	horario1 bigint,
+	frecuencia1 bigint,
+	recomen1 text,
+
+	trata2 text,
+	cantidad2 bigint,
+	horario2 bigint,
+	frecuencia2 bigint,
+	recomen2 text,
+	
+	trata3 text,
+	cantidad3 bigint,
+	horario3 bigint,
+	frecuencia3 bigint,
+	recomen3 text,
+	
+	trata4 text,
+	cantidad4 bigint,
+	horario4 bigint,
+	frecuencia4 bigint,
+	recomen4 text,
+	
+	fecha_actualizacion date,
+    fecha_registro date,
+    user_actualizacion character varying(20),
+    user_registro character varying(20)
+);
+SELECT dni, p.nombres ||' '|| p.apellidos as nombres, EXTRACT(YEAR FROM age(current_date,p.fecha_nacimiento)) AS  edad from desktop_datos_pacientes as p  WHERE dni ='76574007'
+
+	drop table desktop_diagnostico_x_expecialidad_hc;
+	create table IF NOT EXISTS desktop_diagnostico_x_expecialidad_hc(
+	id_diag_x_espe_hc bigint primary key,
+	n_orden bigint,
+	tipo character varying(50),
+	estado_existencia boolean default false,
+	codigo_cie10 character varying(10),
+	foreign key (codigo_cie10) references desktop_cie10 (codigo),
+	fecha_actualizacion date,
+    fecha_registro date,
+    user_actualizacion character varying(20),
+    user_registro character varying(20)	
+	);
+
+	create table IF NOT EXISTS desktop_medicamento_x_expecialidad_hc(
+	id_medicamento_diag bigint primary key,
+	id_diag_x_espe_hc bigint,
+	foreign key (id_diag_x_espe_hc) references desktop_diagnostico_x_expecialidad_hc (id_diag_x_espe_hc),
+	id_farmacia bigint,
+	foreign key (id_farmacia) references desktop_farmacia_inventario (id_farmacia),
+ 	horas bigint,
+	frecuencia_dias bigint,
+	recomendacion character varying(50),
+	cantidad_total_recetado bigint,
+	cantidad_despachada_farmacia bigint,
+	estado_atendido_farmacia boolean default false,
+	fecha_registro_farmacia date,
+	fecha_actualizacion_farmacia date,
+    user_registro_farmacia character varying(20),		
+    user_actualizacion_farmacia character varying(20),
+	fecha_actualizacion date,
+    fecha_registro date,
+    user_actualizacion character varying(20),
+    user_registro character varying(20)		
+		);
+
+
+
+select nombre_provincia, string_agg(nombre_distrito, ',') from desktop_ubigeo_distrito as dud inner join desktop_ubigeo_provincia as dup
+	on dud.id_provincia_ubigeo=dup.id_provincia_ubigeo
+	group by 1 
+
+
+
+INSERT INTO desktop_historia_clinica_detalle (n_orden,tipo,examen_fisico,recomendacion,diagnostico1,codigo_diag1,diagnostico2,codigo_diag2,
+	diagnostico3,codigo_diag3,diagnostico4,codigo_diag4,trata1,cantidad1,horario1,frecuencia1,trata2,cantidad2,horario2,frecuencia2,trata3,
+	cantidad3,horario3,frecuencia3,trata4,cantidad4,horario4,frecuencia4,user_registro,fecha_registro) Values
+	(1,'GERIATRIA','SE ENCUENTRA BIEN FISICAMENTE','sin recomendaciones','COLERA DEBIDO A VIBRIO CHOLERAE O1, BIOTIPO CHOLERAE','A0009',
+	'N/A','N/A','N/A','N/A','N/A','N/A','PARACETAMOL DE 500 MG',4,'8am a 8 pm','por 6 dias','N/A',,'','','N/A',,'','','N/A',,'','',
+	'developer','2024/08/09')
+
+select * from desktop_historia_clinica_detalle;
+drop table desktop_historia_clinica_detalle;
+
+select dfi.id_farmacia,dfi.nombre_sede,dfi.tipo,dfi.nombre_producto,dfi.cantidad as cantidad_total,
+	(CASE WHEN (select (case when cantidad1 is null then 0 else cantidad1 end) +
+		(case when cantidad2 is null then 0 else cantidad2 end) +
+		(case when cantidad3 is null then 0 else cantidad3 end) +
+		(case when cantidad4 is null then 0 else cantidad4 end)
+	from desktop_historia_clinica_detalle where (trata1 <> 'N/A' and trata2 <> 'N/A' and trata3 <> 'N/A' and trata4 <> 'N/A') or 
+	trata1=dfi.nombre_producto or trata2=dfi.nombre_producto or trata3=dfi.nombre_producto or trata4=dfi.nombre_producto
+	) IS NULL THEN 0 ELSE 
+	(select (case when cantidad1 is null then 0 else cantidad1 end) +
+		(case when cantidad2 is null then 0 else cantidad2 end) +
+		(case when cantidad3 is null then 0 else cantidad3 end) +
+		(case when cantidad4 is null then 0 else cantidad4 end)
+	from desktop_historia_clinica_detalle where (trata1 <> 'N/A' and trata2 <> 'N/A' and trata3 <> 'N/A' and trata4 <> 'N/A') or 
+	trata1=dfi.nombre_producto or trata2=dfi.nombre_producto or trata3=dfi.nombre_producto or trata4=dfi.nombre_producto
+	)
+	END) as cantidad_consumida,
+	dfi.descripcion,dfi.marca,dfi.fecha_vencimiento 
+	from desktop_farmacia_inventario AS dfi;
+
+select * from desktop_farmacia_inventario
+
+select (case when cantidad1 is null then 0 else cantidad1 end) +
+		(case when cantidad2 is null then 0 else cantidad2 end) +
+		(case when cantidad3 is null then 0 else cantidad3 end) +
+		(case when cantidad4 is null then 0 else cantidad4 end)
+	from desktop_historia_clinica_detalle where (trata1 <> 'N/A' and trata2 <> 'N/A' and trata3 <> 'N/A' and trata4 <> 'N/A') or 
+	trata1='PARACETAMOL DE 1000 MG' or trata2='PARACETAMOL DE 1000 MG' or trata3='PARACETAMOL DE 1000 MG' or trata4='PARACETAMOL DE 1000 MG'
+
+select CONCAT(dtp.nombres,' ',dtp.apellidos) as nombres,
+	 EXTRACT(YEAR FROM age(current_date,dtp.fecha_nacimiento)) AS  edad, ddhc.fecha_registro as fecha_evaluacion
+	from desktop_datos_pacientes as dtp inner join desktop_datos_historia_clinica as ddhc
+	on dtp.dni=ddhc.dni_paciente where ddhc.n_orden=1
+
+	SELECT * FROM desktop_datos_historia_clinica
+
+	
+create table IF NOT EXISTS desktop_cie10(
+	codigo character varying(10) primary key,
+	descripcion character varying(400)
+);
+select codigo,descripcion from desktop_cie10;
+select codigo from desktop_cie10 where descripcion='COLERA DEBIDO A VIBRIO CHOLERAE O1, BIOTIPO CHOLERAE'
+INSERT INTO desktop_cie10(codigo,descripcion) values 
+('A000','COLERA DEBIDO A VIBRIO CHOLERAE O1, BIOTIPO CHOLERAE'),
+('A001','COLERA DEBIDO A VIBRIO CHOLERAE O1, BIOTIPO EL TOR'),
+('A009','COLERA NO ESPECIFICADO'),
+('A010','FIEBRE TIFOIDEA'),
+('A011','FIEBRE PARATIFOIDEA A'),
+('A012','FIEBRE PARATIFOIDEA B'),
+('A013','FIEBRE PARATIFOIDEA C'),
+('A014','FIEBRE PARATIFOIDEA, NO ESPECIFICADA'),
+('A020','ENTERITIS DEBIDA A SALMONELLA'),
+('A021','SEPTICEMIA DEBIDA A SALMONELLA'),
+('A022','INFECCIONES LOCALIZADAS DEBIDA A SALMONELLA'),
+('A028','OTRAS INFECCIONES ESPECIFICADAS COMO DEBIDAS A SALMONELLA'),
+('A029','INFECCIÓN DEBIDA A SALMONELLA NO ESPECIFICADA'),
+('A030','SHIGELOSIS DEBIDA A SHIGELLA DYSENTERIAE'),
+('A031','SHIGELOSIS DEBIDA A SHIGELLA FLEXNERI'),
+('A032','SHIGELOSIS DEBIDA A SHIGELLA BOYDII'),
+('A033','SHIGELOSIS DEBIDA A SHIGELLA SONNEI'),
+('A038','OTRAS SHIGELOSIS'),
+('A039','SHIGELOSIS DE TIPO NO ESPECIFICADO');
+
+
+
+
+
+
+
+	
+select * from desktop_datos_historia_clinica;
+
+
+select id_farmacia,nombre_sede, tipo,nombre_producto, cantidad,descripcion, marca, fecha_vencimiento from desktop_farmacia_inventario;
+
+
+select * from desktop_farmacia_inventario;
+
 
 CREATE TABLE desktop_triaje
 (
@@ -87,8 +480,8 @@ CREATE TABLE IF NOT EXISTS desktop_empleado
     user_actualizacion character varying(20),
     user_registro character varying(20)
 );
-""SOLTERO""
 alter table desktop_empleado add unique(name_user);
+alter table desktop_empleado add COLUMN especialidad character varying(50);
 alter table desktop_empleado DROP COLUMN tel_fijo;
 
 insert into desktop_empleado values (76574022,'ROJAS SIGÜENZA','JOSUE SPENCER','MASCULINO', 942251815, NULL,'ING. INFORMATICO', NULL, 'josuespencerrojas@gmail.com',
