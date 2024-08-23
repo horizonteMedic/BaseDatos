@@ -1,3 +1,222 @@
+select desk_dat_pa.sexo,UPPER(desk_dat_pa.direccion) as direccion, desk_hist_clini.dni_paciente,desk_dat_pa.apellidos ||' '|| desk_dat_pa.nombres as nombres, dskt_dxesp.tipo , desk_dat_pa.fecha_registro,
+EXTRACT(YEAR FROM AGE(CURRENT_DATE, desk_dat_pa.fecha_nacimiento)) AS edad ,dskt_triaje.n_orden, dat_emple.apellidos ||''||dat_emple.nombres as medico,
+(select (CASE WHEN count(*)>0 THEN tbb.descripcion else 'N/A' end) as diagnostico1
+	from(select ROW_NUMBER() over () as id_clave, tb.descripcion from (
+	select Distinct(dcie.descripcion) from desktop_datos_historia_clinica as hist_clini
+inner join desktop_datos_pacientes as dat_pa on hist_clini.dni_paciente=dat_pa.dni
+inner join desktop_triaje as dskt_t on hist_clini.n_orden=	dskt_t.n_orden
+inner join desktop_historia_clinica_detalle as dskt_hcd on hist_clini.n_orden=	dskt_hcd.n_orden
+inner join desktop_diagnostico_x_expecialidad_hc as dskt_dxe on dskt_dxe.n_orden=hist_clini.n_orden
+inner join desktop_medicamento_x_expecialidad_hc as dskt_mxe on dskt_mxe.id_diag_x_espe_hc=dskt_dxe.id_diag_x_espe_hc
+inner join desktop_farmacia_inventario as dskt_fminv on dskt_fminv.id_farmacia=dskt_mxe.id_farmacia
+inner join desktop_cie10 as dcie on  dskt_dxe.codigo_cie10=dcie.codigo
+	WHERE hist_clini.n_orden=desk_hist_clini.n_orden AND dskt_hcd.tipo=dskt_hcdll.tipo
+	) as  tb)  as tbb where tbb.id_clave=1
+	group by descripcion) as diagnostico1,
+	(select (CASE WHEN count(*)>0 THEN tbb.descripcion else 'N/A' end) as diagnostico2
+	from(select ROW_NUMBER() over () as id_clave, tb.descripcion from (
+	select Distinct(dcie.descripcion) from desktop_datos_historia_clinica as hist_clini
+inner join desktop_datos_pacientes as dat_pa on hist_clini.dni_paciente=dat_pa.dni
+inner join desktop_triaje as dskt_t on hist_clini.n_orden=	dskt_t.n_orden
+inner join desktop_historia_clinica_detalle as dskt_hcd on hist_clini.n_orden=	dskt_hcd.n_orden
+inner join desktop_diagnostico_x_expecialidad_hc as dskt_dxe on dskt_dxe.n_orden=hist_clini.n_orden
+inner join desktop_medicamento_x_expecialidad_hc as dskt_mxe on dskt_mxe.id_diag_x_espe_hc=dskt_dxe.id_diag_x_espe_hc
+inner join desktop_farmacia_inventario as dskt_fminv on dskt_fminv.id_farmacia=dskt_mxe.id_farmacia
+inner join desktop_cie10 as dcie on  dskt_dxe.codigo_cie10=dcie.codigo
+	WHERE hist_clini.n_orden=desk_hist_clini.n_orden AND dskt_hcd.tipo=dskt_hcdll.tipo
+	) as  tb)  as tbb where tbb.id_clave=2
+	group by descripcion) as diagnostico2,
+	(select (CASE WHEN count(*)>0 THEN tbb.descripcion else 'N/A' end) as diagnostico3
+	from(select ROW_NUMBER() over () as id_clave, tb.descripcion from (
+	select Distinct(dcie.descripcion) from desktop_datos_historia_clinica as hist_clini
+inner join desktop_datos_pacientes as dat_pa on hist_clini.dni_paciente=dat_pa.dni
+inner join desktop_triaje as dskt_t on hist_clini.n_orden=	dskt_t.n_orden
+inner join desktop_historia_clinica_detalle as dskt_hcd on hist_clini.n_orden=	dskt_hcd.n_orden
+inner join desktop_diagnostico_x_expecialidad_hc as dskt_dxe on dskt_dxe.n_orden=hist_clini.n_orden
+inner join desktop_medicamento_x_expecialidad_hc as dskt_mxe on dskt_mxe.id_diag_x_espe_hc=dskt_dxe.id_diag_x_espe_hc
+inner join desktop_farmacia_inventario as dskt_fminv on dskt_fminv.id_farmacia=dskt_mxe.id_farmacia
+inner join desktop_cie10 as dcie on  dskt_dxe.codigo_cie10=dcie.codigo
+	WHERE hist_clini.n_orden=desk_hist_clini.n_orden AND dskt_hcd.tipo=dskt_hcdll.tipo
+	) as  tb)  as tbb where tbb.id_clave=3
+	group by descripcion) as diagnostico3,
+	(select (CASE WHEN count(*)>0 THEN tbb.descripcion else 'N/A' end) as diagnostico4
+	from(select ROW_NUMBER() over () as id_clave, tb.descripcion from (
+	select Distinct(dcie.descripcion) from desktop_datos_historia_clinica as hist_clini
+inner join desktop_datos_pacientes as dat_pa on hist_clini.dni_paciente=dat_pa.dni
+inner join desktop_triaje as dskt_t on hist_clini.n_orden=	dskt_t.n_orden
+inner join desktop_historia_clinica_detalle as dskt_hcd on hist_clini.n_orden=	dskt_hcd.n_orden
+inner join desktop_diagnostico_x_expecialidad_hc as dskt_dxe on dskt_dxe.n_orden=hist_clini.n_orden
+inner join desktop_medicamento_x_expecialidad_hc as dskt_mxe on dskt_mxe.id_diag_x_espe_hc=dskt_dxe.id_diag_x_espe_hc
+inner join desktop_farmacia_inventario as dskt_fminv on dskt_fminv.id_farmacia=dskt_mxe.id_farmacia
+inner join desktop_cie10 as dcie on  dskt_dxe.codigo_cie10=dcie.codigo
+	WHERE hist_clini.n_orden=desk_hist_clini.n_orden AND dskt_hcd.tipo=dskt_hcdll.tipo
+	) as  tb)  as tbb where tbb.id_clave=4
+	group by descripcion) as diagnostico4,
+	
+	(select string_agg(tratamiento1,chr(10)) AS tratamiento1  from (select (CASE WHEN count(*)>0 THEN
+	UPPER(  '- ' || 	  tbb.cantidad_total_recetado || ' CANT. ' || tbb.nombre_producto || ', CADA ' || tbb.horas || ' HRS ' ||  'DURANTE ' || tbb.frecuencia_dias || ' DIAS,  INDICACIONES : ' ||
+    tbb.recomendacion )
+	else 'N/A' end) as tratamiento1
+	from
+	(select ROW_NUMBER() over () as id_clave, tb.* from (
+	select dskt_mxe.cantidad_total_recetado,dskt_fminv.nombre_producto,dskt_mxe.horas,dskt_mxe.frecuencia_dias,
+	dskt_mxe.recomendacion
+	from desktop_datos_historia_clinica as hist_clini
+inner join desktop_datos_pacientes as dat_pa on hist_clini.dni_paciente=dat_pa.dni
+inner join desktop_triaje as dskt_t on hist_clini.n_orden=	dskt_t.n_orden
+inner join desktop_historia_clinica_detalle as dskt_hcd on hist_clini.n_orden=	dskt_hcd.n_orden
+inner join desktop_diagnostico_x_expecialidad_hc as dskt_dxe on dskt_dxe.n_orden=hist_clini.n_orden
+inner join desktop_medicamento_x_expecialidad_hc as dskt_mxe on dskt_mxe.id_diag_x_espe_hc=dskt_dxe.id_diag_x_espe_hc
+inner join desktop_farmacia_inventario as dskt_fminv on dskt_fminv.id_farmacia=dskt_mxe.id_farmacia
+inner join desktop_cie10 as dcie on  dskt_dxe.codigo_cie10=dcie.codigo
+	WHERE dskt_dxe.id_diag_x_espe_hc=( 
+	
+	select (CASE WHEN count(*)>0 THEN tbb.id_diag_x_espe_hc else 0 end) as diagnostico1
+	from(select ROW_NUMBER() over () as id_clave, tb.id_diag_x_espe_hc from (
+	select Distinct(dcie.descripcion),dskt_dxe.id_diag_x_espe_hc from desktop_datos_historia_clinica as hist_clini
+inner join desktop_datos_pacientes as dat_pa on hist_clini.dni_paciente=dat_pa.dni
+inner join desktop_triaje as dskt_t on hist_clini.n_orden=	dskt_t.n_orden
+inner join desktop_historia_clinica_detalle as dskt_hcd on hist_clini.n_orden=	dskt_hcd.n_orden
+inner join desktop_diagnostico_x_expecialidad_hc as dskt_dxe on dskt_dxe.n_orden=hist_clini.n_orden
+inner join desktop_medicamento_x_expecialidad_hc as dskt_mxe on dskt_mxe.id_diag_x_espe_hc=dskt_dxe.id_diag_x_espe_hc
+inner join desktop_farmacia_inventario as dskt_fminv on dskt_fminv.id_farmacia=dskt_mxe.id_farmacia
+inner join desktop_cie10 as dcie on  dskt_dxe.codigo_cie10=dcie.codigo
+	WHERE hist_clini.n_orden=desk_hist_clini.n_orden AND dskt_hcd.tipo=dskt_hcdll.tipo
+	) as  tb)  as tbb where tbb.id_clave=1
+	group by id_diag_x_espe_hc	
+	)
+	) as  tb) 
+	as tbb 
+group by cantidad_total_recetado,nombre_producto,horas,frecuencia_dias,recomendacion)
+	
+	) AS tratamiento1
+	
+	,
+		(select string_agg(tratamiento1,chr(10)) AS tratamiento1  from (select (CASE WHEN count(*)>0 THEN
+	UPPER(  '- ' || 	  tbb.cantidad_total_recetado || ' CANT. ' || tbb.nombre_producto || ', CADA ' || tbb.horas || ' HRS ' ||  'DURANTE ' || tbb.frecuencia_dias || ' DIAS,  INDICACIONES : ' ||
+    tbb.recomendacion )
+	else 'N/A' end) as tratamiento1
+	from
+	(select ROW_NUMBER() over () as id_clave, tb.* from (
+	select dskt_mxe.cantidad_total_recetado,dskt_fminv.nombre_producto,dskt_mxe.horas,dskt_mxe.frecuencia_dias,
+	dskt_mxe.recomendacion
+	from desktop_datos_historia_clinica as hist_clini
+inner join desktop_datos_pacientes as dat_pa on hist_clini.dni_paciente=dat_pa.dni
+inner join desktop_triaje as dskt_t on hist_clini.n_orden=	dskt_t.n_orden
+inner join desktop_historia_clinica_detalle as dskt_hcd on hist_clini.n_orden=	dskt_hcd.n_orden
+inner join desktop_diagnostico_x_expecialidad_hc as dskt_dxe on dskt_dxe.n_orden=hist_clini.n_orden
+inner join desktop_medicamento_x_expecialidad_hc as dskt_mxe on dskt_mxe.id_diag_x_espe_hc=dskt_dxe.id_diag_x_espe_hc
+inner join desktop_farmacia_inventario as dskt_fminv on dskt_fminv.id_farmacia=dskt_mxe.id_farmacia
+inner join desktop_cie10 as dcie on  dskt_dxe.codigo_cie10=dcie.codigo
+	WHERE dskt_dxe.id_diag_x_espe_hc=( 
+	
+	select (CASE WHEN count(*)>0 THEN tbb.id_diag_x_espe_hc else 0 end) as diagnostico1
+	from(select ROW_NUMBER() over () as id_clave, tb.id_diag_x_espe_hc from (
+	select Distinct(dcie.descripcion),dskt_dxe.id_diag_x_espe_hc from desktop_datos_historia_clinica as hist_clini
+inner join desktop_datos_pacientes as dat_pa on hist_clini.dni_paciente=dat_pa.dni
+inner join desktop_triaje as dskt_t on hist_clini.n_orden=	dskt_t.n_orden
+inner join desktop_historia_clinica_detalle as dskt_hcd on hist_clini.n_orden=	dskt_hcd.n_orden
+inner join desktop_diagnostico_x_expecialidad_hc as dskt_dxe on dskt_dxe.n_orden=hist_clini.n_orden
+inner join desktop_medicamento_x_expecialidad_hc as dskt_mxe on dskt_mxe.id_diag_x_espe_hc=dskt_dxe.id_diag_x_espe_hc
+inner join desktop_farmacia_inventario as dskt_fminv on dskt_fminv.id_farmacia=dskt_mxe.id_farmacia
+inner join desktop_cie10 as dcie on  dskt_dxe.codigo_cie10=dcie.codigo
+	WHERE hist_clini.n_orden=desk_hist_clini.n_orden AND dskt_hcd.tipo=dskt_hcdll.tipo
+	) as  tb)  as tbb where tbb.id_clave=2
+	group by id_diag_x_espe_hc	
+	)
+	) as  tb) 
+	as tbb 
+group by cantidad_total_recetado,nombre_producto,horas,frecuencia_dias,recomendacion)
+	) AS tratamiento2,
+		(
+	select string_agg(tratamiento1,chr(10)) AS tratamiento1  from (select (CASE WHEN count(*)>0 THEN
+	UPPER(  '- ' || 	  tbb.cantidad_total_recetado || ' CANT. ' || tbb.nombre_producto || ', CADA ' || tbb.horas || ' HRS ' ||  'DURANTE ' || tbb.frecuencia_dias || ' DIAS,  INDICACIONES : ' ||
+    tbb.recomendacion )
+	else 'N/A' end) as tratamiento1
+	from
+	(select ROW_NUMBER() over () as id_clave, tb.* from (
+	select dskt_mxe.cantidad_total_recetado,dskt_fminv.nombre_producto,dskt_mxe.horas,dskt_mxe.frecuencia_dias,
+	dskt_mxe.recomendacion
+	from desktop_datos_historia_clinica as hist_clini
+inner join desktop_datos_pacientes as dat_pa on hist_clini.dni_paciente=dat_pa.dni
+inner join desktop_triaje as dskt_t on hist_clini.n_orden=	dskt_t.n_orden
+inner join desktop_historia_clinica_detalle as dskt_hcd on hist_clini.n_orden=	dskt_hcd.n_orden
+inner join desktop_diagnostico_x_expecialidad_hc as dskt_dxe on dskt_dxe.n_orden=hist_clini.n_orden
+inner join desktop_medicamento_x_expecialidad_hc as dskt_mxe on dskt_mxe.id_diag_x_espe_hc=dskt_dxe.id_diag_x_espe_hc
+inner join desktop_farmacia_inventario as dskt_fminv on dskt_fminv.id_farmacia=dskt_mxe.id_farmacia
+inner join desktop_cie10 as dcie on  dskt_dxe.codigo_cie10=dcie.codigo
+	WHERE dskt_dxe.id_diag_x_espe_hc=( 
+	
+	select (CASE WHEN count(*)>0 THEN tbb.id_diag_x_espe_hc else 0 end) as diagnostico1
+	from(select ROW_NUMBER() over () as id_clave, tb.id_diag_x_espe_hc from (
+	select Distinct(dcie.descripcion),dskt_dxe.id_diag_x_espe_hc from desktop_datos_historia_clinica as hist_clini
+inner join desktop_datos_pacientes as dat_pa on hist_clini.dni_paciente=dat_pa.dni
+inner join desktop_triaje as dskt_t on hist_clini.n_orden=	dskt_t.n_orden
+inner join desktop_historia_clinica_detalle as dskt_hcd on hist_clini.n_orden=	dskt_hcd.n_orden
+inner join desktop_diagnostico_x_expecialidad_hc as dskt_dxe on dskt_dxe.n_orden=hist_clini.n_orden
+inner join desktop_medicamento_x_expecialidad_hc as dskt_mxe on dskt_mxe.id_diag_x_espe_hc=dskt_dxe.id_diag_x_espe_hc
+inner join desktop_farmacia_inventario as dskt_fminv on dskt_fminv.id_farmacia=dskt_mxe.id_farmacia
+inner join desktop_cie10 as dcie on  dskt_dxe.codigo_cie10=dcie.codigo
+	WHERE hist_clini.n_orden=desk_hist_clini.n_orden AND dskt_hcd.tipo=dskt_hcdll.tipo
+	) as  tb)  as tbb where tbb.id_clave=3
+	group by id_diag_x_espe_hc	
+	)
+	) as  tb) 
+	as tbb 
+group by cantidad_total_recetado,nombre_producto,horas,frecuencia_dias,recomendacion)
+		) AS tratamiento3,
+	(
+select string_agg(tratamiento1,chr(10)) AS tratamiento1  from (select (CASE WHEN count(*)>0 THEN
+	UPPER(  '- ' || 	  tbb.cantidad_total_recetado || ' CANT. ' || tbb.nombre_producto || ', CADA ' || tbb.horas || ' HRS ' ||  'DURANTE ' || tbb.frecuencia_dias || ' DIAS,  INDICACIONES : ' ||
+    tbb.recomendacion )
+	else 'N/A' end) as tratamiento1
+	from
+	(select ROW_NUMBER() over () as id_clave, tb.* from (
+	select dskt_mxe.cantidad_total_recetado,dskt_fminv.nombre_producto,dskt_mxe.horas,dskt_mxe.frecuencia_dias,
+	dskt_mxe.recomendacion
+	from desktop_datos_historia_clinica as hist_clini
+inner join desktop_datos_pacientes as dat_pa on hist_clini.dni_paciente=dat_pa.dni
+inner join desktop_triaje as dskt_t on hist_clini.n_orden=	dskt_t.n_orden
+inner join desktop_historia_clinica_detalle as dskt_hcd on hist_clini.n_orden=	dskt_hcd.n_orden
+inner join desktop_diagnostico_x_expecialidad_hc as dskt_dxe on dskt_dxe.n_orden=hist_clini.n_orden
+inner join desktop_medicamento_x_expecialidad_hc as dskt_mxe on dskt_mxe.id_diag_x_espe_hc=dskt_dxe.id_diag_x_espe_hc
+inner join desktop_farmacia_inventario as dskt_fminv on dskt_fminv.id_farmacia=dskt_mxe.id_farmacia
+inner join desktop_cie10 as dcie on  dskt_dxe.codigo_cie10=dcie.codigo
+	WHERE dskt_dxe.id_diag_x_espe_hc=( 
+	
+	select (CASE WHEN count(*)>0 THEN tbb.id_diag_x_espe_hc else 0 end) as diagnostico1
+	from(select ROW_NUMBER() over () as id_clave, tb.id_diag_x_espe_hc from (
+	select Distinct(dcie.descripcion),dskt_dxe.id_diag_x_espe_hc from desktop_datos_historia_clinica as hist_clini
+inner join desktop_datos_pacientes as dat_pa on hist_clini.dni_paciente=dat_pa.dni
+inner join desktop_triaje as dskt_t on hist_clini.n_orden=	dskt_t.n_orden
+inner join desktop_historia_clinica_detalle as dskt_hcd on hist_clini.n_orden=	dskt_hcd.n_orden
+inner join desktop_diagnostico_x_expecialidad_hc as dskt_dxe on dskt_dxe.n_orden=hist_clini.n_orden
+inner join desktop_medicamento_x_expecialidad_hc as dskt_mxe on dskt_mxe.id_diag_x_espe_hc=dskt_dxe.id_diag_x_espe_hc
+inner join desktop_farmacia_inventario as dskt_fminv on dskt_fminv.id_farmacia=dskt_mxe.id_farmacia
+inner join desktop_cie10 as dcie on  dskt_dxe.codigo_cie10=dcie.codigo
+	WHERE hist_clini.n_orden=desk_hist_clini.n_orden AND dskt_hcd.tipo=dskt_hcdll.tipo
+	) as  tb)  as tbb where tbb.id_clave=4
+	group by id_diag_x_espe_hc	
+	)
+	) as  tb) 
+	as tbb 
+group by cantidad_total_recetado,nombre_producto,horas,frecuencia_dias,recomendacion)
+	
+	) AS tratamiento4
+from desktop_datos_historia_clinica as desk_hist_clini
+inner join desktop_datos_pacientes as desk_dat_pa on desk_hist_clini.dni_paciente=desk_dat_pa.dni
+inner join desktop_triaje as dskt_triaje on desk_hist_clini.n_orden=dskt_triaje.n_orden
+inner join desktop_historia_clinica_detalle as dskt_hcdll on desk_hist_clini.n_orden=	dskt_hcdll.n_orden
+inner join desktop_diagnostico_x_expecialidad_hc as dskt_dxesp on dskt_dxesp.n_orden=desk_hist_clini.n_orden
+inner join desktop_medicamento_x_expecialidad_hc as dskt_mxesp on dskt_mxesp.id_diag_x_espe_hc=dskt_dxesp.id_diag_x_espe_hc
+inner join desktop_farmacia_inventario as dskt_fminvent on dskt_fminvent.id_farmacia=dskt_mxesp.id_farmacia
+inner join desktop_empleado as dat_emple on (dat_emple.name_user=dskt_mxesp.user_registro)	
+	WHERE desk_hist_clini.n_orden= 8 AND dskt_hcdll.tipo= 'PEDIATRIA' limit 1
+
+
+
+
+
 select desk_dat_pa.estado_civil,desk_dat_pa.sexo,UPPER(desk_dat_pa.direccion) as direccion,desk_dat_pa.celular, TO_CHAR(fecha_nacimiento, 'DD/MM/YYYY') AS fecha_nacimiento,
 	desk_hist_clini.dni_paciente,desk_dat_pa.apellidos ||' '|| desk_dat_pa.nombres as nombres, dskt_triaje.*,
 	dskt_hcdll.tipo ,
