@@ -1,3 +1,26 @@
+
+
+	select * from desktop_farmacia_inventario
+
+SELECT * FROM desktop_diagnostico_x_expecialidad_hc
+select * from desktop_medicamento_x_expecialidad_hc
+	
+select 
+	(dskt_fminvent.cantidad - 
+	(case when (select SUM(cantidad_total_recetado) from desktop_medicamento_x_expecialidad_hc as dme where dme.id_farmacia=dskt_fminvent.id_farmacia and dme.estado_atendido_farmacia=true) is null 
+	then 0 else 
+	(select SUM(cantidad_total_recetado) from desktop_medicamento_x_expecialidad_hc as dme where dme.id_farmacia=dskt_fminvent.id_farmacia and dme.estado_atendido_farmacia=true )
+	end  )	) as restante
+	from desktop_farmacia_inventario as dskt_fminvent WHERE nombre_producto= 'DOXICICLINA 100MG' 
+
+
+	select 
+	(dskt_fminvent.cantidad - 
+	(case when (select SUM(cantidad_total_recetado) from desktop_medicamento_x_expecialidad_hc as dme where dme.id_farmacia=dskt_fminvent.id_farmacia ) is null 
+	then 0 else 
+	(select SUM(cantidad_total_recetado) from desktop_medicamento_x_expecialidad_hc as dme where dme.id_farmacia=dskt_fminvent.id_farmacia ) end  )	) as restante
+	from desktop_farmacia_inventario as dskt_fminvent WHERE nombre_producto= 'DOXICICLINA 100MG' 
+
 -- CONSULTA 2024 : HC
 select desk_dat_pa.estado_civil,desk_dat_pa.sexo,UPPER(desk_dat_pa.direccion) as direccion,desk_dat_pa.celular, TO_CHAR(fecha_nacimiento, 'DD/MM/YYYY') AS fecha_nacimiento,
 	desk_hist_clini.dni_paciente,desk_dat_pa.apellidos ||' '|| desk_dat_pa.nombres as nombres, dskt_triaje.*,
@@ -425,6 +448,11 @@ WHERE dskt_hcdll.n_orden=  $P{Norden}  AND dskt_hcdll.tipo=  $P{tipo}	and dskt_d
 
 
 -- consulta editar
+select * from desktop_cie10;
+
+
+
+	
 select 
 	UPPER(dskt_hcdet.examen_fisico) as examen_fisico,
 	dskt_hcdet.anamnesis,
@@ -1064,7 +1092,7 @@ where dskt_hcd.n_orden= 8 AND dskt_hcd.tipo= 'PEDIATRIA'
 	delete from desktop_medicamento_x_expecialidad_hc where id_medicamento_diag=6;
 	delete from desktop_diagnostico_x_expecialidad_hc;
 
-	select * from desktop_ticket_espcialidad;
+	select * from desktop_ticket_espcialidad where nombre_especialidad='PEDIATRIA';
 	select * from desktop_historia_clinica_detalle;
 	select * from desktop_medicamento_x_expecialidad_hc;
 	select * from desktop_diagnostico_x_expecialidad_hc;
@@ -1095,34 +1123,107 @@ select dmxe.id_medicamento_diag,dfi.nombre_producto,dcie.descripcion from deskto
 		WHERE ddxe.n_orden=10 and dhcd.tipo='PEDIATRIA' and ddxe.codigo_cie10='A009'		order by dmxe.id_medicamento_diag desc
 	
 select n_orden from desktop_diagnostico_x_expecialidad_hc where tipo='PEDIATRIA' and n_orden=10 and codigo_cie10='A009'
+
+select * from 
+	desktop_diagnostico_x_expecialidad_hc as dskt_dxe 
+			inner join desktop_historia_clinica_detalle as dhcd on dskt_dxe.n_orden=dhcd.n_orden
+	inner join desktop_medicamento_x_expecialidad_hc as dskt_mxe on dskt_mxe.id_diag_x_espe_hc=dskt_dxe.id_diag_x_espe_hc
+
+	select * from desktop_diagnostico_x_expecialidad_hc
 	
+delete from desktop_ticket_espcialidad;
+delete from desktop_datos_pacientes;
 delete from desktop_farmacia_inventario;
-select *from desktop_farmacia_inventario;
+delete from desktop_datos_historia_clinica;	
+delete from desktop_triaje;
+delete from desktop_historia_clinica_detalle;
+delete from desktop_diagnostico_x_expecialidad_hc;
+delete from desktop_medicamento_x_expecialidad_hc;
+delete from desktop_historia_oftalmologia;
+
+select translate(nombre_provincia,'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜ','aeiouAEIOUaeiouAEIOU') as nombre_provincia from desktop_ubigeo_departamento as ubi_dep inner join desktop_ubigeo_provincia as ubi_prov
+	on ubi_dep.id_departamento_ubigeo=ubi_prov.id_departamento_ubigeo where translate(TRIM(UPPER(ubi_dep.nombre_departamento)),'áéíóúÁÉÍÓÚäëïöüÄËÏÖÜ','aeiouAEIOUaeiouAEIOU')='JUNIN'
+
+	select * from desktop_ubigeo_departamento
+	select * from desktop_triaje
+select * from desktop_diagnostico_x_expecialidad_hc
+select * from desktop_ticket_espcialidad where estado_registro= true
+	3,4,5
+
+	update desktop_ticket_espcialidad set estado_registro= false where n_orden in(3,4,5)
+	
+select *from desktop_farmacia_inventario where nombre_producto LIKE '%DIMEN%';
+select * from desktop_empleado
 
 insert into desktop_farmacia_inventario (id_farmacia,
 	nombre_sede,tipo,nombre_producto,marca,
-	cantidad,descripcion,fecha_registro,user_registro)
+	cantidad,cajas_unidades,precio_caja_uniades,precio_total,descripcion,fecha_registro,user_registro)
 	values 
-	(1, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','CIPROCTAL  500MG','PORTUGAL G',
-	300,'ANTIBIÓTICO','2024-08-16','developer'),
-	(2, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','AZITROMICINA 500mg','INSTITUTO Q',
-	200,'ANTIBIÓTICO','2024-08-16','developer'),
-	(3, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','AMOXICILINA 500MG','PORTUGAL G',
-	200,'ANTIBIÓTICO','2024-08-16','developer'),
-	(4, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','CLINDAMICINA 300MG','FARMAINFUSTRIA',
-	300,'ANTIBIÓTICO','2024-08-16','developer'),
-	(5, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','DICLOXACICLINA 500MG','INSTITUTO Q',
-	200,'ANTIBIÓTICO','2024-08-16','developer'),
-	(6, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','METRONIDAZOL 500MG','PORTUGAL G',
-	600,'ANTIBIÓTICO','2024-08-16','developer'),
-	(7, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','DOXICICLINA 100MG','PORTUGAL G',
-	300,'ANTIBIÓTICO','2024-08-16','developer'),
-	(8, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','MELOXICAN 15MG','PORTUGAL G',
-	400,'ANTIBIÓTICO','2024-08-16','developer'),
-	(9, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','SULFAMETOXAZOL + TRIMETROPRIMA  800MG/160MG','PORTUGAL G',
-	600,'ANTIBIÓTICO','2024-08-16','developer')
-	
+(1, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','CIPROCTAL 500MG','PORTUGAL G', 300, 6, 55.00, 330.00,'ANTIBIÓTICO','2024-08-16','developer'),
+(2, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','AZITROMICINA 500MG','INSTITUTO Q', 200, 6, 35.00, 210.00,'ANTIBIÓTICO','2024-08-16','developer'),
+(3, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','AMOXICILINA 500MG','PORTUGAL G', 200, 2, 29.00, 58.00,'ANTIBIÓTICO','2024-08-16','developer'),
+(4, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','CLINDAMICINA 300MG','FARMAINFUSTRIA', 300, 1, 68.00, 68.00,'ANTIBIÓTICO','2024-08-16','developer'),
+(5, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','DICLOXACICLINA 500MG','INSTITUTO Q', 200, 2, 39.00, 78.00,'ANTIBIÓTICO','2024-08-16','developer'),
+(6, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','METRONIDAZOL 500MG','PORTUGAL G', 600, 6, 17.00, 102.00,'ANTIBIÓTICO','2024-08-16','developer'),
+(7, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','DOXICICLINA 100MG','PORTUGAL G', 300, 3, 22.00, 66.00,'ANTIBIÓTICO','2024-08-16','developer'),
+(8, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','MELOXICAN 15MG','PORTUGAL G', 400, 4, 15.00, 60.00,'ANTIBIÓTICO','2024-08-16','developer'),
+(9, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','SULFAMETOXAZOL + TRIMETROPRIMA 800MG/160MG','PORTUGAL G', 600, 6, 27.00, 162.00,'ANTIBIÓTICO','2024-08-16','developer'),
 
+(10, 'CAMPAÑA CHIMALCO - AGOSTO','TABLETA','PREDIXONA 20MG','INSTITUTO Q', 200, 4, 17.50, 70.00,'CORTICOIDE','2024-08-16','developer'),
+(11, 'CAMPAÑA CHIMALCO - AGOSTO', 'TABLETA', 'DEXCORT 4MG', 'FARMAINDUSTRIA', 400,4, 65.00, 260.00, 'CORTICOIDE', '2024-08-16', 'developer'),
+(12, 'CAMPAÑA CHIMALCO - AGOSTO', 'JARABE', 'DEXTROMETORFANO 15MG/5ML', 'PORTUGAL G', 99,4, 5.50, 22.00, 'ANTITUSÍGENO', '2024-08-16', 'developer'),
+(13, 'CAMPAÑA CHIMALCO - AGOSTO', 'TABLETA', 'IBUPROFENO 400 MG', 'PORTUGAL G', 1000,10, 15.00, 150.00, 'ANALGESICO, ANTIRETICO, ANTIINFLAMATORIO', '2024-08-16', 'developer'),
+(14, 'CAMPAÑA CHIMALCO - AGOSTO', 'TABLETA', 'PARACETAMOL 500 MG', 'QUILAB G', 1000,10, 11.00, 209.00, 'ANALGESICO, ANTIRÉTICO, ANTIINFLAMATORIO', '2024-08-16', 'developer'),
+(15, 'CAMPAÑA CHIMALCO - AGOSTO', 'TABLETA', 'DICLOFENACO 50MG', 'INSTITUTO Q', 400,4, 15.00, 60.00, 'ANALGESICO, ANTIINFLAMATORIO', '2024-08-16', 'developer'),
+(16, 'CAMPAÑA CHIMALCO - AGOSTO', 'TABLETA', 'NAPROXENO 550MG X 100', 'QUILAB G', 300,3, 15.00, 93.00, 'ANALGESICO, ANTIINFLAMATORIO', '2024-08-16', 'developer'),
+(17, 'CAMPAÑA CHIMALCO - AGOSTO', 'TABLETA', 'KETEROLACO 10MG', 'PORTUGAL G', 300,3, 13.00, 39.00, 'ANALGESICO, ANTIINFLAMATORIO', '2024-08-16', 'developer'),
+(18, 'CAMPAÑA CHIMALCO - AGOSTO', 'TABLETA', 'CETERIZINA 10MG', 'INSTITUTOQ', 500,5, 15.00, 75.00,'ANTIHISTAMINICO', '2024-08-16', 'developer'),
+(19, 'CAMPAÑA CHIMALCO - AGOSTO', 'TABLETA', 'LORATADINA 10MG', 'PORTUGAL G', 300,3, 15.00, 45.00, 'ANTIHISTAMINICO', '2024-08-16', 'developer'),
+(20, 'CAMPAÑA CHIMALCO - AGOSTO', 'TABLETA', 'CLORFENAMINA 4MG', 'PORTUGAL G', 400,4, 15.00, 60.00, 'ANTIHISTAMINICO', '2024-08-16', 'developer'),
+
+(21, 'CAMPAÑA CHIMALCO - AGOSTO', 'TABLETA', 'ORFENADRINA 100MG', 'FARMAINDUSTRI', 300,3, 33.00, 99.00, 'RELAJANTE MUSCULAR', '2024-08-16', 'developer'),
+(22, 'CAMPAÑA CHIMALCO - AGOSTO', 'TABLETA', 'SIMETICONA 40MG', 'INDUQUIMICA G', 210, 2, 12.00, 24.00,'ANTIFLATULENTO', '2024-08-16', 'developer'),
+(23, 'CAMPAÑA CHIMALCO - AGOSTO', 'TABLETA', 'LANSOPRAZOL 30MG', 'PORTUGAL G', 500,5, 35.00, 175.00, 'ANTIÁCIDO', '2024-08-16', 'developer'),
+(24, 'CAMPAÑA CHIMALCO - AGOSTO', 'TABLETA', 'BISMUTOL 262MG', 'TEVA', 320,2, 86.00, 172.00, 'ANTIÁCIDO', '2024-08-16', 'developer'),
+(25, 'CAMPAÑA CHIMALCO - AGOSTO', 'TABLETA', 'PLIDAN COMPUESTO 10MG/500MG', 'MEGA LABS', 100,2, 98.00, 196.00, 'ANTIESPASMODICO', '2024-08-16', 'developer'),
+(26, 'CAMPAÑA CHIMALCO - AGOSTO', 'TABLETA', 'HIOSMOL 10MG', 'PORTUGAL G', 200,2, 55.00, 110.00, 'ANTIESPASMODICO', '2024-08-16', 'developer'),
+(27, 'CAMPAÑA CHIMALCO - AGOSTO', 'TABLETA', 'AERONASE 10MG', 'MKT PHARMA', 200, 5, 25.00, 50.00, 'ANTIEMETICO', '2024-08-16', 'developer'),
+(28, 'CAMPAÑA CHIMALCO - AGOSTO', 'TABLETA', 'DIMENHIDRINADO 50MG', 'GABBLAN G', 50,1, 15.00, 15.00,  'ANTIEMÉTICO', '2024-08-16', 'developer'),
+(29, 'CAMPAÑA CHIMALCO - AGOSTO', 'TABLETA', 'LOPERAMIDA 2MG', 'PORTUGAL G', 300,3, 15.00, 45.00, 'ANTIDIARREICO', '2024-08-16', 'developer'),
+(30, 'CAMPAÑA CHIMALCO - AGOSTO', 'TABLETA', 'CAPTOPRIL 25MG', 'INSTITUTO Q', 300,5, 14.00, 70.00, 'ANTIHIPERTENSIVO', '2024-08-16', 'developer'),
+(31, 'CAMPAÑA CHIMALCO - AGOSTO', 'TABLETA', 'COMPLEJO B', 'PORTUGAL G', 900, 3, 35.00, 105.00,'VITAMINA', '2024-08-16', 'developer'),
+(32, 'CAMPAÑA CHIMALCO - AGOSTO', 'TUBO', 'ICONYL CREMA', 'MKT PHARMA', 10,10, 13.00, 130.00, 'ANTOMICOTICO', '2024-08-16', 'developer'),
+(33, 'CAMPAÑA CHIMALCO - AGOSTO', 'OVULOS', 'CLOTRIMAZOL 500MG', 'PORTUGAL G', 300,3, 10.50, 31.50,  'ANTIFÚNGICO', '2024-08-16', 'developer'),
+(34, 'CAMPAÑA CHIMALCO - AGOSTO', 'GOTAS', 'OTOMICIN', 'DROGERIA UR', 15,5, 15.50, 77.50,   'ANTIBACTERIANO', '2024-08-16', 'developer'),
+(35, 'CAMPAÑA CHIMALCO - AGOSTO', 'GOTAS', 'FLORIL', 'LANSIER', 20, 20, 9.50, 190.01, 'DESCONGESTIONANTE OCULAR', '2024-08-16', 'developer'),
+(36, 'CAMPAÑA CHIMALCO - AGOSTO', 'TUBO', 'VITAMINA C + ZINC', 'PORTUGAL', 50, 80, 0, 0, 'VITAMINA', '2024-08-16', 'developer'),
+(37, 'CAMPAÑA CHIMALCO - AGOSTO', 'SUSPENSIÓN', 'IBUPROFENO 100MG/5ML', 'PRTUGAL G', 40, 40, 3.50, 140.00,'ANALGESICO, ANTIRÉTICO, ANTIINFLAMATORIO', '2024-08-16', 'developer'),
+(38, 'CAMPAÑA CHIMALCO - AGOSTO', 'SUSPENSIÓN', 'METRONIDAZOL 250/5ML', 'PORTUGAL G', 40,20, 7.50, 150.00, 'ANTIBIOTICO', '2024-08-16', 'developer'),
+(39, 'CAMPAÑA CHIMALCO - AGOSTO', 'SUSPENSIÓN', 'PARACETAMOL 120/5ML KIDS', 'PORTUGAL G', 40, 40, 3.50, 140.00,  'ANALGESICO, ANTIRÉTICO, ANTIINFLAMATORIO', '2024-08-16', 'developer'),
+(40, 'CAMPAÑA CHIMALCO - AGOSTO', 'SUSPENSIÓN', 'AMOXICILINA 250MG/5ML', 'INSTITUTU Q', 40, 40, 5.00, 200.00, 'ANTIBIOTICO', '2024-08-16', 'developer'),
+(41, 'CAMPAÑA CHIMALCO - AGOSTO', 'SUSPENSIÓN', 'ZITOTRIM 200MG/5ML X 30ML', 'INSTITUTO Q', 20,  20, 13.00, 260.00,'ANTIBIOTICO', '2024-08-16', 'developer'),
+(42, 'CAMPAÑA CHIMALCO - AGOSTO', 'SUSPENSIÓN', 'SULFAMETOXAZOL + TRIMETROPRIMA 200MG/40MG/5ML', 'PORTUGAL G', 30, 30, 5.50, 165.00, 'ANTIBIOTICO', '2024-08-16', 'developer'),
+(43, 'CAMPAÑA CHIMALCO - AGOSTO', 'GOTAS', 'REPRIMAN 500MG/1ML', 'QUILAB FARMA', 30, 30, 11.00, 330.00, 'ANALGESICO, ANTIRÉTICO', '2024-08-16', 'developer'),
+(44, 'CAMPAÑA CHIMALCO - AGOSTO', 'SUSPENSIÓN', 'CLORFENAMINA 2MG/5ML', 'PORTUGAL G', 40, 4, 3.50, 140.00, 'ANTIHISTAMINICO', '2024-08-16', 'developer'),
+(45, 'CAMPAÑA CHIMALCO - AGOSTO', 'SUSPENSIÓN', 'PREDNISONA 5MG/5ML', 'PORTUGAL G', 20, 20, 5.50, 110.00, 'CORTICOIDE', '2024-08-16', 'developer'),
+
+(46, 'CAMPAÑA CHIMALCO - AGOSTO', 'SUSPENSIÓN', 'CETERIZINA 5MG/5ML', 'PORTUGAL G', 30, 30, 4.50, 135.00, 'ANTIHISTAMINICO', '2024-08-16', 'developer'),
+(47, 'CAMPAÑA CHIMALCO - AGOSTO', 'SOBRE', 'FLORATIL 250MG', 'BIOCODEX', 50,  5, 38.00, 190.00,'ANTIDIARREICO', '2024-08-16', 'developer'),
+(48, 'CAMPAÑA CHIMALCO - AGOSTO', 'GOTAS', 'SIMETICONA 80MG/1ML', 'INSTITUTO Q', 15,  15, 5.50, 82.50,'ANTIFLATULENTO', '2024-08-16', 'developer'),
+(49, 'CAMPAÑA CHIMALCO - AGOSTO', 'SUSPENSIÓN', 'ALBENDAZOL 100MG/5ML', 'PORTUGAL G', 60, 60, 6.50, 390.00,'ANTIPARASITARIO', '2024-08-16', 'developer'),
+(50, 'CAMPAÑA CHIMALCO - AGOSTO', 'SOBRE', 'BIO CARAM', 'GCA TRADING', 80,0, 0, 0, 'VITAMINA', '2024-08-16', 'developer'),
+(51, 'CAMPAÑA CHIMALCO - AGOSTO', 'GOMITAS', 'VITAMINA C,D, ZINCNIÑO', 'PORTUGAL', 50, 1, 68.00, 78.00,'VITAMINA', '2024-08-16', 'developer'),
+(52, 'CAMPAÑA CHIMALCO - AGOSTO', 'AMPOYA', 'DEXCORTIL 4MG/2ML', 'LABO S.A', 40,1, 45.00, 45.00, 'CORTICOIDE', '2024-08-16', 'developer'),
+(53, 'CAMPAÑA CHIMALCO - AGOSTO', 'AMPOYA', 'DICLOFENACO 75MG/3ML', 'LABO S.A', 40,1, 40.00, 40.00, 'ANALGÉSICO, ANTIINFLAMTORIO', '2024-08-16', 'developer'),
+(54, 'CAMPAÑA CHIMALCO - AGOSTO', 'AMPOYA', 'METAMIZOL 1G/2ML', 'LABO S.A', 40,1, 49.00, 49.00, 'ANALGÉSICO, ANTIINFLAMTORIO, ANTIPIRÉTICO', '2024-08-16', 'developer'),
+(55, 'CAMPAÑA CHIMALCO - AGOSTO', 'AMPOYA', 'ORFENADRINA 60MG/2ML', 'DIPHASAC', 40,0, 0, 0, 'RELAJANTE MUSCULAR', '2024-08-16', 'developer'),
+(56, 'CAMPAÑA CHIMALCO - AGOSTO', 'OTROS', 'JERINGA 5 CC', 'ACCESORIOS M', 100,1, 20.00, 20.00, 'N/A', '2024-08-16', 'developer'),
+(57, 'CAMPAÑA CHIMALCO - AGOSTO', 'OTROS', 'AGUJA 21(ADULTOS)', 'ACCESORIOS M', 100,1, 13.00, 13.00, 'N/A', '2024-08-16', 'developer'),
+(58, 'CAMPAÑA CHIMALCO - AGOSTO', 'OTROS', 'AGUJA 23(NIÑOS)', 'ACCESORIOS M', 100, 1, 13.00, 13.00,'N/A', '2024-08-16', 'developer'),
+(59, 'CAMPAÑA CHIMALCO - AGOSTO', 'TABLETA', 'METOCLOPRAMIDA', 'OTROS', 192, 3, 0, 0,'N/A', '2024-08-16', 'developer'),
+(60, 'CAMPAÑA CHIMALCO - AGOSTO', 'TABLETA', 'DIMENHIDRINATO', 'OTROS', 100, 1, 0, 0,'N/A', '2024-08-16', 'developer')
+	
+SELECT * FROM desktop_historia_oftalmologia
 CREATE TABLE desktop_historia_oftalmologia
 (
   n_orden integer,
@@ -1341,6 +1442,12 @@ create table IF NOT EXISTS desktop_farmacia_inventario(
     user_actualizacion character varying(20),
     user_registro character varying(20)
 );
+ALTER TABLE desktop_farmacia_inventario DROP COLUMN precio_cada_uniades bigint;
+
+ALTER TABLE desktop_farmacia_inventario ADD COLUMN cajas_unidades bigint;
+ALTER TABLE desktop_farmacia_inventario ADD COLUMN precio_caja_uniades bigint;
+ALTER TABLE desktop_farmacia_inventario ADD COLUMN precio_total bigint;
+
 select *from desktop_historia_clinica_detalle
 select nombre_sede from desktop_sede;
 drop table desktop_historia_clinica_detalle;
@@ -1372,7 +1479,9 @@ select n_orden from desktop_historia_clinica_detalle where tipo='PEDIATRIA' and 
 SELECT dni, p.nombres ||' '|| p.apellidos as nombres, EXTRACT(YEAR FROM age(current_date,p.fecha_nacimiento)) AS  edad from desktop_datos_pacientes as p  WHERE dni ='76574007'
 	drop table desktop_medicamento_x_expecialidad_hc
 	drop table desktop_diagnostico_x_expecialidad_hc;
-
+	drop table desktop_cie10;
+SELECT * FROM desktop_cie10;
+	delete from desktop_cie10
 	create table IF NOT EXISTS desktop_diagnostico_x_expecialidad_hc(
 	id_diag_x_espe_hc bigint primary key,
 	n_orden bigint,
@@ -1466,12 +1575,12 @@ select CONCAT(dtp.nombres,' ',dtp.apellidos) as nombres,
 
 	SELECT * FROM desktop_datos_historia_clinica
 
-	
+	drop table desktop_cie10;
 create table IF NOT EXISTS desktop_cie10(
 	codigo character varying(10) primary key,
 	descripcion character varying(400)
 );
-select codigo,descripcion from desktop_cie10;
+select * from desktop_cie10 order by codigo desc
 select codigo from desktop_cie10 where descripcion='COLERA DEBIDO A VIBRIO CHOLERAE O1, BIOTIPO CHOLERAE'
 INSERT INTO desktop_cie10(codigo,descripcion) values 
 ('A000','COLERA DEBIDO A VIBRIO CHOLERAE O1, BIOTIPO CHOLERAE'),
