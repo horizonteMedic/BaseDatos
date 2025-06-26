@@ -1,26 +1,49 @@
 
-CREATE OR REPLACE FUNCTION obtener_reporte_coprocultivo(p_norden INTEGER)
+alter table ac_coproparasitologico add column tipo_coproparasitologico boolean
+
+
+ALTER TABLE ac_coproparasitologico 
+ALTER COLUMN tipo_coproparasitologico SET DEFAULT false;
+
+UPDATE ac_coproparasitologico
+SET tipo_coproparasitologico = false;
+
+
+CREATE OR REPLACE FUNCTION obtener_reporte_coproparasitologico(p_norden INTEGER)
 RETURNS TABLE (
   nombres TEXT,
   edad TEXT,
   n_orden integer,
   dni integer,
   fecha date,
-  txtmuestra text,
   txtcolor text,
-  txtconsistencia text,
+  txtaspecto text,
   txtmoco_fecal text,
   txtsangrev text,
   txtrestosa text,
   txtleucocitos text,
   txthematies text,
-  txtparasitos text,
-  txtgotasg text,
-  txtlevaduras text,
-  txtidentificacion text,
-  txtflorac text,
-  txtresultado text,
-  txtobservaciones text,
+  txtlugol text,
+  txtcolor1 text,
+  txtaspecto1 text,
+  txtmoco_fecal1 text,
+  txtsangrev1 text,
+  txtrestosa1 text,
+  txtleucocitos1 text,
+  txthematies1 text,
+  txtlugol1 text,
+  txtcolor2 text,
+  txtaspecto2 text,
+  txtmoco_fecal2 text,
+  txtsangrev2 text,
+  txtrestosa2 text,
+  txtleucocitos2 text,
+  txthematies2 text,
+  txtlugol2 text,
+  txtgrasa text,
+  txtgrasa1 text,
+  txtgrasa2 text,
+  tipo_coproparasitologico boolean,
 
   color INTEGER,
   sede_descripcion TEXT,
@@ -50,24 +73,37 @@ BEGIN
     dp.nombres_pa || ' ' || dp.apellidos_pa,
     CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
 
-    accopro.n_orden,
+    accopropara.n_orden,
     noo.cod_pa,
-    accopro.fecha,
-    accopro.txtmuestra ,
-    accopro.txtcolor ,
-    accopro.txtconsistencia,
-    accopro.txtmoco_fecal,
-    accopro.txtsangrev,
-    accopro.txtrestosa,
-    accopro.txtleucocitos,
-    accopro.txthematies,
-    accopro.txtparasitos,
-    accopro.txtgotasg,
-    accopro.txtlevaduras,
-    accopro.txtidentificacion,
-    accopro.txtflorac,
-    accopro.txtresultado,
-    accopro.txtobservaciones,
+    accopropara.fecha,
+    accopropara.txtcolor,
+    accopropara.txtaspecto,
+    accopropara.txtmoco_fecal,
+    accopropara.txtsangrev,
+    accopropara.txtrestosa,
+    accopropara.txtleucocitos,
+    accopropara.txthematies,
+    accopropara.txtlugol,
+    accopropara.txtcolor1,
+    accopropara.txtaspecto1,
+    accopropara.txtmoco_fecal1,
+    accopropara.txtsangrev1,
+    accopropara.txtrestosa1,
+    accopropara.txtleucocitos1,
+    accopropara.txthematies1,
+    accopropara.txtlugol1,
+    accopropara.txtcolor2,
+    accopropara.txtaspecto2,
+    accopropara.txtmoco_fecal2,
+    accopropara.txtsangrev2,
+    accopropara.txtrestosa2,
+    accopropara.txtleucocitos2,
+    accopropara.txthematies2,
+    accopropara.txtlugol2,
+    accopropara.txtgrasa,
+    accopropara.txtgrasa1,
+    accopropara.txtgrasa2,
+    accoprapara.tipo_coproparasitologico,
 
     noo.color,
     CAST(sm.descripcion AS TEXT),
@@ -92,7 +128,7 @@ BEGIN
 
   FROM datos_paciente dp
   INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
-  INNER JOIN ac_coprocultivo accopro ON accopro.n_orden = noo.n_orden
+  INNER JOIN ac_coproparasitologico accopropara ON accopropara.n_orden = noo.n_orden
   INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
   WHERE noo.n_orden = p_norden;
 END;
@@ -110,6 +146,7 @@ DECLARE
     name_empresa_busqueda_var text;
     name_valor_microbiologia_var text;
     name_valor_hepatitisa_var text;
+    valor_coproparasitologico_var boolean;
     
 BEGIN
    -- Obtener el nombre de la empresa de la historia clinica a registrar;
@@ -120,6 +157,9 @@ BEGIN
 
    -- obtener el valor del txt en hepatitis
     SELECT trim(txthepatitisa) INTO name_valor_hepatitisa_var from lhepatitis where n_orden=norden_param;
+
+   -- obtener el valor del boolean en coproparasitologico
+    SELECT tipo_coproparasitologico INTO valor_coproparasitologico_var from ac_coproparasitologico where n_orden=norden_param;
 
 
     IF name_service_param = 'con_panel10D' THEN
@@ -202,9 +242,15 @@ BEGIN
     ELSIF name_service_param = 'perfil_hepatico' THEN
         resultado := 'PerfilHepatico_Digitalizado';     
 
-     ELSIF name_service_param = 'ac_coprocultivo' THEN
+    ELSIF name_service_param = 'ac_coprocultivo' THEN
         resultado := 'Coprocultivo_Digitalizado';           
-        
+
+    ELSIF name_service_param = 'ac_coproparasitologico' THEN
+        IF valor_coproparasitologico_var = true THEN
+            resultado := 'Coproparasitologico_Digitalizado';
+        ELSE
+            resultado := 'ParasitologiaSeriado_Digitalizado';
+        END IF;
     END IF;
 
 
@@ -217,8 +263,7 @@ $BODY$
 
 
     insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic) 
-			values('ac_coprocultivo','laboratorio formulario de coprocultivo',false,false,true,false,false);
-
+			values('ac_coproparasitologico','laboratorio formulario de coproparasitologico',false,false,true,false,false);
 
 CREATE OR REPLACE FUNCTION obtener_parametros_digitalizados(
     IN norden_param bigint,
@@ -750,7 +795,22 @@ BEGIN
               
     END IF; 
     
-    
+-- coproparasitologico
+
+    IF name_servicio_param = 'ac_coproparasitologico' THEN
+
+        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            SELECT user_registro INTO user_registro_var 
+            FROM ac_coproparasitologico WHERE n_orden = norden_param;
+            select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
+            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
+            name_digitalizacion := 'SELLOFIRMA';
+            dni := dni_user_registro_var;
+            RETURN NEXT;
+        END IF;  
+        
+              
+    END IF; 
                                  
 END;
 $BODY$
