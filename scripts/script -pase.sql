@@ -254,7 +254,7 @@ alter table examen_inmunologico add column formato_marsa boolean
 alter table examen_inmunologico add column cuantitativo_antigeno boolean
 
 UPDATE examen_inmunologico
-SET cuantitativo_antigeno = false;
+SET formato_marsa = false, cuantitativo_antigeno = false;
 
 CREATE OR REPLACE FUNCTION obtener_reporte_examenInmunologico(p_norden INTEGER)
 RETURNS TABLE (
