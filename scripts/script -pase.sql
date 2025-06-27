@@ -99,7 +99,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic) Add commentMore actions
+insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
 			values('ac_coprocultivo','laboratorio formulario de coprocultivo',false,false,true,false,false);
 
 -----------------------------------------------------------------------------------------------------------
