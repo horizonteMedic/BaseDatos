@@ -1,4 +1,109 @@
+--Coprocultivo
+CREATE OR REPLACE FUNCTION obtener_reporte_coprocultivo(p_norden INTEGER)
+RETURNS TABLE (
+  nombres TEXT,
+  edad TEXT,
+  n_orden integer,
+  dni integer,
+  fecha date,
+  txtmuestra text,
+  txtcolor text,
+  txtconsistencia text,Add commentMore actions
+  txtmoco_fecal text,
+  txtsangrev text,
+  txtrestosa text,
+  txtleucocitos text,
+  txthematies text,
+  txtparasitos text,
+  txtgotasg text,
+  txtlevaduras text,
+  txtidentificacion text,
+  txtflorac text,
+  txtresultado text,
+  txtobservaciones text,
 
+  color INTEGER,
+  sede_descripcion TEXT,
+
+  dir_sede4 TEXT,
+  email_sede4 TEXT,
+  tel_sede4 TEXT,
+  cel_sede4 TEXT,
+
+  dir_sede3 TEXT,
+  email_sede3 TEXT,
+  tel_sede3 TEXT,
+
+  dir_sede2 TEXT,
+  email_sede2 TEXT,
+  tel_sede2 TEXT,
+  cel_sede2 TEXT,
+
+  dir_sede1 TEXT,
+  email_sede1 TEXT,
+  tel_sede1 TEXT
+)
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    dp.nombres_pa || ' ' || dp.apellidos_pa,
+    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+
+    accopro.n_orden,
+    noo.cod_pa,
+    accopro.fecha,
+    accopro.txtmuestra ,
+    accopro.txtcolor ,
+    accopro.txtconsistencia,
+    accopro.txtmoco_fecal,
+    accopro.txtsangrev,
+    accopro.txtrestosa,
+    accopro.txtleucocitos,
+    accopro.txthematies,
+    accopro.txtparasitos,
+    accopro.txtgotasg,
+    accopro.txtlevaduras,
+    accopro.txtidentificacion,
+    accopro.txtflorac,
+    accopro.txtresultado,
+    accopro.txtobservaciones,
+
+    noo.color,
+    CAST(sm.descripcion AS TEXT),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 4),
+    (SELECT email FROM sede WHERE cod_sede = 4),
+    (SELECT telefono FROM sede WHERE cod_sede = 4),
+    (SELECT celular FROM sede WHERE cod_sede = 4),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 3),
+    (SELECT email FROM sede WHERE cod_sede = 3),
+    (SELECT telefono FROM sede WHERE cod_sede = 3),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 2),
+    (SELECT email FROM sede WHERE cod_sede = 2),
+    (SELECT telefono FROM sede WHERE cod_sede = 2),
+    (SELECT celular FROM sede WHERE cod_sede = 2),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 1),
+    (SELECT email FROM sede WHERE cod_sede = 1),
+    (SELECT telefono FROM sede WHERE cod_sede = 1)
+
+  FROM datos_paciente dp
+  INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+  INNER JOIN ac_coprocultivo accopro ON accopro.n_orden = noo.n_orden
+  INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+  WHERE noo.n_orden = p_norden;
+END;
+$$ LANGUAGE plpgsql;
+
+
+insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic) Add commentMore actions
+			values('ac_coprocultivo','laboratorio formulario de coprocultivo',false,false,true,false,false);
+
+-----------------------------------------------------------------------------------------------------------
+--Coproparasitologico
 alter table ac_coproparasitologico add column tipo_coproparasitologico boolean
 
 
@@ -136,6 +241,126 @@ $$ LANGUAGE plpgsql;
 
 
 
+    insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic) 
+			values('ac_coproparasitologico','laboratorio formulario de coproparasitologico',false,false,true,false,false);
+
+--------------------------------------------------------------------------------------------------------
+--Examen inmunologico
+
+alter table examen_inmunologico add column user_registro text
+
+alter table examen_inmunologico add column formato_marsa boolean
+
+alter table examen_inmunologico add column cuantitativo_antigeno boolean
+
+UPDATE examen_inmunologico
+SET cuantitativo_antigeno = false;
+
+CREATE OR REPLACE FUNCTION obtener_reporte_examenInmunologico(p_norden INTEGER)
+RETURNS TABLE (
+  nombres TEXT,
+  edad TEXT,
+  n_orden integer,
+  dni integer,
+
+  fecha_examen date,
+  chkigm_reactivo boolean,
+  chkigm_noreactivo boolean,
+  chkigg_reactivo boolean,
+  chkigg_noreactivo boolean,
+  chkinvalido boolean,
+  txtobservaciones text,
+  cbomarca text,
+  txtvrigm text,
+  txtvrigg text,
+  valorigm numeric(10,4),
+  valorigg numeric(10,4),
+  medico text,
+  fecha_sintomas date,
+  formato_marsa boolean,
+  cuantitativo_antigeno boolean,
+
+  color INTEGER,
+  sede_descripcion TEXT,
+
+  dir_sede4 TEXT,
+  email_sede4 TEXT,
+  tel_sede4 TEXT,
+  cel_sede4 TEXT,
+
+  dir_sede3 TEXT,
+  email_sede3 TEXT,
+  tel_sede3 TEXT,
+
+  dir_sede2 TEXT,
+  email_sede2 TEXT,
+  tel_sede2 TEXT,
+  cel_sede2 TEXT,
+
+  dir_sede1 TEXT,
+  email_sede1 TEXT,
+  tel_sede1 TEXT
+)
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    dp.nombres_pa || ' ' || dp.apellidos_pa,
+    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+
+    exinm.n_orden,
+    noo.cod_pa,
+
+    exinm.fecha_examen,
+    exinm.chkigm_reactivo,
+    exinm.chkigm_noreactivo,
+    exinm.chkigg_reactivo,
+    exinm.chkigg_noreactivo,
+    exinm.chkinvalido,
+    exinm.txtobservaciones,
+    exinm.cbomarca,
+    exinm.txtvrigm,
+    exinm.txtvrigg,
+    exinm.valorigm,
+    exinm.valorigg,
+    exinm.medico,
+    exinm.fecha_sintomas,
+    exinm.formato_marsa,
+    exinm.cuantitativo_antigeno,
+
+    noo.color,
+    CAST(sm.descripcion AS TEXT),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 4),
+    (SELECT email FROM sede WHERE cod_sede = 4),
+    (SELECT telefono FROM sede WHERE cod_sede = 4),
+    (SELECT celular FROM sede WHERE cod_sede = 4),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 3),
+    (SELECT email FROM sede WHERE cod_sede = 3),
+    (SELECT telefono FROM sede WHERE cod_sede = 3),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 2),
+    (SELECT email FROM sede WHERE cod_sede = 2),
+    (SELECT telefono FROM sede WHERE cod_sede = 2),
+    (SELECT celular FROM sede WHERE cod_sede = 2),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 1),
+    (SELECT email FROM sede WHERE cod_sede = 1),
+    (SELECT telefono FROM sede WHERE cod_sede = 1)
+
+  FROM datos_paciente dp
+  INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+  INNER JOIN examen_inmunologico exinm ON exinm.n_orden = noo.n_orden
+  INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+  WHERE noo.n_orden = p_norden;
+END;
+$$ LANGUAGE plpgsql;
+
+insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic) 
+			values('examen_inmunologico','laboratorio formulario de examen inmunologico',true,true,true,false,false);
+
+----------------------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION obtener_name_jasper(
     norden_param bigint,
     name_service_param text)
@@ -147,6 +372,8 @@ DECLARE
     name_valor_microbiologia_var text;
     name_valor_hepatitisa_var text;
     valor_coproparasitologico_var boolean;
+    valor_cuantitativo_antigeno_var boolean;
+    valor_formato_marsa_var boolean;
     
 BEGIN
    -- Obtener el nombre de la empresa de la historia clinica a registrar;
@@ -160,6 +387,9 @@ BEGIN
 
    -- obtener el valor del boolean en coproparasitologico
     SELECT tipo_coproparasitologico INTO valor_coproparasitologico_var from ac_coproparasitologico where n_orden=norden_param;
+
+   -- obtener los valores de los booleanos en examen inmunologico
+    SELECT cuantitativo_antigeno, formato_marsa INTO valor_cuantitativo_antigeno_var, valor_formato_marsa_var from examen_inmunologico where n_orden=norden_param;
 
 
     IF name_service_param = 'con_panel10D' THEN
@@ -251,8 +481,18 @@ BEGIN
         ELSE
             resultado := 'ParasitologiaSeriado_Digitalizado';
         END IF;
-    END IF;
 
+    ELSIF name_service_param = 'examen_inmunologico' THEN
+        IF valor_cuantitativo_antigeno_var = true THEN
+	        resultado := 'pcuantiantigeno';
+	    ELSE
+            IF valor_formato_marsa_var = true THEN
+                resultado := 'pcualitativaantigenoMarsa';
+            ELSE
+                resultado := 'pcualitativaantigeno';
+            END IF;
+	    END IF;
+    END IF;
 
     RETURN resultado;
 END;
@@ -261,9 +501,6 @@ $BODY$
 
 
 
-
-    insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic) 
-			values('ac_coproparasitologico','laboratorio formulario de coproparasitologico',false,false,true,false,false);
 
 CREATE OR REPLACE FUNCTION obtener_parametros_digitalizados(
     IN norden_param bigint,
@@ -808,7 +1045,36 @@ BEGIN
             dni := dni_user_registro_var;
             RETURN NEXT;
         END IF;  
-        
+     END IF;
+
+-- examen inmunologico
+
+    IF name_servicio_param = 'examen_inmunologico' THEN
+    
+        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            descripcion := 'FIRMA DEL PACIENTE';
+            name_digitalizacion := 'FIRMAP';
+            dni := dni_paciente_var;
+            RETURN NEXT;
+        END IF;
+
+        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            descripcion := 'HUELLA DEL PACIENTE';
+            name_digitalizacion := 'HUELLA';
+            dni := dni_paciente_var;
+            RETURN NEXT;
+        END IF;
+
+        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            SELECT user_registro INTO user_registro_var 
+            FROM examen_inmunologico WHERE n_orden = norden_param;
+            select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
+            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
+            name_digitalizacion := 'SELLOFIRMA';
+            dni := dni_user_registro_var;
+            RETURN NEXT;
+        END IF;  
+
               
     END IF; 
                                  
