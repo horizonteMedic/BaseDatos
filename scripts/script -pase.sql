@@ -826,17 +826,7 @@ BEGIN
     END IF; 
 
      IF name_servicio_param = 'toxicologia' THEN
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
-            SELECT user_registro INTO user_registro_var 
-            FROM toxicologia WHERE n_orden = norden_param;
-            select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;  
-        
+      
         IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
 
 		IF(empresa_var='OBRASCÓN HUARTE LAIN S.A') THEN
@@ -1081,5 +1071,4 @@ BEGIN
 END;
 $BODY$
   LANGUAGE plpgsql;
-
   
