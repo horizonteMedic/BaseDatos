@@ -500,7 +500,7 @@ $BODY$
   LANGUAGE plpgsql;
 
 
-
+update config_general_service_digital set sello_doc_asig=false where name_service='panel10d';
 
 CREATE OR REPLACE FUNCTION obtener_parametros_digitalizados(
     IN norden_param bigint,
