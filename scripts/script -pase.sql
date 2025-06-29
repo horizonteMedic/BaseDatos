@@ -208,7 +208,7 @@ BEGIN
     accopropara.txtgrasa,
     accopropara.txtgrasa1,
     accopropara.txtgrasa2,
-    accoprapara.tipo_coproparasitologico,
+    accopropara.tipo_coproparasitologico,
 
     noo.color,
     CAST(sm.descripcion AS TEXT),
