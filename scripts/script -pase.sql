@@ -93,7 +93,165 @@ END; $BODY$
 DROP FUNCTION obtener_reporte_audiometria(integer);
 
 CREATE OR REPLACE FUNCTION obtener_reporte_audiometria(IN p_norden integer)
-  RETURNS TABLE(nombres text, edad text, n_orden integer, dni integer, empresa text, contrata text, cod_au integer, fecha_au date, rbsasordera_si boolean, rbsasordera_no boolean, rbsaacufenos_si boolean, rbsaacufenos_no boolean, rbsavertigo_si boolean, rbsavertigo_no boolean, rbsaotalgia_si boolean, rbsaotalgia_no boolean, rbsasecrecion_si boolean, rbsasecrecion_no boolean, txtsaotrossintomas text, rbamrenitis_si boolean, rbamrenitis_no boolean, rbamsinusitis_si boolean, rbamsinusitis_no boolean, rbamotitis_si boolean, rbamotitis_no boolean, rbamototoxicos_si boolean, rbamototoxicos_no boolean, rbammeningitis_si boolean, rbammeningitis_no boolean, rbamtec_si boolean, rbamtec_no boolean, rbamsordera_si boolean, rbamsordera_no boolean, rbamparotiditis_si boolean, rbamparotiditis_no boolean, rbamsarampion_si boolean, rbamsarampion_no boolean, rbamtbc_si boolean, rbamtbc_no boolean, txtamcuales text, rbeoexposicion_si boolean, rbeoexposicion_no boolean, rbeoprotectores_si boolean, rbeoprotectores_no boolean, rbeosustancias_si boolean, rbeosustancias_no boolean, rbte0a2 boolean, rbte2a4 boolean, rbte4a6 boolean, rbte6a8 boolean, rbte8a10 boolean, rbte10a12 boolean, rbtem12 boolean, rbteeventual boolean, chktapones boolean, chkorejeras boolean, txthplomo text, txthmercurio text, txthtolueno text, txthxileno text, txthplaguic text, txthorganofos text, txttplomo text, txttmercurio text, txtttolueno text, txttxileno text, txttplaguic text, txttorganofos text, txteootros text, rbaepratica_si boolean, rbaepratica_no boolean, rbaeuso_si boolean, rbaeuso_no boolean, rbaeotros_si boolean, rbaeotros_no boolean, txtaecuales text, txtood text, txtooi text, o_d_500 text, o_d_1000 text, o_d_2000 text, o_d_3000 text, o_d_4000 text, o_d_6000 text, o_d_8000 text, o_i_500 text, o_i_1000 text, o_i_2000 text, o_i_3000 text, o_i_4000 text, o_i_6000 text, o_i_8000 text, o_d1_500 text, o_d1_1000 text, o_d1_2000 text, o_d1_3000 text, o_d1_4000 text, o_d1_6000 text, o_d1_8000 text, o_i1_500 text, o_i1_1000 text, o_i1_2000 text, o_i1_3000 text, o_i1_4000 text, o_i1_6000 text, o_i1_8000 text, txtdiag_od text, txtdiag_oi text, txtcomentarios text, chkrpasimple boolean, chkrpadoble boolean, chkcasemestral boolean, chkcaanual boolean, txtotrasrecomendaciones text, txtanios text, txtmeses text, formato character varying, color integer, sede_descripcion text, dir_sede4 text, email_sede4 text, tel_sede4 text, cel_sede4 text, dir_sede3 text, email_sede3 text, tel_sede3 text, dir_sede2 text, email_sede2 text, tel_sede2 text, cel_sede2 text, dir_sede1 text, email_sede1 text, tel_sede1 text) AS
+RETURNS TABLE(
+    nombres text,
+    edad text,
+    n_orden integer,
+    dni integer,
+    empresa text,
+    contrata text,
+    cod_au integer,
+    fecha_au date,
+
+    rbsasordera_si boolean,
+    rbsasordera_no boolean,
+    rbsaacufenos_si boolean,
+    rbsaacufenos_no boolean,
+    rbsavertigo_si boolean,
+    rbsavertigo_no boolean,
+    rbsaotalgia_si boolean,
+    rbsaotalgia_no boolean,
+    rbsasecrecion_si boolean,
+    rbsasecrecion_no boolean,
+    txtsaotrossintomas text,
+
+    rbamrenitis_si boolean,
+    rbamrenitis_no boolean,
+    rbamsinusitis_si boolean,
+    rbamsinusitis_no boolean,
+    rbamotitis_si boolean,
+    rbamotitis_no boolean,
+    rbamototoxicos_si boolean,
+    rbamototoxicos_no boolean,
+    rbammeningitis_si boolean,
+    rbammeningitis_no boolean,
+    rbamtec_si boolean,
+    rbamtec_no boolean,
+    rbamsordera_si boolean,
+    rbamsordera_no boolean,
+    rbamparotiditis_si boolean,
+    rbamparotiditis_no boolean,
+    rbamsarampion_si boolean,
+    rbamsarampion_no boolean,
+    rbamtbc_si boolean,
+    rbamtbc_no boolean,
+    txtamcuales text,
+
+    rbeoexposicion_si boolean,
+    rbeoexposicion_no boolean,
+    rbeoprotectores_si boolean,
+    rbeoprotectores_no boolean,
+    rbeosustancias_si boolean,
+    rbeosustancias_no boolean,
+
+    rbte0a2 boolean,
+    rbte2a4 boolean,
+    rbte4a6 boolean,
+    rbte6a8 boolean,
+    rbte8a10 boolean,
+    rbte10a12 boolean,
+    rbtem12 boolean,
+    rbteeventual boolean,
+
+    chktapones boolean,
+    chkorejeras boolean,
+
+    txthplomo text,
+    txthmercurio text,
+    txthtolueno text,
+    txthxileno text,
+    txthplaguic text,
+    txthorganofos text,
+
+    txttplomo text,
+    txttmercurio text,
+    txtttolueno text,
+    txttxileno text,
+    txttplaguic text,
+    txttorganofos text,
+    txteootros text,
+
+    rbaepratica_si boolean,
+    rbaepratica_no boolean,
+    rbaeuso_si boolean,
+    rbaeuso_no boolean,
+    rbaeotros_si boolean,
+    rbaeotros_no boolean,
+
+    txtaecuales text,
+    txtood text,
+    txtooi text,
+
+    o_d_500 text,
+    o_d_1000 text,
+    o_d_2000 text,
+    o_d_3000 text,
+    o_d_4000 text,
+    o_d_6000 text,
+    o_d_8000 text,
+
+    o_i_500 text,
+    o_i_1000 text,
+    o_i_2000 text,
+    o_i_3000 text,
+    o_i_4000 text,
+    o_i_6000 text,
+    o_i_8000 text,
+
+    o_d1_500 text,
+    o_d1_1000 text,
+    o_d1_2000 text,
+    o_d1_3000 text,
+    o_d1_4000 text,
+    o_d1_6000 text,
+    o_d1_8000 text,
+
+    o_i1_500 text,
+    o_i1_1000 text,
+    o_i1_2000 text,
+    o_i1_3000 text,
+    o_i1_4000 text,
+    o_i1_6000 text,
+    o_i1_8000 text,
+
+    txtdiag_od text,
+    txtdiag_oi text,
+    txtcomentarios text,
+
+    chkrpasimple boolean,
+    chkrpadoble boolean,
+    chkcasemestral boolean,
+    chkcaanual boolean,
+
+    txtotrasrecomendaciones text,
+    txtanios text,
+    txtmeses text,
+    formato character varying,
+
+    color integer,
+    sede_descripcion text,
+
+    dir_sede4 text,
+    email_sede4 text,
+    tel_sede4 text,
+    cel_sede4 text,
+
+    dir_sede3 text,
+    email_sede3 text,
+    tel_sede3 text,
+
+    dir_sede2 text,
+    email_sede2 text,
+    tel_sede2 text,
+    cel_sede2 text,
+
+    dir_sede1 text,
+    email_sede1 text,
+    tel_sede1 text,
+
+    fecha_nacimiento_pa date
+)
+AS
 $BODY$
 BEGIN
   RETURN QUERY
@@ -238,7 +396,8 @@ BEGIN
 
     (SELECT direccion FROM sede WHERE cod_sede = 1),
     (SELECT email FROM sede WHERE cod_sede = 1),
-    (SELECT telefono FROM sede WHERE cod_sede = 1)
+    (SELECT telefono FROM sede WHERE cod_sede = 1),
+    dp.fecha_nacimiento_pa
 
   FROM datos_paciente dp
   INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
@@ -247,10 +406,13 @@ BEGIN
   WHERE noo.n_orden = p_norden;
 END;
 $BODY$
-  LANGUAGE plpgsql;
+LANGUAGE plpgsql;
 
 ---------------------------------------------------------------------
 --Historia ocupacional
+
+ALTER TABLE historia_oc_detalle
+ADD COLUMN orden INTEGER;
 
 CREATE OR REPLACE FUNCTION eliminar_historiaOcupacionalDetalles(cod_ho_param INTEGER)
 RETURNS text AS
@@ -258,7 +420,9 @@ $BODY$
 
 	BEGIN
 
-	DELETE FROM historia_oc_detalle hod WHERE hod.cod_ho = cod_ho_param;
+	IF EXISTS (SELECT 1 FROM historia_oc_detalle WHERE cod_ho = cod_ho_param) THEN
+		DELETE FROM historia_oc_detalle hod WHERE hod.cod_ho = cod_ho_param;
+	END IF;
 
 	RETURN 'OK';
 
@@ -310,7 +474,8 @@ RETURNS TABLE (
 
   dir_sede1 TEXT,
   email_sede1 TEXT,
-  tel_sede1 TEXT
+  tel_sede1 TEXT,
+  orden INTEGER
 )
 AS $$
 BEGIN
@@ -358,131 +523,8 @@ BEGIN
 
     (SELECT direccion FROM sede WHERE cod_sede = 1),
     (SELECT email FROM sede WHERE cod_sede = 1),
-    (SELECT telefono FROM sede WHERE cod_sede = 1)
-
-  FROM datos_paciente dp
-  INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
-  INNER JOIN historia_oc_info hoi ON hoi.n_orden = noo.n_orden
-  INNER JOIN historia_oc_detalle hod ON hod.cod_ho = hoi.cod_ho
-  INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
-  WHERE noo.n_orden = p_norden;
-END;
-$$ LANGUAGE plpgsql;
-
-insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
-			values('audiometria_2023','formulario de audiometria',true,true,true,true,false);
-
-
----------------------------------------------------------------------
---Historia ocupacional
-
-CREATE OR REPLACE FUNCTION eliminar_historiaOcupacionalDetalles(cod_ho_param INTEGER)
-RETURNS text AS
-$BODY$
-
-	BEGIN
-
-	DELETE FROM historia_oc_detalle hod WHERE hod.cod_ho = cod_ho_param;
-
-	RETURN 'OK';
-
-	END;
-
-$BODY$
-LANGUAGE plpgsql;
-
-
-CREATE OR REPLACE FUNCTION obtener_reporte_historiaOcupacional(p_norden INTEGER)
-RETURNS TABLE (
-  nombres TEXT,
-  edad TEXT,
-  n_orden integer,
-  dni integer,
-  
-  cod_ho integer,
-  area_o text,
-  fecha_ho date,
-  na text,
-
-  fecha text,
-  empresa text,
-  actividad text,
-  area_empresa text,
-  ocupacion text,
-  superficie text,
-  socavon text,
-  riesgo text,
-  proteccion text,
-  altitud text,
-
-  color INTEGER,
-  sede_descripcion TEXT,
-
-  dir_sede4 TEXT,
-  email_sede4 TEXT,
-  tel_sede4 TEXT,
-  cel_sede4 TEXT,
-
-  dir_sede3 TEXT,
-  email_sede3 TEXT,
-  tel_sede3 TEXT,
-
-  dir_sede2 TEXT,
-  email_sede2 TEXT,
-  tel_sede2 TEXT,
-  cel_sede2 TEXT,
-
-  dir_sede1 TEXT,
-  email_sede1 TEXT,
-  tel_sede1 TEXT
-)
-AS $$
-BEGIN
-  RETURN QUERY
-  SELECT 
-    dp.nombres_pa || ' ' || dp.apellidos_pa,
-    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
-
-    hoi.n_orden,
-    noo.cod_pa,
-
-    hoi.cod_ho,
-    hoi.area_o,
-    hoi.fecha_ho,
-    hoi.na,
-
-    hod.fecha,
-    hod.empresa,
-    hod.actividad,
-    hod.area_empresa,
-    hod.ocupacion,
-    hod.superficie,
-    hod.socavon,
-    hod.riesgo,
-    hod.proteccion,
-    hod.altitud,
-
-
-    noo.color,
-    CAST(sm.descripcion AS TEXT),
-
-    (SELECT direccion FROM sede WHERE cod_sede = 4),
-    (SELECT email FROM sede WHERE cod_sede = 4),
-    (SELECT telefono FROM sede WHERE cod_sede = 4),
-    (SELECT celular FROM sede WHERE cod_sede = 4),
-
-    (SELECT direccion FROM sede WHERE cod_sede = 3),
-    (SELECT email FROM sede WHERE cod_sede = 3),
-    (SELECT telefono FROM sede WHERE cod_sede = 3),
-
-    (SELECT direccion FROM sede WHERE cod_sede = 2),
-    (SELECT email FROM sede WHERE cod_sede = 2),
-    (SELECT telefono FROM sede WHERE cod_sede = 2),
-    (SELECT celular FROM sede WHERE cod_sede = 2),
-
-    (SELECT direccion FROM sede WHERE cod_sede = 1),
-    (SELECT email FROM sede WHERE cod_sede = 1),
-    (SELECT telefono FROM sede WHERE cod_sede = 1)
+    (SELECT telefono FROM sede WHERE cod_sede = 1),
+    hod.orden
 
   FROM datos_paciente dp
   INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
@@ -1390,6 +1432,44 @@ BEGIN
             dni := dni_user_registro_var;
             RETURN NEXT;
         END IF;  
+    END IF;
+
+	IF name_servicio_param = 'audiometria_po' THEN
+        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            descripcion := 'FIRMA DEL PACIENTE';
+            name_digitalizacion := 'FIRMAP';
+            dni := dni_paciente_var;
+            RETURN NEXT;
+        END IF;
+
+        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            descripcion := 'HUELLA DEL PACIENTE';
+            name_digitalizacion := 'HUELLA';
+            dni := dni_paciente_var;
+            RETURN NEXT;
+        END IF;
+
+        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            SELECT user_registro INTO user_registro_var 
+            FROM historia_oc_info WHERE n_orden = norden_param;
+            select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
+            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
+            name_digitalizacion := 'SELLOFIRMA';
+            dni := dni_user_registro_var;
+            RETURN NEXT;
+        END IF; 
+
+        IF ((SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) and empresa_var='OBRASCÓN HUARTE LAIN S.A')THEN 
+		IF(empresa_var='OBRASCÓN HUARTE LAIN S.A') THEN
+		dni_user_registro_var :=42664426;
+		ELSE
+		dni_user_registro_var:=1;
+		end if;
+            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
+            name_digitalizacion := 'SELLOFIRMADOCASIG';
+            dni := dni_user_registro_var;
+            RETURN NEXT;
+        END IF; 
     END IF;
                                  
 END;
