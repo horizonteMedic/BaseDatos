@@ -1,70 +1,75 @@
 --Ficha audiologica
-CREATE OR REPLACE FUNCTION obtener_informacion_FichaAudiologica(p_norden INTEGER)
-RETURNS TABLE (
-  nombres TEXT,
-  edad TEXT,
-  n_orden integer,
-  dni integer,
-
-  cod_fa integer,
-  fecha_examen date,
-  tiempo_trabajo integer,
-  tiempo_exposicion_total_ponderado text,
-  edad_fa text,
-  chk_tapones boolean,
-  chkgrajeras boolean,
-  chkintenso boolean,
-  chkmoderado boolean,
-  chknomolesto boolean,
-  txtmarca text,
-  txtmodelo text,
-  fechacalibracion date,
-  chk1_si boolean,
-  chk2_si boolean,
-  chk3_si boolean,
-  chk4_si boolean,
-  chk5_si boolean,
-  chk6_si boolean,
-  chk7_si boolean,
-  chk8_si boolean,
-  chk9_si boolean,
-  chk10_si boolean,
-  chk11_si boolean,
-  chk12_si boolean,
-  chk1_no boolean,
-  chk2_no boolean,
-  chk3_no boolean,
-  chk4_no boolean,
-  chk5_no boolean,
-  chk6_no boolean,
-  chk7_no boolean,
-  chk8_no boolean,
-  chk9_no boolean,
-  chk10_no boolean,
-  chk11_no boolean,
-  chk12_no boolean,
-  txtdod250 text,
-  txtdod500 text,
-  txtdod1000 text,
-  txtdoi250 text,
-  txtdoi500 text,
-  txtdoi1000 text,
-  txtldumbraldiscriminacion text,
-  txtliumbraldiscriminacion text,
-  txtldporcentagediscriminacion text,
-  txtliporcentagediscriminacion text,
-  txtldconfort text,
-  txtliconfort text,
-  txtlddisconfort text,
-  txtlidisconfort text,
-  txtresponsable text,
-  txtconclusiones text,
-  txtmedico text,
-  txtotoscopia text,
-  txtmesestrabajo integer,
-  user_registro text
-)
-AS $$
+-- drop function obtener_informacion_fichaaudiologica(IN p_norden integer)
+CREATE OR REPLACE FUNCTION obtener_informacion_fichaaudiologica(IN p_norden integer)
+  RETURNS TABLE(
+	nombres text,  
+	edad text,  
+	n_orden integer,  
+	dni integer,
+	fecha_nacimiento_pa date,
+	empresa text,
+	contrata text,
+	nom_examen text,
+	sexo_pa "char",
+	cod_fa integer,  
+	fecha_examen date,  
+	tiempo_trabajo integer,  
+	tiempo_exposicion_total_ponderado text,  
+	edad_fa text,  
+	chk_tapones boolean,  
+	chkgrajeras boolean,  
+	chkintenso boolean,  
+	chkmoderado boolean,  
+	chknomolesto boolean,  
+	txtmarca text,  
+	txtmodelo text,  
+	fechacalibracion date,  
+	chk1_si boolean,  
+	chk2_si boolean,  
+	chk3_si boolean,  
+	chk4_si boolean,  
+	chk5_si boolean,  
+	chk6_si boolean,  
+	chk7_si boolean,  
+	chk8_si boolean,  
+	chk9_si boolean,  
+	chk10_si boolean,  
+	chk11_si boolean,  
+	chk12_si boolean,  
+	chk1_no boolean,  
+	chk2_no boolean,  
+	chk3_no boolean,  
+	chk4_no boolean,  
+	chk5_no boolean,  
+	chk6_no boolean,  
+	chk7_no boolean,  
+	chk8_no boolean,  
+	chk9_no boolean,  
+	chk10_no boolean,  
+	chk11_no boolean,  
+	chk12_no boolean,  
+	txtdod250 text,  
+	txtdod500 text,  
+	txtdod1000 text,  
+	txtdoi250 text,  
+	txtdoi500 text,  
+	txtdoi1000 text,  
+	txtldumbraldiscriminacion text,  
+	txtliumbraldiscriminacion text,  
+	txtldporcentagediscriminacion text,  
+	txtliporcentagediscriminacion text,  
+	txtldconfort text,  
+	txtliconfort text,  
+	txtlddisconfort text,  
+	txtlidisconfort text,  
+	txtresponsable text,  
+	txtconclusiones text,  
+	txtmedico text,  
+	txtotoscopia text,  
+	txtmesestrabajo integer,  
+	user_registro text
+  ) AS
+$BODY$
 BEGIN
   RETURN QUERY
   SELECT 
@@ -73,6 +78,11 @@ BEGIN
 
     fa.n_orden,
     noo.cod_pa,
+    dp.fecha_nacimiento_pa,
+    noo.razon_empresa,
+    noo.razon_contrata,
+    noo.nom_examen,
+    dp.sexo_pa,
 
     fa.cod_fa,
     fa.fecha_examen,
@@ -139,7 +149,8 @@ BEGIN
   INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
   WHERE noo.n_orden = p_norden;
 END;
-$$ LANGUAGE plpgsql;
+$BODY$
+  LANGUAGE plpgsql
 
 ----------------------------------------------------------------------------------------------------
 
@@ -622,7 +633,113 @@ insert into config_general_service_digital (name_service,descripcion,firma_p,hue
 			values('cuestionario_audiometria','formulario de cuestionario de audiometria',true,true,true,false,false);
 
 -------------------------------------------------------------------------------------------------------------------------------------------
+--Audiometria po
 
+drop function obtener_informacion_audiometriapo(IN p_norden integer);
+
+CREATE OR REPLACE FUNCTION obtener_informacion_audiometriapo(IN p_norden integer)
+  RETURNS TABLE(
+	nombres text,
+	edad text,
+	n_orden integer,
+	dni integer,
+	fecha_nacimiento_pa date,
+	empresa text,
+	contrata text,
+	nom_examen text,
+	
+	cod_au integer,
+	num_ticket integer,
+	fecha_au date,
+	o_d_500 text,
+	o_d_1000 text,
+	o_d_2000 text,
+	o_d_3000 text,
+	o_d_4000 text,
+	o_d_6000 text,
+	o_d_8000 text,
+	o_i_500 text,
+	o_i_1000 text,
+	o_i_2000 text,
+	o_i_3000 text,
+	o_i_4000 text,
+	o_i_6000 text,
+	o_i_8000 text,
+	o_d1_500 text,
+	o_d1_1000 text,
+	o_d1_2000 text,
+	o_d1_3000 text,
+	o_d1_4000 text,
+	o_d1_6000 text,
+	o_d1_8000 text,
+	o_i1_500 text,
+	o_i1_1000 text,
+	o_i1_2000 text,
+	o_i1_3000 text,
+	o_i1_4000 text,
+	o_i1_6000 text,
+	o_i1_8000 text,
+	diagnostico text
+  ) AS
+$BODY$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    dp.nombres_pa || ' ' || dp.apellidos_pa,
+    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+
+    apo.n_orden,
+    noo.cod_pa,
+    dp.fecha_nacimiento_pa,
+    noo.razon_empresa,
+    noo.razon_contrata,
+    noo.nom_examen,
+
+    apo.cod_au,
+    apo.num_ticket,
+    apo.fecha_au,
+    apo.o_d_500,
+    apo.o_d_1000,
+    apo.o_d_2000,
+    apo.o_d_3000,
+    apo.o_d_4000,
+    apo.o_d_6000,
+    apo.o_d_8000,
+    apo.o_i_500,
+    apo.o_i_1000,
+    apo.o_i_2000,
+    apo.o_i_3000,
+    apo.o_i_4000,
+    apo.o_i_6000,
+    apo.o_i_8000,
+    apo.o_d1_500,
+    apo.o_d1_1000,
+    apo.o_d1_2000,
+    apo.o_d1_3000,
+    apo.o_d1_4000,
+    apo.o_d1_6000,
+    apo.o_d1_8000,
+    apo.o_i1_500,
+    apo.o_i1_1000,
+    apo.o_i1_2000,
+    apo.o_i1_3000,
+    apo.o_i1_4000,
+    apo.o_i1_6000,
+    apo.o_i1_8000,
+    apo.diagnostico
+    
+  FROM datos_paciente dp
+  INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+  INNER JOIN audiometria_po apo ON apo.n_orden = noo.n_orden
+  INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+  WHERE noo.n_orden = p_norden;
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+
+
+-----------------------------------------------------------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION obtener_name_jasper(
     norden_param bigint,
