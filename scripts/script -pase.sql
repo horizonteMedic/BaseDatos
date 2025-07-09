@@ -761,7 +761,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
+--Falta terminar oftalmologia_Lo. RECORDAR
 
 -----------------------------------------------------------------------------------------------------------------------------
 
@@ -913,12 +913,16 @@ BEGIN
     ELSIF name_service_param = 'audiometria_po' THEN
         resultado := 'FichaAudiologica_Digitalizado';
     ELSIF name_service_param = 'cuestionario_audiometria' THEN
-        resultado := 'CuestionarioAudiometria_Digitalizado'; 
+        resultado := 'CuestionarioAudiometria_Digitalizado';
+    ELSIF name_service_param = 'oftalmologia_lo' THEN
+        resultado := 'OftalmologiaLO.jasper'; 
     END IF;
     RETURN resultado;
 END;
 $BODY$
   LANGUAGE plpgsql;
+
+  -----------------------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION obtener_parametros_digitalizados(
     IN norden_param bigint,
@@ -1629,6 +1633,8 @@ END;
 $BODY$
   LANGUAGE plpgsql;
 
+-----------------------------------------------------------------------------------------
+
 CREATE OR REPLACE FUNCTION sp_validar_existencia_servicios(
     IN p_historia_clinica bigint,
     IN p_examen_med text)
@@ -2053,6 +2059,17 @@ begin
 		end if;
 		
         end if;  
+
+        if(p_examen_med='oftalmologia_lo') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from oftalmologia_lo where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;  
                                                                                               		                   	
 	RETURN query
 
@@ -2060,6 +2077,10 @@ begin
 end;
 $BODY$
   LANGUAGE plpgsql;
+  -----------------------------------------------------------------------------------------------
+  
+
+
 
 drop function sp_mostrar_info_paciente_filtros(
     IN norden_p integer,
