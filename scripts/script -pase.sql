@@ -432,100 +432,9 @@ END; $BODY$
 
 ----------------------------------------------------------------
 --Cuestionario audiometria
-CREATE OR REPLACE FUNCTION obtener_reporte_cuestionarioAudiometria(p_norden INTEGER)
-RETURNS TABLE (
-  nombres TEXT,
-  edad TEXT,
-  n_orden integer,
-  dni integer,
-  
-  cod_cuestionario integer,
-  fecha_cuestionario date,
-  chksi1 boolean,
-  chkno1 boolean,
-  txtrcual1 text,
-  txtrcuando1 text,
-  txtrque1 text,
-  chksi2 boolean,
-  chkno2 boolean,
-  chksi3 boolean,
-  chkno3 boolean,
-  chksi4 boolean,
-  chkno4 boolean,
-  chksi5 boolean,
-  chkno5 boolean,
-  chksi6 boolean,
-  chkno6 boolean,
-  chksi7 boolean,
-  chkno7 boolean,
-  chksi8 boolean,
-  chkno8 boolean,
-  chksi9 boolean,
-  chkno9 boolean,
-  txtrcual9 text,
-  txtrdonde9 text,
-  txtrque9 text,
-  chksi10 boolean,
-  chkno10 boolean,
-  txtrcual10 text,
-  txtrdonde10 text,
-  txtrque10 text,
-  chksi11 boolean,
-  chkno11 boolean,
-  txtrcual11 text,
-  txtrcuanto11 text,
-  chksi12 boolean,
-  chkno12 boolean,
-  txtrcual12 text,
-  txtrcuanto12 text,
-  chksi13 boolean,
-  chkno13 boolean,
-  txtrcuanto13 text,
-  txtrcuando13 text,
-  txtrdonde13 text,
-  chksi14 boolean,
-  chkno14 boolean,
-  txtrcual14 text,
-  txtrdonde14 text,
-  txtrque14 text,
-  chksi15 boolean,
-  chkno15 boolean,
-  txtrcuantos15 text,
-  chkcaza16 boolean,
-  txtcaza16 text,
-  chktiro16 boolean,
-  txttiro16 text,
-  chkdiscoteca16 boolean,
-  txtdiscoteca16 text,
-  chkauriculares16 boolean,
-  txtauriculares16 text,
-  chkmilitar16 boolean,
-  txtmilitar16 text,
-  chkboxeo16 boolean,
-  txtboxeo16 text,
-
-  color INTEGER,
-  sede_descripcion TEXT,
-
-  dir_sede4 TEXT,
-  email_sede4 TEXT,
-  tel_sede4 TEXT,
-  cel_sede4 TEXT,
-
-  dir_sede3 TEXT,
-  email_sede3 TEXT,
-  tel_sede3 TEXT,
-
-  dir_sede2 TEXT,
-  email_sede2 TEXT,
-  tel_sede2 TEXT,
-  cel_sede2 TEXT,
-
-  dir_sede1 TEXT,
-  email_sede1 TEXT,
-  tel_sede1 TEXT
-)
-AS $$
+CREATE OR REPLACE FUNCTION obtener_reporte_cuestionarioaudiometria(IN p_norden integer)
+  RETURNS TABLE(nombres text, edad text, n_orden integer, dni integer, cod_cuestionario integer, fecha_cuestionario date, chksi1 boolean, chkno1 boolean, txtrcual1 text, txtrcuando1 text, txtrque1 text, chksi2 boolean, chkno2 boolean, chksi3 boolean, chkno3 boolean, chksi4 boolean, chkno4 boolean, chksi5 boolean, chkno5 boolean, chksi6 boolean, chkno6 boolean, chksi7 boolean, chkno7 boolean, chksi8 boolean, chkno8 boolean, chksi9 boolean, chkno9 boolean, txtrcual9 text, txtrdonde9 text, txtrque9 text, chksi10 boolean, chkno10 boolean, txtrcual10 text, txtrdonde10 text, txtrque10 text, chksi11 boolean, chkno11 boolean, txtrcual11 text, txtrcuanto11 text, chksi12 boolean, chkno12 boolean, txtrcual12 text, txtrcuanto12 text, chksi13 boolean, chkno13 boolean, txtrcuanto13 text, txtrcuando13 text, txtrdonde13 text, chksi14 boolean, chkno14 boolean, txtrcual14 text, txtrdonde14 text, txtrque14 text, chksi15 boolean, chkno15 boolean, txtrcuantos15 text, chkcaza16 boolean, txtcaza16 text, chktiro16 boolean, txttiro16 text, chkdiscoteca16 boolean, txtdiscoteca16 text, chkauriculares16 boolean, txtauriculares16 text, chkmilitar16 boolean, txtmilitar16 text, chkboxeo16 boolean, txtboxeo16 text, color integer, sede_descripcion text, dir_sede4 text, email_sede4 text, tel_sede4 text, cel_sede4 text, dir_sede3 text, email_sede3 text, tel_sede3 text, dir_sede2 text, email_sede2 text, tel_sede2 text, cel_sede2 text, dir_sede1 text, email_sede1 text, tel_sede1 text, sexo "char") AS
+$BODY$
 BEGIN
   RETURN QUERY
   SELECT 
@@ -619,7 +528,8 @@ BEGIN
 
     (SELECT direccion FROM sede WHERE cod_sede = 1),
     (SELECT email FROM sede WHERE cod_sede = 1),
-    (SELECT telefono FROM sede WHERE cod_sede = 1)
+    (SELECT telefono FROM sede WHERE cod_sede = 1),
+    dp.sexo_pa
 
   FROM datos_paciente dp
   INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
@@ -627,7 +537,8 @@ BEGIN
   INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
   WHERE noo.n_orden = p_norden;
 END;
-$$ LANGUAGE plpgsql;
+$BODY$
+  LANGUAGE plpgsql;
 
 insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
 			values('cuestionario_audiometria','formulario de cuestionario de audiometria',true,true,true,false,false);
@@ -736,6 +647,119 @@ BEGIN
 END;
 $BODY$
   LANGUAGE plpgsql;
+-----------------------------------------------------------------------------------------------------------------------------
+--OftalmologiaLo
+CREATE OR REPLACE FUNCTION obtener_reporte_OftalmologiaLo(p_norden INTEGER)
+RETURNS TABLE (
+  nombres TEXT,
+  edad TEXT,
+  n_orden integer,
+  dni integer,
+  fecha_nacimiento_pa date,
+	empresa text,
+	contrata text,
+	nom_examen text,
+	sexo_pa "char",
+  
+  num_ticket integer,
+  v_cerca_s_od text,
+  v_cerca_s_oi text,
+  v_cerca_c_od text,
+  v_cerca_c_oi text,
+  v_lejos_s_od text,
+  v_lejos_s_oi text,
+  v_lejos_c_od text,
+  v_lejos_c_oi text,
+  v_colores text,
+  v_binocular text,
+  r_pupilares text,
+  e_oculares text,
+  fecha_of date,
+  e_oculares1 text,
+
+  color INTEGER,
+  sede_descripcion TEXT,
+
+  dir_sede4 TEXT,
+  email_sede4 TEXT,
+  tel_sede4 TEXT,
+  cel_sede4 TEXT,
+
+  dir_sede3 TEXT,
+  email_sede3 TEXT,
+  tel_sede3 TEXT,
+
+  dir_sede2 TEXT,
+  email_sede2 TEXT,
+  tel_sede2 TEXT,
+  cel_sede2 TEXT,
+
+  dir_sede1 TEXT,
+  email_sede1 TEXT,
+  tel_sede1 TEXT
+  
+)
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    dp.nombres_pa || ' ' || dp.apellidos_pa,
+    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+
+    oflo.n_orden,
+    noo.cod_pa,
+
+    dp.fecha_nacimiento_pa,
+    noo.razon_empresa,
+    noo.razon_contrata,
+    noo.nom_examen,
+    dp.sexo_pa,
+
+    oflo.num_ticket,
+    oflo.v_cerca_s_od,
+    oflo.v_cerca_s_oi,
+    oflo.v_cerca_c_od,
+    oflo.v_cerca_c_oi,
+    oflo.v_lejos_s_od,
+    oflo.v_lejos_s_oi,
+    oflo.v_lejos_c_od,
+    oflo.v_lejos_c_oi,
+    oflo.v_colores,
+    oflo.v_binocular,
+    oflo.r_pupilares,
+    oflo.e_oculares,
+    oflo.fecha_of,
+    oflo.e_oculares1,
+
+
+    noo.color,
+    CAST(sm.descripcion AS TEXT),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 4),
+    (SELECT email FROM sede WHERE cod_sede = 4),
+    (SELECT telefono FROM sede WHERE cod_sede = 4),
+    (SELECT celular FROM sede WHERE cod_sede = 4),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 3),
+    (SELECT email FROM sede WHERE cod_sede = 3),
+    (SELECT telefono FROM sede WHERE cod_sede = 3),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 2),
+    (SELECT email FROM sede WHERE cod_sede = 2),
+    (SELECT telefono FROM sede WHERE cod_sede = 2),
+    (SELECT celular FROM sede WHERE cod_sede = 2),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 1),
+    (SELECT email FROM sede WHERE cod_sede = 1),
+    (SELECT telefono FROM sede WHERE cod_sede = 1)
+
+  FROM datos_paciente dp
+  INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+  INNER JOIN oftalmologia_lo oflo ON oflo.n_orden = noo.n_orden
+  INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+  WHERE noo.n_orden = p_norden;
+END;
+$$ LANGUAGE plpgsql;
 
 
 
@@ -2034,5 +2058,28 @@ begin
 
  SELECT v_id_existencia AS id_resp,v_mensaje as mensaje;
 end;
+$BODY$
+  LANGUAGE plpgsql;
+
+drop function sp_mostrar_info_paciente_filtros(
+    IN norden_p integer,
+    IN sucursal_p text);
+
+CREATE OR REPLACE FUNCTION sp_mostrar_info_paciente_filtros(
+    IN norden_p integer,
+    IN sucursal_p text)
+  RETURNS TABLE(n_orden integer, nombres_apellidos text, dni integer, fecha_examen date, nombres text, apellidos text, fecha_nac date, edad integer, empresa text, contrata text, nom_examen text, talla text, peso text, sexo_pa "char") AS
+$BODY$
+DECLARE
+    codigo_sede_param INTEGER;
+BEGIN
+    SELECT id INTO codigo_sede_param FROM sede_multisucursal WHERE codigo_sucursal = sucursal_p;
+
+    RETURN QUERY
+SELECT n.n_orden,TRIM(dp.nombres_pa) || ' ' || TRIM(dp.apellidos_pa) as nombres_apellidos, dp.cod_pa as dni, n.fecha_apertura_po as fecha_examen,
+	dp.nombres_pa as nombres, dp.apellidos_pa as apellidos, dp.fecha_nacimiento_pa as fecha_nac, obtener_edad(dp.fecha_nacimiento_pa,CURRENT_DATE) as edad, 
+	n.razon_empresa as empresa, n.razon_contrata as contrata, n.nom_examen as nom_examn,trj.talla,trj.peso, dp.sexo_pa FROM datos_paciente as dp inner join 
+	n_orden_ocupacional as n on n.cod_pa=dp.cod_pa left join triaje as trj on  n.n_orden=trj.n_orden where n.n_orden=norden_p and n.cod_sede=codigo_sede_param;
+END;
 $BODY$
   LANGUAGE plpgsql;
