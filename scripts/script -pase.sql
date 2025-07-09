@@ -2018,6 +2018,17 @@ begin
 		end if;
 		
         end if;  
+
+        if(p_examen_med='funcion_abs') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from funcion_abs where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;  
                                                                                               		                   	
 	RETURN query
 
