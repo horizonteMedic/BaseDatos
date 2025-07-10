@@ -1,7 +1,7 @@
-drop function obtener_reporte_historiaocupacional(IN p_norden integer)
+drop FUNCTION obtener_reporte_historiaocupacional(IN p_norden integer);
 
 CREATE OR REPLACE FUNCTION obtener_reporte_historiaocupacional(IN p_norden integer)
-  RETURNS TABLE(nombres text, edad text, n_orden integer, dni integer, fecha_nac date, lugar_nacimiento text, cel_pa text, sexo "char", cod_ho integer, area_o text, fecha_ho date, na text, fecha text, empresa text, actividad text, area_empresa text, ocupacion text, superficie text, socavon text, riesgo text, proteccion text, altitud text, color integer, sede_descripcion text, dir_sede4 text, email_sede4 text, tel_sede4 text, cel_sede4 text, dir_sede3 text, email_sede3 text, tel_sede3 text, dir_sede2 text, email_sede2 text, tel_sede2 text, cel_sede2 text, dir_sede1 text, email_sede1 text, tel_sede1 text, orden integer) AS
+  RETURNS TABLE(nombres text, edad text, n_orden integer, dni integer, fecha_nac date, lugar_nacimiento text, cel_pa text, sexo "char", lugar_procedencia text, medico_asignado text, cod_ho integer, area_o text, fecha_ho date, na text, fecha text, empresa text, actividad text, area_empresa text, ocupacion text, superficie text, socavon text, riesgo text, proteccion text, altitud text, color integer, sede_descripcion text, dir_sede4 text, email_sede4 text, tel_sede4 text, cel_sede4 text, dir_sede3 text, email_sede3 text, tel_sede3 text, dir_sede2 text, email_sede2 text, tel_sede2 text, cel_sede2 text, dir_sede1 text, email_sede1 text, tel_sede1 text, orden integer) AS
 $BODY$
 BEGIN
   RETURN QUERY
@@ -15,6 +15,8 @@ BEGIN
     dp.lugar_nac_pa,
     dp.cel_pa,
     dp.sexo_pa,
+    dp.direccion_pa ||'-'|| dp.distrito_pa ||'-'|| dp.provincia_pa ||'-'|| dp.departamento_pa,
+    u.nombre_user||' '||u.apellido_user,
 
     hoi.cod_ho,
     hoi.area_o,
@@ -60,6 +62,7 @@ BEGIN
   INNER JOIN historia_oc_info hoi ON hoi.n_orden = noo.n_orden
   INNER JOIN historia_oc_detalle hod ON hod.cod_ho = hoi.cod_ho
   INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+  INNER JOIN usuarios u ON LOWER(u.usuario_user) = LOWER(hoi.user_registro)
   WHERE noo.n_orden = p_norden;
 END;
 $BODY$
