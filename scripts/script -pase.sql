@@ -838,6 +838,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
+			values('oftalmologia_lo','formulario de cuestionario de oftalmologia_lo',false,false,true,true,false);
+
 -----------------------------------------------------------------------------------------------------------------------------
 --Oftalmologia
 
@@ -959,6 +962,164 @@ BEGIN
   WHERE noo.n_orden = p_norden;
 END;
 $$ LANGUAGE plpgsql;
+
+insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
+			values('oftalmologia','formulario de cuestionario de oftalmologia',false,false,true,true,false);
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION obtener_reporte_oftalmologia_oftalmologiaLo(IN p_norden integer)
+  RETURNS TABLE(
+	nombres text,
+	edad text,
+	n_orden integer,
+	dni integer,
+	fecha_nac date,
+	empresa text,
+	contrata text,
+	nom_examen text,
+	--lugar_nacimiento text,
+	--cel_pa text,
+	sexo "char",
+	--lugar_procedencia text,
+	--medico_asignado text,
+	cod_of integer,
+	  num_ticket integer,
+	  v_cerca_s_od text,
+	  v_cerca_s_oi text,
+	  v_cerca_c_od text,
+	  v_cerca_c_oi text,
+	  v_lejos_s_od text,
+	  v_lejos_s_oi text,
+	  v_lejos_c_od text,
+	  v_lejos_c_oi text,
+	  v_colores text,
+	  v_binocular text,
+	  r_pupilares text,
+	  e_oculares text,
+	  fecha_of date,
+	  e_oculares1 text,
+	  e_oculvisionlejos text,
+
+	  
+	  vcsod_lo text,
+	  vcsoi_lo text,
+	  vccod_lo text,
+	  vccoi_lo text,
+	  vlsod_lo text,
+	  vlsoi_lo text,
+	  vlcod_lo text,
+	  vlcoi_lo text,
+	  v_colores_lo text,
+	  v_binocular_lo text,
+	  r_pupilares_lo text,
+	  e_oculares_lo text,
+	  fecha_of_lo date,
+	  e_oculares1_lo text,
+
+	  
+	color integer,
+	sede_descripcion text,
+	dir_sede4 text,
+	email_sede4 text,
+	tel_sede4 text,
+	cel_sede4 text,
+	dir_sede3 text,
+	email_sede3 text,
+	tel_sede3 text,
+	dir_sede2 text,
+	email_sede2 text,
+	tel_sede2 text,
+	cel_sede2 text,
+	dir_sede1 text,
+	email_sede1 text,
+	tel_sede1 text
+  ) AS
+$BODY$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    dp.nombres_pa || ' ' || dp.apellidos_pa,
+    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+
+    o.n_orden,
+    noo.cod_pa,
+    dp.fecha_nacimiento_pa,
+    noo.razon_empresa,
+    noo.razon_contrata,
+    noo.nom_examen,
+    --dp.lugar_nac_pa,
+    --dp.cel_pa,
+    dp.sexo_pa,
+    --dp.direccion_pa ||'-'|| dp.distrito_pa ||'-'|| dp.provincia_pa ||'-'|| dp.departamento_pa,
+    --u.nombre_user||' '||u.apellido_user,
+    o.cod_of, 
+    o.num_ticket, 
+    o.v_cerca_s_od, 
+    o.v_cerca_s_oi, 
+    o.v_cerca_c_od,
+    o.v_cerca_c_oi, 
+    o.v_lejos_s_od, 
+    o.v_lejos_s_oi, 
+    o.v_lejos_c_od, 
+    o.v_lejos_c_oi,
+    o.v_colores, 
+    o.v_binocular, 
+    o.r_pupilares, 
+    o.e_oculares, 
+    o.fecha_of, 
+    o.e_oculares1,
+    o.e_oculvisionlejos,
+
+
+    
+    ol.v_cerca_s_od,
+    ol.v_cerca_s_oi,
+    ol.v_cerca_c_od,
+    ol.v_cerca_c_oi,
+    ol.v_lejos_s_od,
+    ol.v_lejos_s_oi,
+    ol.v_lejos_c_od,
+    ol.v_lejos_c_oi,
+    ol.v_colores,
+    ol.v_binocular,
+    ol.r_pupilares,
+    ol.e_oculares,
+    ol.fecha_of,
+    ol.e_oculares1,
+
+
+    noo.color,
+    CAST(sm.descripcion AS TEXT),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 4),
+    (SELECT email FROM sede WHERE cod_sede = 4),
+    (SELECT telefono FROM sede WHERE cod_sede = 4),
+    (SELECT celular FROM sede WHERE cod_sede = 4),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 3),
+    (SELECT email FROM sede WHERE cod_sede = 3),
+    (SELECT telefono FROM sede WHERE cod_sede = 3),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 2),
+    (SELECT email FROM sede WHERE cod_sede = 2),
+    (SELECT telefono FROM sede WHERE cod_sede = 2),
+    (SELECT celular FROM sede WHERE cod_sede = 2),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 1),
+    (SELECT email FROM sede WHERE cod_sede = 1),
+    (SELECT telefono FROM sede WHERE cod_sede = 1)
+
+  FROM datos_paciente dp
+  INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+  INNER JOIN oftalmologia o ON o.n_orden = noo.n_orden
+  LEFT JOIN oftalmologia_lo ol ON ol.n_orden = noo.n_orden
+  INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+  --INNER JOIN usuarios u ON LOWER(u.usuario_user) = LOWER(hoi.user_registro)
+  WHERE noo.n_orden = p_norden;
+END;
+$BODY$
+  LANGUAGE plpgsql;
 
 -----------------------------------------------------------------------------------------------------------------------------
 
@@ -1115,6 +1276,8 @@ BEGIN
         resultado := 'OftalmologiaLO.jasper';
     ELSIF name_service_param = 'oftalmologia' THEN
         resultado := 'Oftalmologia.jasper';
+    ELSIF name_service_param = 'oftalmologia_reporte' THEN
+        resultado := 'ReporteOftalmologico';
     END IF;
     RETURN resultado;
 END;
@@ -1800,6 +1963,16 @@ BEGIN
             dni := dni_user_registro_var;
             RETURN NEXT;
         END IF; 
+
+        IF (SELECT sello_doc_adic FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            SELECT user_registro INTO user_registro_var 
+            FROM audiometria_po WHERE n_orden = norden_param;
+            select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
+            descripcion := 'SELLO DEL DOCTOR ADICIONAL';
+            name_digitalizacion := 'DOCTOREXTRA';
+            dni := dni_user_registro_var;
+            RETURN NEXT;
+        END IF; 
     END IF;
 
     IF name_servicio_param = 'cuestionario_audiometria' THEN
@@ -1827,11 +2000,60 @@ BEGIN
             RETURN NEXT;
         END IF; 
     END IF;
+
+    IF name_servicio_param = 'oftalmologia' THEN
+
+        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            SELECT user_registro INTO user_registro_var 
+            FROM oftalmologia WHERE n_orden = norden_param;
+            select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
+            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
+            name_digitalizacion := 'SELLOFIRMA';
+            dni := dni_user_registro_var;
+            RETURN NEXT;
+        END IF; 
+
+        IF ((SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) and empresa_var='OBRASCÓN HUARTE LAIN S.A')THEN 
+		IF(empresa_var='OBRASCÓN HUARTE LAIN S.A') THEN
+		dni_user_registro_var :=42664426;
+		ELSE
+		dni_user_registro_var:=1;
+		end if;
+            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
+            name_digitalizacion := 'SELLOFIRMADOCASIG';
+            dni := dni_user_registro_var;
+            RETURN NEXT;
+        END IF; 
+    END IF;
+
+    IF name_servicio_param = 'oftalmologia_lo' THEN
+
+        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            SELECT user_registro INTO user_registro_var 
+            FROM oftalmologia_lo WHERE n_orden = norden_param;
+            select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
+            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
+            name_digitalizacion := 'SELLOFIRMA';
+            dni := dni_user_registro_var;
+            RETURN NEXT;
+        END IF; 
+
+        IF ((SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) and empresa_var='OBRASCÓN HUARTE LAIN S.A')THEN 
+		IF(empresa_var='OBRASCÓN HUARTE LAIN S.A') THEN
+		dni_user_registro_var :=42664426;
+		ELSE
+		dni_user_registro_var:=1;
+		end if;
+            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
+            name_digitalizacion := 'SELLOFIRMADOCASIG';
+            dni := dni_user_registro_var;
+            RETURN NEXT;
+        END IF; 
+    END IF;
                                  
 END;
 $BODY$
   LANGUAGE plpgsql;
-
 -----------------------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION sp_validar_existencia_servicios(
