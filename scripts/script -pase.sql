@@ -264,7 +264,12 @@ BEGIN
     ELSIF name_service_param = 'oftalmologia_reporte' THEN
         resultado := 'ReporteOftalmologico';
     ELSIF name_service_param = 'oftalmologia2021' THEN
-        resultado := 'EvaluacionOftalmologica2021_Digitalizado_ohla';
+	IF name_empresa_busqueda_var LIKE '%MINERA BOROO MISQUICHILCA S.A.%' OR name_empresa_busqueda_var ILIKE '%EMPRESA DE TRANSPORTES N & V S.A.C.%'
+		OR name_empresa_busqueda_var ILIKE '%DEYFOR EIRL%' THEN
+            resultado := 'EvaluacionOftalmologica2021_Digitalizado_boro'; 
+        ELSE
+            resultado := 'EvaluacionOftalmologica2021_Digitalizado';
+        END IF;
     END IF;
     RETURN resultado;
 END;
