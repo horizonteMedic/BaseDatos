@@ -270,6 +270,8 @@ BEGIN
         ELSE
             resultado := 'EvaluacionOftalmologica2021_Digitalizado';
         END IF;
+    ELSIF name_service_param = 'odontograma' THEN
+        resultado := 'Odontograma_Digitalizado';
     END IF;
     RETURN resultado;
 END;
@@ -1084,6 +1086,32 @@ BEGIN
             RETURN NEXT;
         END IF; 
     END IF;
+
+    IF name_servicio_param = 'odontograma' THEN
+        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            descripcion := 'FIRMA DEL PACIENTE';
+            name_digitalizacion := 'FIRMAP';
+            dni := dni_paciente_var;
+            RETURN NEXT;
+        END IF;
+
+        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            descripcion := 'HUELLA DEL PACIENTE';
+            name_digitalizacion := 'HUELLA';
+            dni := dni_paciente_var;
+            RETURN NEXT;
+        END IF;
+
+        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            SELECT user_registro INTO user_registro_var 
+            FROM odontograma WHERE n_orden = norden_param;
+            select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
+            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
+            name_digitalizacion := 'SELLOFIRMA';
+            dni := dni_user_registro_var;
+            RETURN NEXT;
+        END IF; 
+    END IF;
                                  
 END;
 $BODY$
@@ -1545,6 +1573,17 @@ begin
 
         if(p_examen_med='oftalmologia2021') THEN
 	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from oftalmologia2021 where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+        if(p_examen_med='odontograma') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from odontograma where n_orden=p_historia_clinica limit 1;
 		if(v_id_existencia=0) THEN
 			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
 		else
