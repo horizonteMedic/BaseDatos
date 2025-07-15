@@ -189,6 +189,182 @@ insert into config_general_service_digital (name_service,descripcion,firma_p,hue
 			values('odontograma','"formulario de odontograma"',true,true,true,false,false);
 ---------------------------------------------------------------------------------------------------------------
 
+CREATE OR REPLACE FUNCTION obtener_reporte_odontogramaLo(IN p_norden integer)
+  RETURNS TABLE(
+	nombres text,
+	edad text,
+	n_orden integer,
+	dni integer,
+	empresa text,
+	contrata text,
+	sexo "char",
+	fecha_od date,
+	  edad_od text,
+	  lbl_18 text,
+	  lbl_17 text,
+	  lbl_16 text,
+	  lbl_15 text,
+	  lbl_14 text,
+	  lbl_13 text,
+	  lbl_12 text,
+	  lbl_11 text,
+	  lbl_21 text,
+	  lbl_22 text,
+	  lbl_23 text,
+	  lbl_24 text,
+	  lbl_25 text,
+	  lbl_26 text,
+	  lbl_27 text,
+	  lbl_28 text,
+	  lbl_31 text,
+	  lbl_32 text,
+	  lbl_33 text,
+	  lbl_34 text,
+	  lbl_35 text,
+	  lbl_36 text,
+	  lbl_37 text,
+	  lbl_38 text,
+	  lbl_41 text,
+	  lbl_42 text,
+	  lbl_43 text,
+	  lbl_44 text,
+	  lbl_45 text,
+	  lbl_46 text,
+	  lbl_47 text,
+	  lbl_48 text,
+	  txtpiezasmalestado integer,
+	  txtausentes integer,
+	  txtcariadasoturar integer,
+	  txtporextraer integer,
+	  txtfracturada integer,
+	  txtobturacionesefectuadas integer,
+	  txtpuentes integer,
+	  txtpprmetalicas integer,
+	  txtppracrilicas integer,
+	  txtptotal integer,
+	  txtnormales integer,
+	  txtcoronas integer,
+	  txtobservaciones text,
+	color integer,
+	sede_descripcion text,
+	dir_sede4 text,
+	email_sede4 text,
+	tel_sede4 text,
+	cel_sede4 text,
+	dir_sede3 text,
+	email_sede3 text,
+	tel_sede3 text,
+	dir_sede2 text,
+	email_sede2 text,
+	tel_sede2 text,
+	cel_sede2 text,
+	dir_sede1 text,
+	email_sede1 text,
+	tel_sede1 text
+  ) AS
+$BODY$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    dp.nombres_pa || ' ' || dp.apellidos_pa,
+    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+
+    o.n_orden,
+    noo.cod_pa,
+    --dp.fecha_nacimiento_pa,
+    noo.razon_empresa,
+    noo.razon_contrata,
+    --noo.nom_examen,
+    --dp.lugar_nac_pa,
+    --dp.cel_pa,
+    dp.sexo_pa,
+    --dp.direccion_pa ||'-'|| dp.distrito_pa ||'-'|| dp.provincia_pa ||'-'|| dp.departamento_pa,
+    --u.nombre_user||' '||u.apellido_user,
+    o.fecha_od,
+    o.edad_od,
+    o.lbl_18,
+    o.lbl_17,
+    o.lbl_16,
+    o.lbl_15,
+    o.lbl_14,
+    o.lbl_13,
+    o.lbl_12,
+    o.lbl_11,
+    o.lbl_21,
+    o.lbl_22,
+    o.lbl_23,
+    o.lbl_24,
+    o.lbl_25,
+    o.lbl_26,
+    o.lbl_27,
+    o.lbl_28,
+    o.lbl_31,
+    o.lbl_32,
+    o.lbl_33,
+    o.lbl_34,
+    o.lbl_35,
+    o.lbl_36,
+    o.lbl_37,
+    o.lbl_38,
+    o.lbl_41,
+    o.lbl_42,
+    o.lbl_43,
+    o.lbl_44,
+    o.lbl_45,
+    o.lbl_46,
+    o.lbl_47,
+    o.lbl_48,
+    o.txtpiezasmalestado,
+    o.txtausentes,
+    o.txtcariadasoturar,
+    o.txtporextraer,
+    o.txtfracturada,
+    o.txtobturacionesefectuadas,
+    o.txtpuentes,
+    o.txtpprmetalicas,
+    o.txtppracrilicas,
+    o.txtptotal,
+    o.txtnormales,
+    o.txtcoronas,
+    o.txtobservaciones,
+
+
+    noo.color,
+    CAST(sm.descripcion AS TEXT),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 4),
+    (SELECT email FROM sede WHERE cod_sede = 4),
+    (SELECT telefono FROM sede WHERE cod_sede = 4),
+    (SELECT celular FROM sede WHERE cod_sede = 4),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 3),
+    (SELECT email FROM sede WHERE cod_sede = 3),
+    (SELECT telefono FROM sede WHERE cod_sede = 3),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 2),
+    (SELECT email FROM sede WHERE cod_sede = 2),
+    (SELECT telefono FROM sede WHERE cod_sede = 2),
+    (SELECT celular FROM sede WHERE cod_sede = 2),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 1),
+    (SELECT email FROM sede WHERE cod_sede = 1),
+    (SELECT telefono FROM sede WHERE cod_sede = 1)
+
+  FROM datos_paciente dp
+  INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+  INNER JOIN odontograma_lo o ON o.n_orden = noo.n_orden
+  INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+  --INNER JOIN usuarios u ON LOWER(u.usuario_user) = LOWER(hoi.user_registro)
+  WHERE noo.n_orden = p_norden;
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+
+insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
+			values('odontograma_lo','"formulario de odontograma_lo"',true,true,true,false,false);
+---------------------------------------------------------------------------------------------
+
 DROP FUNCTION sp_mostrar_info_paciente_filtros(integer, text);
 
 CREATE OR REPLACE FUNCTION sp_mostrar_info_paciente_filtros(
@@ -376,6 +552,8 @@ BEGIN
         END IF;
     ELSIF name_service_param = 'odontograma' THEN
         resultado := 'Odontograma_Digitalizado';
+    ELSIF name_service_param = 'odontograma_lo' THEN
+        resultado := 'Odontograma_lo_Digitalizado';
     END IF;
     RETURN resultado;
 END;
@@ -1216,6 +1394,34 @@ BEGIN
             RETURN NEXT;
         END IF; 
     END IF;
+
+    IF name_servicio_param = 'odontograma_lo' THEN
+        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            descripcion := 'FIRMA DEL PACIENTE';
+            name_digitalizacion := 'FIRMAP';
+            dni := dni_paciente_var;
+            RETURN NEXT;
+        END IF;
+
+        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            descripcion := 'HUELLA DEL PACIENTE';
+            name_digitalizacion := 'HUELLA';
+            dni := dni_paciente_var;
+            RETURN NEXT;
+        END IF;
+
+        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            SELECT o.user_registro INTO user_registro_var 
+            FROM odontograma_lo olo 
+            INNER JOIN odontograma o on olo.n_orden = o.n_orden
+            WHERE olo.n_orden = norden_param;
+            select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
+            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
+            name_digitalizacion := 'SELLOFIRMA';
+            dni := dni_user_registro_var;
+            RETURN NEXT;
+        END IF; 
+    END IF;
                                  
 END;
 $BODY$
@@ -1688,6 +1894,17 @@ begin
 
         if(p_examen_med='odontograma') THEN
 	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from odontograma where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+        if(p_examen_med='odontograma_lo') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from odontograma_lo where n_orden=p_historia_clinica limit 1;
 		if(v_id_existencia=0) THEN
 			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
 		else
