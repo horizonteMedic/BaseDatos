@@ -29,7 +29,7 @@ BEGIN
     u.nombre_user||' '||u.apellido_user,
 
     hoi.cod_ho,
-    noo.area_o,
+    hoi.area_o,
     hoi.fecha_ho,
     hoi.na,
 
@@ -84,6 +84,29 @@ $BODY$
 			values('oftalmologia2021','formulario de oftalmologia OHLA',true,true,true,true,false);
 
 ---------------------------------------------------------------------------------------------------------------
+
+DROP FUNCTION sp_mostrar_info_paciente_filtros(integer, text);
+
+CREATE OR REPLACE FUNCTION sp_mostrar_info_paciente_filtros(
+    IN norden_p integer,
+    IN sucursal_p text)
+  RETURNS TABLE(n_orden integer, nombres_apellidos text, dni integer, fecha_examen date, nombres text, apellidos text, fecha_nac date, edad integer, empresa text, contrata text, nom_examen text, talla text, peso text, sexo_pa "char", area text) AS
+$BODY$
+DECLARE
+    codigo_sede_param INTEGER;
+BEGIN
+    SELECT id INTO codigo_sede_param FROM sede_multisucursal WHERE codigo_sucursal = sucursal_p;
+
+    RETURN QUERY
+SELECT n.n_orden,TRIM(dp.nombres_pa) || ' ' || TRIM(dp.apellidos_pa) as nombres_apellidos, dp.cod_pa as dni, n.fecha_apertura_po as fecha_examen,
+	dp.nombres_pa as nombres, dp.apellidos_pa as apellidos, dp.fecha_nacimiento_pa as fecha_nac, obtener_edad(dp.fecha_nacimiento_pa,CURRENT_DATE) as edad, 
+	n.razon_empresa as empresa, n.razon_contrata as contrata, n.nom_examen as nom_examn,trj.talla,trj.peso, dp.sexo_pa, n.area_o FROM datos_paciente as dp inner join 
+	n_orden_ocupacional as n on n.cod_pa=dp.cod_pa left join triaje as trj on  n.n_orden=trj.n_orden where n.n_orden=norden_p and n.cod_sede=codigo_sede_param;
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+-----------------------------------------------------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION obtener_name_jasper(
     norden_param bigint,
