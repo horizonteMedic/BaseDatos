@@ -77,6 +77,179 @@ BEGIN
 END;
 $BODY$
   LANGUAGE plpgsql;
+-------------------------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION obtener_reporte_fechasodontograma(inicio date, fin date)
+  RETURNS TABLE(
+	nombres text,
+	edad text,
+	n_orden integer,
+	dni integer,
+	empresa text,
+	contrata text,
+	sexo "char",
+	cod_od integer,
+	fecha_od date,
+	
+	color integer,
+	sede_descripcion text,
+	dir_sede4 text,
+	email_sede4 text,
+	tel_sede4 text,
+	cel_sede4 text,
+	dir_sede3 text,
+	email_sede3 text,
+	tel_sede3 text,
+	dir_sede2 text,
+	email_sede2 text,
+	tel_sede2 text,
+	cel_sede2 text,
+	dir_sede1 text,
+	email_sede1 text,
+	tel_sede1 text
+
+  ) AS
+$BODY$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    dp.nombres_pa || ' ' || dp.apellidos_pa,
+    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+
+    o.n_orden,
+    noo.cod_pa,
+    --dp.fecha_nacimiento_pa,
+    noo.razon_empresa,
+    noo.razon_contrata,
+    --noo.nom_examen,
+    --dp.lugar_nac_pa,
+    --dp.cel_pa,
+    dp.sexo_pa,
+    --dp.direccion_pa ||'-'|| dp.distrito_pa ||'-'|| dp.provincia_pa ||'-'|| dp.departamento_pa,
+    --u.nombre_user||' '||u.apellido_user,
+    o.cod_od,
+    o.fecha_od,
+    
+    noo.color,
+    CAST(sm.descripcion AS TEXT),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 4),
+    (SELECT email FROM sede WHERE cod_sede = 4),
+    (SELECT telefono FROM sede WHERE cod_sede = 4),
+    (SELECT celular FROM sede WHERE cod_sede = 4),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 3),
+    (SELECT email FROM sede WHERE cod_sede = 3),
+    (SELECT telefono FROM sede WHERE cod_sede = 3),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 2),
+    (SELECT email FROM sede WHERE cod_sede = 2),
+    (SELECT telefono FROM sede WHERE cod_sede = 2),
+    (SELECT celular FROM sede WHERE cod_sede = 2),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 1),
+    (SELECT email FROM sede WHERE cod_sede = 1),
+    (SELECT telefono FROM sede WHERE cod_sede = 1)
+
+  FROM datos_paciente dp
+  INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+  INNER JOIN odontograma o ON o.n_orden = noo.n_orden
+  INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+  --INNER JOIN usuarios u ON LOWER(u.usuario_user) = LOWER(hoi.user_registro)
+  WHERE o.fecha_od>=inicio AND o.fecha_od<=fin;
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+--------------------------------------------------------------------------------------------------------------
+
+drop FUNCTION obtener_informacion_fichaaudiologica(IN p_norden integer)
+
+CREATE OR REPLACE FUNCTION obtener_informacion_fichaaudiologica(IN p_norden integer)
+  RETURNS TABLE(nombres text, edad text, n_orden integer, dni integer, fecha_nacimiento_pa date, empresa text, contrata text, nom_examen text, sexo_pa "char", area_o text, cod_fa integer, fecha_examen date, tiempo_trabajo integer, tiempo_exposicion_total_ponderado text, edad_fa text, chk_tapones boolean, chkgrajeras boolean, chkintenso boolean, chkmoderado boolean, chknomolesto boolean, txtmarca text, txtmodelo text, fechacalibracion date, chk1_si boolean, chk2_si boolean, chk3_si boolean, chk4_si boolean, chk5_si boolean, chk6_si boolean, chk7_si boolean, chk8_si boolean, chk9_si boolean, chk10_si boolean, chk11_si boolean, chk12_si boolean, chk1_no boolean, chk2_no boolean, chk3_no boolean, chk4_no boolean, chk5_no boolean, chk6_no boolean, chk7_no boolean, chk8_no boolean, chk9_no boolean, chk10_no boolean, chk11_no boolean, chk12_no boolean, txtdod250 text, txtdod500 text, txtdod1000 text, txtdoi250 text, txtdoi500 text, txtdoi1000 text, txtldumbraldiscriminacion text, txtliumbraldiscriminacion text, txtldporcentagediscriminacion text, txtliporcentagediscriminacion text, txtldconfort text, txtliconfort text, txtlddisconfort text, txtlidisconfort text, txtresponsable text, txtconclusiones text, txtmedico text, txtotoscopia text, txtmesestrabajo integer, user_registro text) AS
+$BODY$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    dp.nombres_pa || ' ' || dp.apellidos_pa,
+    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+
+    fa.n_orden,
+    noo.cod_pa,
+    dp.fecha_nacimiento_pa,
+    noo.razon_empresa,
+    noo.razon_contrata,
+    noo.nom_examen,
+    dp.sexo_pa,
+    noo.area_o,
+
+    fa.cod_fa,
+    fa.fecha_examen,
+    fa.tiempo_trabajo,
+    fa.tiempo_exposicion_total_ponderado,
+    fa.edad_fa,
+    fa.chk_tapones,
+    fa.chkgrajeras,
+    fa.chkintenso,
+    fa.chkmoderado,
+    fa.chknomolesto,
+    fa.txtmarca,
+    fa.txtmodelo,
+    fa.fechacalibracion,
+    fa.chk1_si,
+    fa.chk2_si,
+    fa.chk3_si,
+    fa.chk4_si,
+    fa.chk5_si,
+    fa.chk6_si,
+    fa.chk7_si,
+    fa.chk8_si,
+    fa.chk9_si,
+    fa.chk10_si,
+    fa.chk11_si,
+    fa.chk12_si,
+    fa.chk1_no,
+    fa.chk2_no,
+    fa.chk3_no,
+    fa.chk4_no,
+    fa.chk5_no,
+    fa.chk6_no,
+    fa.chk7_no,
+    fa.chk8_no,
+    fa.chk9_no,
+    fa.chk10_no,
+    fa.chk11_no,
+    fa.chk12_no,
+    fa.txtdod250,
+    fa.txtdod500,
+    fa.txtdod1000,
+    fa.txtdoi250,
+    fa.txtdoi500,
+    fa.txtdoi1000,
+    fa.txtldumbraldiscriminacion,
+    fa.txtliumbraldiscriminacion,
+    fa.txtldporcentagediscriminacion,
+    fa.txtliporcentagediscriminacion,
+    fa.txtldconfort,
+    fa.txtliconfort,
+    fa.txtlddisconfort,
+    fa.txtlidisconfort,
+    fa.txtresponsable,
+    fa.txtconclusiones,
+    fa.txtmedico,
+    fa.txtotoscopia,
+    fa.txtmesestrabajo,
+    fa.user_registro
+
+    
+  FROM datos_paciente dp
+  INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+  INNER JOIN ficha_audiologica fa ON fa.n_orden = noo.n_orden
+  INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+  WHERE noo.n_orden = p_norden;
+END;
+$BODY$
+  LANGUAGE plpgsql;
 
 ---------------------------------------------------------------------------------------------------------------
 
