@@ -54,7 +54,170 @@ END;
 $BODY$
   LANGUAGE plpgsql;
 
+----------------------------------------------------------------------------------------------------
 
+drop FUNCTION obtener_reporte_audiometria(IN p_norden integer)
+
+CREATE OR REPLACE FUNCTION obtener_reporte_audiometria(IN p_norden integer)
+  RETURNS TABLE(nombres text, edad text, n_orden integer, dni integer, empresa text, contrata text, cod_au integer, fecha_au date, rbsasordera_si boolean, rbsasordera_no boolean, rbsaacufenos_si boolean, rbsaacufenos_no boolean, rbsavertigo_si boolean, rbsavertigo_no boolean, rbsaotalgia_si boolean, rbsaotalgia_no boolean, rbsasecrecion_si boolean, rbsasecrecion_no boolean, txtsaotrossintomas text, rbamrenitis_si boolean, rbamrenitis_no boolean, rbamsinusitis_si boolean, rbamsinusitis_no boolean, rbamotitis_si boolean, rbamotitis_no boolean, rbamototoxicos_si boolean, rbamototoxicos_no boolean, rbammeningitis_si boolean, rbammeningitis_no boolean, rbamtec_si boolean, rbamtec_no boolean, rbamsordera_si boolean, rbamsordera_no boolean, rbamparotiditis_si boolean, rbamparotiditis_no boolean, rbamsarampion_si boolean, rbamsarampion_no boolean, rbamtbc_si boolean, rbamtbc_no boolean, txtamcuales text, rbeoexposicion_si boolean, rbeoexposicion_no boolean, rbeoprotectores_si boolean, rbeoprotectores_no boolean, rbeosustancias_si boolean, rbeosustancias_no boolean, rbte0a2 boolean, rbte2a4 boolean, rbte4a6 boolean, rbte6a8 boolean, rbte8a10 boolean, rbte10a12 boolean, rbtem12 boolean, rbteeventual boolean, chktapones boolean, chkorejeras boolean, txthplomo text, txthmercurio text, txthtolueno text, txthxileno text, txthplaguic text, txthorganofos text, txttplomo text, txttmercurio text, txtttolueno text, txttxileno text, txttplaguic text, txttorganofos text, txteootros text, rbaepratica_si boolean, rbaepratica_no boolean, rbaeuso_si boolean, rbaeuso_no boolean, rbaeotros_si boolean, rbaeotros_no boolean, txtaecuales text, txtood text, txtooi text, o_d_500 text, o_d_1000 text, o_d_2000 text, o_d_3000 text, o_d_4000 text, o_d_6000 text, o_d_8000 text, o_i_500 text, o_i_1000 text, o_i_2000 text, o_i_3000 text, o_i_4000 text, o_i_6000 text, o_i_8000 text, o_d1_500 text, o_d1_1000 text, o_d1_2000 text, o_d1_3000 text, o_d1_4000 text, o_d1_6000 text, o_d1_8000 text, o_i1_500 text, o_i1_1000 text, o_i1_2000 text, o_i1_3000 text, o_i1_4000 text, o_i1_6000 text, o_i1_8000 text, txtdiag_od text, txtdiag_oi text, txtcomentarios text, chkrpasimple boolean, chkrpadoble boolean, chkcasemestral boolean, chkcaanual boolean, txtotrasrecomendaciones text, txtanios text, txtmeses text, formato character varying, color integer, sede_descripcion text, dir_sede4 text, email_sede4 text, tel_sede4 text, cel_sede4 text, dir_sede3 text, email_sede3 text, tel_sede3 text, dir_sede2 text, email_sede2 text, tel_sede2 text, cel_sede2 text, dir_sede1 text, email_sede1 text, tel_sede1 text, fecha_nacimiento_pa date, sexo "char", areaTrabajo text, ocupacion text) AS
+$BODY$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    dp.nombres_pa || ' ' || dp.apellidos_pa,
+    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+
+    aud.n_orden,
+    noo.cod_pa,
+    noo.razon_empresa,
+    noo.razon_contrata,
+
+    aud.cod_au,
+    aud.fecha_au,
+    aud.rbsasordera_si,
+    aud.rbsasordera_no,
+    aud.rbsaacufenos_si,
+    aud.rbsaacufenos_no,
+    aud.rbsavertigo_si,
+    aud.rbsavertigo_no,
+    aud.rbsaotalgia_si,
+    aud.rbsaotalgia_no,
+    aud.rbsasecrecion_si,
+    aud.rbsasecrecion_no,
+    aud.txtsaotrossintomas,
+    aud.rbamrenitis_si,
+    aud.rbamrenitis_no,
+    aud.rbamsinusitis_si,
+    aud.rbamsinusitis_no,
+    aud.rbamotitis_si,
+    aud.rbamotitis_no,
+    aud.rbamototoxicos_si,
+    aud.rbamototoxicos_no,
+    aud.rbammeningitis_si,
+    aud.rbammeningitis_no,
+    aud.rbamtec_si,
+    aud.rbamtec_no,
+    aud.rbamsordera_si,
+    aud.rbamsordera_no,
+    aud.rbamparotiditis_si,
+    aud.rbamparotiditis_no,
+    aud.rbamsarampion_si,
+    aud.rbamsarampion_no,
+    aud.rbamtbc_si,
+    aud.rbamtbc_no,
+    aud.txtamcuales,
+    aud.rbeoexposicion_si,
+    aud.rbeoexposicion_no,
+    aud.rbeoprotectores_si,
+    aud.rbeoprotectores_no,
+    aud.rbeosustancias_si,
+    aud.rbeosustancias_no,
+    aud.rbte0a2,
+    aud.rbte2a4,
+    aud.rbte4a6,
+    aud.rbte6a8,
+    aud.rbte8a10,
+    aud.rbte10a12,
+    aud.rbtem12,
+    aud.rbteeventual,
+    aud.chktapones,
+    aud.chkorejeras,
+    aud.txthplomo,
+    aud.txthmercurio,
+    aud.txthtolueno,
+    aud.txthxileno,
+    aud.txthplaguic,
+    aud.txthorganofos,
+    aud.txttplomo,
+    aud.txttmercurio,
+    aud.txtttolueno,
+    aud.txttxileno,
+    aud.txttplaguic,
+    aud.txttorganofos,
+    aud.txteootros,
+    aud.rbaepratica_si,
+    aud.rbaepratica_no,
+    aud.rbaeuso_si,
+    aud.rbaeuso_no,
+    aud.rbaeotros_si,
+    aud.rbaeotros_no,
+    aud.txtaecuales,
+    aud.txtood,
+    aud.txtooi,
+    aud.o_d_500,
+    aud.o_d_1000,
+    aud.o_d_2000,
+    aud.o_d_3000,
+    aud.o_d_4000,
+    aud.o_d_6000,
+    aud.o_d_8000,
+    aud.o_i_500,
+    aud.o_i_1000,
+    aud.o_i_2000,
+    aud.o_i_3000,
+    aud.o_i_4000,
+    aud.o_i_6000,
+    aud.o_i_8000,
+    aud.o_d1_500,
+    aud.o_d1_1000,
+    aud.o_d1_2000,
+    aud.o_d1_3000,
+    aud.o_d1_4000,
+    aud.o_d1_6000,
+    aud.o_d1_8000,
+    aud.o_i1_500,
+    aud.o_i1_1000,
+    aud.o_i1_2000,
+    aud.o_i1_3000,
+    aud.o_i1_4000,
+    aud.o_i1_6000,
+    aud.o_i1_8000,
+    aud.txtdiag_od,
+    aud.txtdiag_oi,
+    aud.txtcomentarios,
+    aud.chkrpasimple,
+    aud.chkrpadoble,
+    aud.chkcasemestral,
+    aud.chkcaanual,
+    aud.txtotrasrecomendaciones,
+    aud.txtanios,
+    aud.txtmeses,
+    aud.formato,
+     
+
+    noo.color,
+    CAST(sm.descripcion AS TEXT),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 4),
+    (SELECT email FROM sede WHERE cod_sede = 4),
+    (SELECT telefono FROM sede WHERE cod_sede = 4),
+    (SELECT celular FROM sede WHERE cod_sede = 4),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 3),
+    (SELECT email FROM sede WHERE cod_sede = 3),
+    (SELECT telefono FROM sede WHERE cod_sede = 3),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 2),
+    (SELECT email FROM sede WHERE cod_sede = 2),
+    (SELECT telefono FROM sede WHERE cod_sede = 2),
+    (SELECT celular FROM sede WHERE cod_sede = 2),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 1),
+    (SELECT email FROM sede WHERE cod_sede = 1),
+    (SELECT telefono FROM sede WHERE cod_sede = 1),
+    dp.fecha_nacimiento_pa,
+    dp.sexo_pa,
+    noo.area_o,
+    noo.cargo_de
+
+  FROM datos_paciente dp
+  INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+  INNER JOIN audiometria_2023 aud ON aud.n_orden = noo.n_orden
+  INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+  WHERE noo.n_orden = p_norden;
+END;
+$BODY$
+  LANGUAGE plpgsql;
 
 -------------------------------------------------------------------------------------------------------
 
