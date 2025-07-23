@@ -1,3 +1,243 @@
+CREATE OR REPLACE FUNCTION obtener_reporte_Oit(IN p_norden integer)
+  RETURNS TABLE(
+	nombres text,
+	dni integer,
+	fecha_nac date,
+	sexo "char",
+	doctor text,
+	n_rx integer,
+	fecha_exra date,
+
+	n_orden integer,
+	n_placa integer,
+	  edad text,
+	  dni_user integer,
+	  f_lectura date,
+	  f_radiografia date,
+	  rb_buena boolean,
+	  rb_aceptable boolean,
+	  rb_bajacalidad boolean,
+	  rb_inaceptable boolean,
+	  rb_sobreexposicion boolean,
+	  rb_subexposicion boolean,
+	  rb_posicioncentrado boolean,
+	  rb_inspiracioninsuficiente boolean,
+	  rb_escapulas boolean,
+	  rb_artefactos boolean,
+	  rb_otros boolean,
+	  txt_defectostecnicos text,
+	  chk1_d boolean,
+	  chk2_d boolean,
+	  chk3_d boolean,
+	  chk1_i boolean,
+	  chk2_i boolean,
+	  chk3_i boolean,
+	  chk1 boolean,
+	  chk2 boolean,
+	  chk3 boolean,
+	  chk4 boolean,
+	  chk5 boolean,
+	  chk6 boolean,
+	  chk7 boolean,
+	  chk8 boolean,
+	  chk9 boolean,
+	  chk10 boolean,
+	  chk11 boolean,
+	  chk12 boolean,
+	  chk_p_1 boolean,
+	  chk_p_2 boolean,
+	  chk_p_3 boolean,
+	  chk_p_4 boolean,
+	  chk_p_5 boolean,
+	  chk_p_6 boolean,
+	  chk_s_1 boolean,
+	  chk_s_2 boolean,
+	  chk_s_3 boolean,
+	  chk_s_4 boolean,
+	  chk_s_5 boolean,
+	  chk_s_6 boolean,
+	  chko boolean,
+	  chka boolean,
+	  chkb boolean,
+	  chkc boolean,
+	  chk2_1 boolean,
+	  chk2_2 boolean,
+	  chk2_3 boolean,
+	  chk2_4 boolean,
+	  chk2_5 boolean,
+	  chk2_6 boolean,
+	  chk2_7 boolean,
+	  chk2_8 boolean,
+	  chk2_9 boolean,
+	  chk2_10 boolean,
+	  chk2_11 boolean,
+	  chk2_12 boolean,
+	  chk2_13 boolean,
+	  chk2_14 boolean,
+	  chk2_15 boolean,
+	  chk2_16 boolean,
+	  chk2_17 boolean,
+	  chk2_18 boolean,
+	  chk2_19 boolean,
+	  chk2_20 boolean,
+	  chk2_21 boolean,
+	  chk2_22 boolean,
+	  chk2_23 boolean,
+	  chk2_24 boolean,
+	  chk2_25 boolean,
+	  chk2_26 boolean,
+	  chk2_27 boolean,
+	  chk2_28 boolean,
+	  chk2_29 boolean,
+	  chk2_30 boolean,
+	  chk2_31 boolean,
+	  chk2_32 boolean,
+	  chk2_33 boolean,
+	  chk2_34 boolean,
+	  chk2_35 boolean,
+	  chk2_36 boolean,
+	  chk2_37 boolean,
+	  chk2_38 boolean,
+	  chk2_39 boolean,
+	  chk2_40 boolean,
+	  chk2_41 boolean,
+	  chk2_42 boolean,
+	  chk2_43 boolean,
+	  chk2_44 boolean,
+	  chk2_45 boolean,
+	  chk2_46 boolean,
+	  chk2_47 boolean,
+	  chk2_48 boolean,
+	  chk2_49 boolean,
+	  chk2_50 boolean,
+	  chk2_51 boolean,
+	  chk2_52 boolean,
+	  chk2_53 boolean,
+	  chk2_54 boolean,
+	  chk2_55 boolean,
+	  chk2_56 boolean,
+	  chk2_57 boolean,
+	  chk2_58 boolean,
+	  chk2_59 boolean,
+	  chk2_60 boolean,
+	  chk2_61 boolean,
+	  chk3_si boolean,
+	  chk3_no boolean,
+	  chk_01 boolean,
+	  chk_02 boolean,
+	  chk_03 boolean,
+	  chk_04 boolean,
+	  chk_05 boolean,
+	  chk_06 boolean,
+	  chk_07 boolean,
+	  chk_08 boolean,
+	  chk_09 boolean,
+	  chk_10 boolean,
+	  chk_11 boolean,
+	  chk_12 boolean,
+	  chk_13 boolean,
+	  chk_14 boolean,
+	  chk_17 boolean,
+	  chk_18 boolean,
+	  chk_19 boolean,
+	  chk_20 boolean,
+	  chk_21 boolean,
+	  chk_22 boolean,
+	  chk_23 boolean,
+	  chk_24 boolean,
+	  chk_25 boolean,
+	  chk_26 boolean,
+	  chk_27 boolean,
+	  txt_s_comentarios text,
+	  chk_15 boolean,
+	  chk_16 boolean,
+	  chk_2_si boolean,
+	  chk_2_no boolean,
+	  chk_e_1 boolean,
+	  chk_e_2 boolean,
+	  chk_e_3 boolean,
+	  chk_e_4 boolean,
+	  chk_e_5 boolean,
+	  chk_e_6 boolean,
+	  chk2_62 boolean,
+	  chk2_63 boolean,
+	  chk2_64 boolean,
+	  chk2_65 boolean,
+	  chk2_66 boolean,
+	  chk2_67 boolean,
+	  chk2_68 boolean,
+	  chk2_69 boolean,
+	  chk_28 boolean,
+	  chk_29 boolean,
+	  user_registro text,
+
+	color integer,
+	sede_descripcion text,
+	dir_sede4 text,
+	email_sede4 text,
+	tel_sede4 text,
+	cel_sede4 text,
+	dir_sede3 text,
+	email_sede3 text,
+	tel_sede3 text,
+	dir_sede2 text,
+	email_sede2 text,
+	tel_sede2 text,
+	cel_sede2 text,
+	dir_sede1 text,
+	email_sede1 text,
+	tel_sede1 text
+  ) AS
+$BODY$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    dp.nombres_pa || ' ' || dp.apellidos_pa,
+    noo.cod_pa,
+    --CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+    dp.fecha_nacimiento_pa,
+    dp.sexo_pa,
+    u.nombre_user||' '||u.apellido_user,
+    e.n_rx,
+    e.fecha_exra,
+    o.*,
+    noo.color,
+    CAST(sm.descripcion AS TEXT),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 4),
+    (SELECT email FROM sede WHERE cod_sede = 4),
+    (SELECT telefono FROM sede WHERE cod_sede = 4),
+    (SELECT celular FROM sede WHERE cod_sede = 4),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 3),
+    (SELECT email FROM sede WHERE cod_sede = 3),
+    (SELECT telefono FROM sede WHERE cod_sede = 3),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 2),
+    (SELECT email FROM sede WHERE cod_sede = 2),
+    (SELECT telefono FROM sede WHERE cod_sede = 2),
+    (SELECT celular FROM sede WHERE cod_sede = 2),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 1),
+    (SELECT email FROM sede WHERE cod_sede = 1),
+    (SELECT telefono FROM sede WHERE cod_sede = 1)
+
+  FROM datos_paciente dp
+  INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+  INNER JOIN ex_radiograficos_sanguineos e ON e.n_orden = noo.n_orden
+  INNER JOIN oit o ON o.n_orden = noo.n_orden
+  INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+  LEFT JOIN usuarios u ON u.dni_user = o.dni_user
+  WHERE noo.n_orden = p_norden;
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+  insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
+			values('oit','formulario de oit',false,false,true,false, false);
+
+-----------------------------------------------------------------------------------------------------------------
+
 CREATE OR REPLACE FUNCTION obtener_reporte_fechasRadiografiaTorax(
     IN inicio date,
     IN fin date)
@@ -209,7 +449,7 @@ $BODY$
 BEGIN
   RETURN QUERY
   SELECT 
-    dp.nombres_pa || ' ' || dp.apellidos_pa,
+    dp.apellidos_pa || ' ' || dp.nombres_pa,
     CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
 
     aud.n_orden,
@@ -628,12 +868,17 @@ BEGIN
         resultado := 'ReporteFechasRadiografia_Digitalizado';
     ELSIF name_service_param = 'radiografia' THEN
         resultado := 'RAYOSXXXOFI_Digitalizado';
+    ELSIF name_service_param = 'oit' THEN
+	IF name_empresa_busqueda_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
+		resultado := 'OIT_Digitalizado_boro';
+	ELSE
+		resultado := 'OIT_B_Digitalizado';
+	END IF;
     END IF;
     RETURN resultado;
 END;
 $BODY$
   LANGUAGE plpgsql;
-
   --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -1310,11 +1555,13 @@ BEGIN
 
         IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
 
-		IF(empresa_var='OBRASCÓN HUARTE LAIN S.A') THEN
-		dni_user_registro_var :=42664426;
+		IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
+		    dni_user_registro_var := 42664426;
+		ELSIF empresa_var = 'MONARCA GOLD S.A.C.' THEN
+		    dni_user_registro_var := 66666666;
 		ELSE
-		dni_user_registro_var:=1;
-		end if;
+		    dni_user_registro_var := 1;
+		END IF;
             descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
             name_digitalizacion := 'SELLOFIRMADOCASIG';
             dni := dni_user_registro_var;
@@ -1322,9 +1569,11 @@ BEGIN
         END IF; 
 
         IF (SELECT sello_doc_adic FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
-            SELECT user_registro INTO user_registro_var 
-            FROM audiometria_po WHERE n_orden = norden_param;
-            select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
+            IF(empresa_var='OBRASCÓN HUARTE LAIN S.A') THEN
+            dni_user_registro_var :=55555555;
+            ELSE
+            dni_user_registro_var:=1;
+            end if;
             descripcion := 'SELLO DEL DOCTOR ADICIONAL';
             name_digitalizacion := 'DOCTOREXTRA';
             dni := dni_user_registro_var;
@@ -1531,7 +1780,7 @@ BEGIN
                  
 END;
 $BODY$
-  LANGUAGE plpgsql
+  LANGUAGE plpgsql;
 
 ------------------------------------------------------------------------------------------------------------------------------
 
@@ -2046,6 +2295,17 @@ begin
 
         if(p_examen_med='radiografia') THEN
 	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from radiografia where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+        if(p_examen_med='oit') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from oit where n_orden=p_historia_clinica limit 1;
 		if(v_id_existencia=0) THEN
 			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
 		else
