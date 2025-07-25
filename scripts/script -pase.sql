@@ -1,6 +1,4 @@
-drop FUNCTION obtener_reporte_oftalmologia_oftalmologialo(IN p_norden integer)
-
-CREATE OR REPLACE FUNCTION obtener_reporte_oftalmologia_oftalmologialo(IN p_norden integer)
+CREATE OR REPLACE FUNCTION obtener_informacion_oftalmologiaConObservaciones(IN p_norden integer)
   RETURNS TABLE(
 	nombres text,
 	edad text,
@@ -25,24 +23,7 @@ CREATE OR REPLACE FUNCTION obtener_reporte_oftalmologia_oftalmologialo(IN p_nord
 	v_binocular text,
 	r_pupilares text,
 	e_oculares text,
-	--fecha_of date,
-	e_oculares1 text,
-	color integer,
-	sede_descripcion text,
-	dir_sede4 text,
-	email_sede4 text,
-	tel_sede4 text,
-	cel_sede4 text,
-	dir_sede3 text,
-	email_sede3 text,
-	tel_sede3 text,
-	dir_sede2 text,
-	email_sede2 text,
-	tel_sede2 text,
-	cel_sede2 text,
-	dir_sede1 text,
-	email_sede1 text,
-	tel_sede1 text
+	e_oculares1 text
   ) AS
 $BODY$
 BEGIN
@@ -107,29 +88,7 @@ BEGIN
     END AS RP,
 
     o.e_oculares,
-    o.e_oculares1,
-
-
-    noo.color,
-    CAST(sm.descripcion AS TEXT),
-
-    (SELECT direccion FROM sede WHERE cod_sede = 4),
-    (SELECT email FROM sede WHERE cod_sede = 4),
-    (SELECT telefono FROM sede WHERE cod_sede = 4),
-    (SELECT celular FROM sede WHERE cod_sede = 4),
-
-    (SELECT direccion FROM sede WHERE cod_sede = 3),
-    (SELECT email FROM sede WHERE cod_sede = 3),
-    (SELECT telefono FROM sede WHERE cod_sede = 3),
-
-    (SELECT direccion FROM sede WHERE cod_sede = 2),
-    (SELECT email FROM sede WHERE cod_sede = 2),
-    (SELECT telefono FROM sede WHERE cod_sede = 2),
-    (SELECT celular FROM sede WHERE cod_sede = 2),
-
-    (SELECT direccion FROM sede WHERE cod_sede = 1),
-    (SELECT email FROM sede WHERE cod_sede = 1),
-    (SELECT telefono FROM sede WHERE cod_sede = 1)
+    o.e_oculares1
 
   FROM datos_paciente dp
   INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
@@ -140,7 +99,7 @@ BEGIN
   WHERE noo.n_orden = p_norden;
 END;
 $BODY$
-  LANGUAGE plpgsql;
+  LANGUAGE plpgsql
 
 --------------------------------------------------------------------------------
 
