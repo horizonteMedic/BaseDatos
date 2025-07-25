@@ -1,3 +1,149 @@
+drop FUNCTION obtener_reporte_oftalmologia_oftalmologialo(IN p_norden integer)
+
+CREATE OR REPLACE FUNCTION obtener_reporte_oftalmologia_oftalmologialo(IN p_norden integer)
+  RETURNS TABLE(
+	nombres text,
+	edad text,
+	n_orden integer,
+	dni integer,
+	fecha_nac date,
+	empresa text,
+	contrata text,
+	nom_examen text,
+	sexo "char",
+	cod_of integer,
+	num_ticket integer,
+	v_cerca_s_od text,
+	v_cerca_s_oi text,
+	v_cerca_c_od text,
+	v_cerca_c_oi text,
+	v_lejos_s_od text,
+	v_lejos_s_oi text,
+	v_lejos_c_od text,
+	v_lejos_c_oi text,
+	v_colores text,
+	v_binocular text,
+	r_pupilares text,
+	e_oculares text,
+	--fecha_of date,
+	e_oculares1 text,
+	color integer,
+	sede_descripcion text,
+	dir_sede4 text,
+	email_sede4 text,
+	tel_sede4 text,
+	cel_sede4 text,
+	dir_sede3 text,
+	email_sede3 text,
+	tel_sede3 text,
+	dir_sede2 text,
+	email_sede2 text,
+	tel_sede2 text,
+	cel_sede2 text,
+	dir_sede1 text,
+	email_sede1 text,
+	tel_sede1 text
+  ) AS
+$BODY$
+BEGIN
+
+
+  RETURN QUERY
+  SELECT 
+    dp.nombres_pa || ' ' || dp.apellidos_pa,
+    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+
+    o.n_orden,
+    noo.cod_pa,
+    dp.fecha_nacimiento_pa,
+    noo.razon_empresa,
+    noo.razon_contrata,
+    noo.nom_examen,
+    --dp.lugar_nac_pa,
+    --dp.cel_pa,
+    dp.sexo_pa,
+    --dp.direccion_pa ||'-'|| dp.distrito_pa ||'-'|| dp.provincia_pa ||'-'|| dp.departamento_pa,
+    --u.nombre_user||' '||u.apellido_user,
+    o.cod_of, 
+    o.num_ticket, 
+    o.v_cerca_s_od, 
+    o.v_cerca_s_oi, 
+    CASE 
+        WHEN ol.v_cerca_c_od IS NULL THEN o.v_cerca_c_od  
+        ELSE ol.v_cerca_c_od  
+    END AS ODCC,
+
+    CASE  
+        WHEN ol.v_cerca_c_oi IS NULL THEN o.v_cerca_c_oi  
+        ELSE ol.v_cerca_c_oi  
+    END AS OICC,
+
+    o.v_lejos_s_od, 
+    o.v_lejos_s_oi,
+
+    CASE  
+        WHEN ol.v_lejos_c_od IS NULL THEN o.v_lejos_c_od  
+        ELSE ol.v_lejos_c_od  
+    END AS ODLC,
+
+    CASE  
+        WHEN ol.v_lejos_c_oi IS NULL THEN o.v_lejos_c_oi  
+        ELSE ol.v_lejos_c_oi  
+    END AS OILC,
+
+    CASE  
+        WHEN ol.v_colores IS NULL THEN o.v_colores  
+        ELSE ol.v_colores  
+    END AS VC,
+
+    CASE  
+        WHEN ol.v_binocular IS NULL THEN o.v_binocular  
+        ELSE ol.v_binocular  
+    END AS VB,
+
+    CASE  
+        WHEN ol.r_pupilares IS NULL THEN o.r_pupilares  
+        ELSE ol.r_pupilares  
+    END AS RP,
+
+    o.e_oculares,
+    o.e_oculares1,
+
+
+    noo.color,
+    CAST(sm.descripcion AS TEXT),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 4),
+    (SELECT email FROM sede WHERE cod_sede = 4),
+    (SELECT telefono FROM sede WHERE cod_sede = 4),
+    (SELECT celular FROM sede WHERE cod_sede = 4),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 3),
+    (SELECT email FROM sede WHERE cod_sede = 3),
+    (SELECT telefono FROM sede WHERE cod_sede = 3),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 2),
+    (SELECT email FROM sede WHERE cod_sede = 2),
+    (SELECT telefono FROM sede WHERE cod_sede = 2),
+    (SELECT celular FROM sede WHERE cod_sede = 2),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 1),
+    (SELECT email FROM sede WHERE cod_sede = 1),
+    (SELECT telefono FROM sede WHERE cod_sede = 1)
+
+  FROM datos_paciente dp
+  INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+  INNER JOIN oftalmologia o ON o.n_orden = noo.n_orden
+  LEFT JOIN oftalmologia_lo ol ON ol.n_orden = noo.n_orden
+  INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+  --INNER JOIN usuarios u ON LOWER(u.usuario_user) = LOWER(hoi.user_registro)
+  WHERE noo.n_orden = p_norden;
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+--------------------------------------------------------------------------------
+
 CREATE OR REPLACE FUNCTION buscar_oftalmologia_pornombreonorden(
     IN n_orden_param integer,
     IN nombres_param text)
