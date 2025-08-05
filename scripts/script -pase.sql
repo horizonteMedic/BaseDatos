@@ -1737,3 +1737,222 @@ BEGIN
 END;
 $BODY$
   LANGUAGE plpgsql;
+
+drop FUNCTION obtener_reporte_odontograma(IN p_norden integer)
+
+CREATE OR REPLACE FUNCTION obtener_reporte_odontograma(IN p_norden integer)
+  RETURNS TABLE(nombres text, edad text, n_orden integer, dni integer, empresa text, contrata text, sexo "char", cod_od integer, fecha_od date, edad_od text, lbl_18 text, lbl_17 text, lbl_16 text, lbl_15 text, lbl_14 text, lbl_13 text, lbl_12 text, lbl_11 text, lbl_21 text, lbl_22 text, lbl_23 text, lbl_24 text, lbl_25 text, lbl_26 text, lbl_27 text, lbl_28 text, lbl_31 text, lbl_32 text, lbl_33 text, lbl_34 text, lbl_35 text, lbl_36 text, lbl_37 text, lbl_38 text, lbl_41 text, lbl_42 text, lbl_43 text, lbl_44 text, lbl_45 text, lbl_46 text, lbl_47 text, lbl_48 text, txtpiezasmalestado integer, txtausentes integer, txtcariadasoturar integer, txtporextraer integer, txtfracturada integer, txtobturacionesefectuadas integer, txtpuentes integer, txtpprmetalicas integer, txtppracrilicas integer, txtptotal integer, txtnormales integer, txtcoronas integer, txtobservaciones text, color integer, sede_descripcion text, dir_sede4 text, email_sede4 text, tel_sede4 text, cel_sede4 text, dir_sede3 text, email_sede3 text, tel_sede3 text, dir_sede2 text, email_sede2 text, tel_sede2 text, cel_sede2 text, dir_sede1 text, email_sede1 text, tel_sede1 text, nom_sede text) AS
+$BODY$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    dp.nombres_pa || ' ' || dp.apellidos_pa,
+    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+
+    o.n_orden,
+    noo.cod_pa,
+    --dp.fecha_nacimiento_pa,
+    noo.razon_empresa,
+    noo.razon_contrata,
+    --noo.nom_examen,
+    --dp.lugar_nac_pa,
+    --dp.cel_pa,
+    dp.sexo_pa,
+    --dp.direccion_pa ||'-'|| dp.distrito_pa ||'-'|| dp.provincia_pa ||'-'|| dp.departamento_pa,
+    --u.nombre_user||' '||u.apellido_user,
+    o.cod_od,
+    o.fecha_od,
+    o.edad_od,
+    o.lbl_18,
+    o.lbl_17,
+    o.lbl_16,
+    o.lbl_15,
+    o.lbl_14,
+    o.lbl_13,
+    o.lbl_12,
+    o.lbl_11,
+    o.lbl_21,
+    o.lbl_22,
+    o.lbl_23,
+    o.lbl_24,
+    o.lbl_25,
+    o.lbl_26,
+    o.lbl_27,
+    o.lbl_28,
+    o.lbl_31,
+    o.lbl_32,
+    o.lbl_33,
+    o.lbl_34,
+    o.lbl_35,
+    o.lbl_36,
+    o.lbl_37,
+    o.lbl_38,
+    o.lbl_41,
+    o.lbl_42,
+    o.lbl_43,
+    o.lbl_44,
+    o.lbl_45,
+    o.lbl_46,
+    o.lbl_47,
+    o.lbl_48,
+    o.txtpiezasmalestado,
+    o.txtausentes,
+    o.txtcariadasoturar,
+    o.txtporextraer,
+    o.txtfracturada,
+    o.txtobturacionesefectuadas,
+    o.txtpuentes,
+    o.txtpprmetalicas,
+    o.txtppracrilicas,
+    o.txtptotal,
+    o.txtnormales,
+    o.txtcoronas,
+    o.txtobservaciones,
+
+    noo.color,
+    CAST(sm.descripcion AS TEXT),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 4),
+    (SELECT email FROM sede WHERE cod_sede = 4),
+    (SELECT telefono FROM sede WHERE cod_sede = 4),
+    (SELECT celular FROM sede WHERE cod_sede = 4),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 3),
+    (SELECT email FROM sede WHERE cod_sede = 3),
+    (SELECT telefono FROM sede WHERE cod_sede = 3),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 2),
+    (SELECT email FROM sede WHERE cod_sede = 2),
+    (SELECT telefono FROM sede WHERE cod_sede = 2),
+    (SELECT celular FROM sede WHERE cod_sede = 2),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 1),
+    (SELECT email FROM sede WHERE cod_sede = 1),
+    (SELECT telefono FROM sede WHERE cod_sede = 1),
+    CASE
+        WHEN UPPER(TRIM(noo.razon_empresa)) = 'CIA MINERA PODEROSA S A' THEN 'Huamachuco'
+        WHEN noo.cod_sede = 1 THEN 'Trujillo'
+        WHEN noo.cod_sede = 2 THEN 'Huamachuco'
+        WHEN noo.cod_sede = 3 THEN 'Huancayo'
+        WHEN noo.cod_sede = 4 THEN 'Trujillo'
+    END AS nom_sede
+    
+
+  FROM datos_paciente dp
+  INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+  INNER JOIN odontograma o ON o.n_orden = noo.n_orden
+  INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+  --INNER JOIN usuarios u ON LOWER(u.usuario_user) = LOWER(hoi.user_registro)
+  WHERE noo.n_orden = p_norden;
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+drop FUNCTION obtener_reporte_odontogramalo(IN p_norden integer)
+
+CREATE OR REPLACE FUNCTION obtener_reporte_odontogramalo(IN p_norden integer)
+  RETURNS TABLE(nombres text, edad text, n_orden integer, dni integer, empresa text, contrata text, sexo "char", fecha_od date, edad_od text, lbl_18 text, lbl_17 text, lbl_16 text, lbl_15 text, lbl_14 text, lbl_13 text, lbl_12 text, lbl_11 text, lbl_21 text, lbl_22 text, lbl_23 text, lbl_24 text, lbl_25 text, lbl_26 text, lbl_27 text, lbl_28 text, lbl_31 text, lbl_32 text, lbl_33 text, lbl_34 text, lbl_35 text, lbl_36 text, lbl_37 text, lbl_38 text, lbl_41 text, lbl_42 text, lbl_43 text, lbl_44 text, lbl_45 text, lbl_46 text, lbl_47 text, lbl_48 text, txtpiezasmalestado integer, txtausentes integer, txtcariadasoturar integer, txtporextraer integer, txtfracturada integer, txtobturacionesefectuadas integer, txtpuentes integer, txtpprmetalicas integer, txtppracrilicas integer, txtptotal integer, txtnormales integer, txtcoronas integer, txtobservaciones text, color integer, sede_descripcion text, dir_sede4 text, email_sede4 text, tel_sede4 text, cel_sede4 text, dir_sede3 text, email_sede3 text, tel_sede3 text, dir_sede2 text, email_sede2 text, tel_sede2 text, cel_sede2 text, dir_sede1 text, email_sede1 text, tel_sede1 text, nom_sede text) AS
+$BODY$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    dp.nombres_pa || ' ' || dp.apellidos_pa,
+    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+
+    o.n_orden,
+    noo.cod_pa,
+    --dp.fecha_nacimiento_pa,
+    noo.razon_empresa,
+    noo.razon_contrata,
+    --noo.nom_examen,
+    --dp.lugar_nac_pa,
+    --dp.cel_pa,
+    dp.sexo_pa,
+    --dp.direccion_pa ||'-'|| dp.distrito_pa ||'-'|| dp.provincia_pa ||'-'|| dp.departamento_pa,
+    --u.nombre_user||' '||u.apellido_user,
+    o.fecha_od,
+    o.edad_od,
+    o.lbl_18,
+    o.lbl_17,
+    o.lbl_16,
+    o.lbl_15,
+    o.lbl_14,
+    o.lbl_13,
+    o.lbl_12,
+    o.lbl_11,
+    o.lbl_21,
+    o.lbl_22,
+    o.lbl_23,
+    o.lbl_24,
+    o.lbl_25,
+    o.lbl_26,
+    o.lbl_27,
+    o.lbl_28,
+    o.lbl_31,
+    o.lbl_32,
+    o.lbl_33,
+    o.lbl_34,
+    o.lbl_35,
+    o.lbl_36,
+    o.lbl_37,
+    o.lbl_38,
+    o.lbl_41,
+    o.lbl_42,
+    o.lbl_43,
+    o.lbl_44,
+    o.lbl_45,
+    o.lbl_46,
+    o.lbl_47,
+    o.lbl_48,
+    o.txtpiezasmalestado,
+    o.txtausentes,
+    o.txtcariadasoturar,
+    o.txtporextraer,
+    o.txtfracturada,
+    o.txtobturacionesefectuadas,
+    o.txtpuentes,
+    o.txtpprmetalicas,
+    o.txtppracrilicas,
+    o.txtptotal,
+    o.txtnormales,
+    o.txtcoronas,
+    o.txtobservaciones,
+
+
+    noo.color,
+    CAST(sm.descripcion AS TEXT),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 4),
+    (SELECT email FROM sede WHERE cod_sede = 4),
+    (SELECT telefono FROM sede WHERE cod_sede = 4),
+    (SELECT celular FROM sede WHERE cod_sede = 4),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 3),
+    (SELECT email FROM sede WHERE cod_sede = 3),
+    (SELECT telefono FROM sede WHERE cod_sede = 3),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 2),
+    (SELECT email FROM sede WHERE cod_sede = 2),
+    (SELECT telefono FROM sede WHERE cod_sede = 2),
+    (SELECT celular FROM sede WHERE cod_sede = 2),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 1),
+    (SELECT email FROM sede WHERE cod_sede = 1),
+    (SELECT telefono FROM sede WHERE cod_sede = 1),
+    CASE
+        WHEN UPPER(TRIM(noo.razon_empresa)) = 'CIA MINERA PODEROSA S A' THEN 'Huamachuco'
+        WHEN noo.cod_sede = 1 THEN 'Trujillo'
+        WHEN noo.cod_sede = 2 THEN 'Huamachuco'
+        WHEN noo.cod_sede = 3 THEN 'Huancayo'
+        WHEN noo.cod_sede = 4 THEN 'Trujillo'
+    END AS nom_sede
+
+  FROM datos_paciente dp
+  INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+  INNER JOIN odontograma_lo o ON o.n_orden = noo.n_orden
+  INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+  --INNER JOIN usuarios u ON LOWER(u.usuario_user) = LOWER(hoi.user_registro)
+  WHERE noo.n_orden = p_norden;
+END;
+$BODY$
+  LANGUAGE plpgsql;
