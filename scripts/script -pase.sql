@@ -1379,7 +1379,8 @@ BEGIN
     ELSIF name_service_param = 'radiografia' THEN
         resultado := 'RAYOSXXXOFI_Digitalizado';
     ELSIF name_service_param = 'oit' THEN
-	IF name_empresa_busqueda_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
+	IF name_empresa_busqueda_var LIKE '%MINERA BOROO MISQUICHILCA S.A.%' OR name_empresa_busqueda_var ILIKE '%EMPRESA DE TRANSPORTES N & V S.A.C.%'
+		OR name_empresa_busqueda_var ILIKE '%DEYFOR EIRL%' THEN
 		resultado := 'OIT_Digitalizado_boro';
 	ELSE
 		resultado := 'OIT_Digitalizado';
