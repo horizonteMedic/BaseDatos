@@ -1,3 +1,360 @@
+CREATE OR REPLACE FUNCTION obtener_reporte_cuestionario_nordico(IN p_norden integer)
+  RETURNS TABLE(
+	nombres text,
+	dni integer,
+	sexo "char",
+	edad text,
+
+	codigo_cuestionario integer,
+	norden integer,
+	horas_trabajadas text,
+	meses text,
+	anios text,
+	es_diestro boolean,
+	es_zurdo boolean,
+	cuello_no boolean,
+	cuello_si boolean,
+	pregunta1_cuello_no boolean,
+	pregunta1_cuello_si boolean,
+	pregunta2_cuello_no boolean,
+	pregunta2_cuello_si boolean,
+	hombros_no boolean,
+	hombro_derecho_si boolean,
+	hombro_izquierdo_si boolean,
+	ambos_hombros_si boolean,
+	pregunta1_hombros_no boolean,
+	pregunta1_hombros_si boolean,
+	pregunta2_hombros_no boolean,
+	pregunta2_hombros_si boolean,
+	codos_no boolean,
+	codo_derecho_si boolean,
+	codo_izquierdo_no boolean,
+	ambos_codos_si boolean,
+	pregunta1_codos_no boolean,
+	pregunta1_codos_si boolean,
+	pregunta2_codos_no boolean,
+	pregunta2_codos_si boolean,
+	muneca_no boolean,
+	muneca_derecha_si boolean,
+	muneca_izquierda_si boolean,
+	ambas_munecas_si boolean,
+	pregunta1_munecas_no boolean,
+	pregunta1_munecas_si boolean,
+	pregunta2_munecas_no boolean,
+	pregunta2_munecas_si boolean,
+	espalda_alta_torax_no boolean,
+	espalda_baja_lumbar_no boolean,
+	caderas_o_muslos_no boolean,
+	rodillas_no boolean,
+	tobillos_o_pies_no boolean,
+	pregunta1_espalda_alta_torax_no boolean,
+	pregunta1_espalda_baja_lumbar_no boolean,
+	pregunta1_caderas_o_muslos_no boolean,
+	pregunta1_rodillas_no boolean,
+	pregunta1_tobillos_o_pies_no boolean,
+	pregunta2_espalda_alta_torax_no boolean,
+	pregunta2_espalda_baja_lumbar_no boolean,
+	pregunta2_caderas_o_muslos_no boolean,
+	pregunta2_rodillas_no boolean,
+	pregunta2_tobillos_o_pies_no boolean,
+	espalda_alta_torax_si boolean,
+	espalda_baja_lumbar_si boolean,
+	caderas_o_muslos_si boolean,
+	rodillas_si boolean,
+	tobillos_o_pies_si boolean,
+	pregunta1_espalda_alta_torax_si boolean,
+	pregunta1_espalda_baja_lumbar_si boolean,
+	pregunta1_caderas_o_muslos_si boolean,
+	pregunta1_rodillas_si boolean,
+	pregunta1_tobillos_o_pies_si boolean,
+	pregunta2_espalda_alta_torax_si boolean,
+	pregunta2_espalda_baja_lumbar_si boolean,
+	pregunta2_caderas_o_muslos_si boolean,
+	pregunta2_rodillas_si boolean,
+	pregunta2_tobillos_o_pies_si boolean,
+	pregunta1_espalda_baja_no boolean,
+	pregunta2_espalda_baja_no boolean,
+	pregunta3_espalda_baja_no boolean,
+	pregunta5a_espalda_baja_no boolean,
+	pregunta5b_espalda_baja_no boolean,
+	pregunta7_espalda_baja_no boolean,
+	pregunta8_espalda_baja_no boolean,
+	pregunta1_espalda_baja_si boolean,
+	pregunta2_espalda_baja_si boolean,
+	pregunta3_espalda_baja_si boolean,
+	pregunta5a_espalda_baja_si boolean,
+	pregunta5b_espalda_baja_si boolean,
+	pregunta7_espalda_baja_si boolean,
+	pregunta8_espalda_baja_si boolean,
+	pregunta4a_espalda_baja boolean,
+	pregunta4b_espalda_baja boolean,
+	pregunta4c_espalda_baja boolean,
+	pregunta4d_espalda_baja boolean,
+	pregunta4e_espalda_baja boolean,
+	pregunta6a_espalda_baja boolean,
+	pregunta6b_espalda_baja boolean,
+	pregunta6c_espalda_baja boolean,
+	pregunta6d_espalda_baja boolean,
+	pregunta1_problemas_hombros_no boolean,
+
+	pregunta3_problemas_hombros_no boolean,
+	pregunta6a_problemas_hombros_no boolean,
+	pregunta6b_problemas_hombros_no boolean,
+	pregunta8_problemas_hombros_no boolean,
+	pregunta1_problemas_hombros_si boolean,
+	pregunta3_problemas_hombros_si boolean,
+	pregunta6a_problemas_hombros_si boolean,
+	pregunta6b_problemas_hombros_si boolean,
+	pregunta8_problemas_hombros_si boolean,
+	pregunta2_problemas_hombros_no boolean,
+	pregunta2_problemas_hombro_derecho_si boolean,
+	pregunta2_problemas_hombro_izquierdo_si boolean,
+	pregunta2_problemas_ambos_hombros boolean,
+	pregunta4_problemas_hombros_no boolean,
+	pregunta4_problemas_hombro_derecho_si boolean,
+	pregunta4_problemas_hombro_izquierdo_si boolean,
+	pregunta4_problemas_ambos_hombros boolean,
+	pregunta5a_problemas_hombros boolean,
+	pregunta5b_problemas_hombros boolean,
+	pregunta5c_problemas_hombros boolean,
+	pregunta5d_problemas_hombros boolean,
+	pregunta7a_problemas_hombros boolean,
+	pregunta7b_problemas_hombros boolean,
+	pregunta7c_problemas_hombros boolean,
+	pregunta7d_problemas_hombros boolean,
+	pregunta9_problemas_hombros_no boolean,
+	pregunta9_problemas_hombro_derecho_si boolean,
+	pregunta9_problemas_hombro_izquierdo_si boolean,
+	pregunta9_problemas_ambos_hombros boolean,
+	pregunta1_problemas_cuello_no boolean,
+	pregunta2_problemas_cuello_no boolean,
+	pregunta3_problemas_cuello_no boolean,
+	pregunta5a_problemas_cuello_no boolean,
+	pregunta5b_problemas_cuello_no boolean,
+	pregunta7_problemas_cuello_no boolean,
+	pregunta8_problemas_cuello_no boolean,
+	pregunta1_problemas_cuello_si boolean,
+	pregunta2_problemas_cuello_si boolean,
+	pregunta3_problemas_cuello_si boolean,
+	pregunta5a_problemas_cuello_si boolean,
+	pregunta5b_problemas_cuello_si boolean,
+	pregunta7_problemas_cuello_si boolean,
+	pregunta8_problemas_cuello_si boolean,
+	pregunta4a_problemas_cuello boolean,
+	pregunta4b_problemas_cuello boolean,
+	pregunta4c_problemas_cuello boolean,
+	pregunta4d_problemas_cuello boolean,
+	pregunta4e_problemas_cuello boolean,
+	pregunta6a_problemas_cuello boolean,
+	pregunta6b_problemas_cuello boolean,
+	pregunta6c_problemas_cuello boolean,
+	pregunta6d_problemas_cuello boolean,
+	fecha_cuestionario date,
+
+	color integer,
+	sede_descripcion text,
+	dir_sede4 text,
+	email_sede4 text,
+	tel_sede4 text,
+	cel_sede4 text,
+	dir_sede3 text,
+	email_sede3 text,
+	tel_sede3 text,
+	dir_sede2 text,
+	email_sede2 text,
+	tel_sede2 text,
+	cel_sede2 text,
+	dir_sede1 text,
+	email_sede1 text,
+	tel_sede1 text
+  ) AS
+$BODY$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    dp.nombres_pa || ' ' || dp.apellidos_pa,
+    noo.cod_pa,
+    dp.sexo_pa,
+    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+    
+    cn.cod_cuestionario,
+    cn.n_orden,
+    cn.txthorastrabaja,
+    cn.txttmeses,
+    cn.txttanos,
+    cn.chkdiestro,
+    cn.chkzurdo,
+    cn.chkcuellono,
+    cn.chkcuellosi,
+    cn.chkcno1,
+    cn.chkcsi1,
+    cn.chkcno2,
+    cn.chkcsi2,
+    cn.rbh1,
+    cn.rbh2,
+    cn.rbh3,
+    cn.rbh4,
+    cn.chkhno1,
+    cn.chkhsi1,
+    cn.chkhno2,
+    cn.chkhsi2,
+    cn.rbc1,
+    cn.rbc2,
+    cn.rbc3,
+    cn.rbc4,
+    cn.chkcono1,
+    cn.chkcosi1,
+    cn.chkcono2,
+    cn.chkcosi2,
+    cn.rbm1,
+    cn.rbm2,
+    cn.rbm3,
+    cn.rbm4,
+    cn.chkmno1,
+    cn.chkmsi1,
+    cn.chkmno2,
+    cn.chkmsi2,
+    cn.chkno1,
+    cn.chkno2,
+    cn.chkno3,
+    cn.chkno4,
+    cn.chkno5,
+    cn.chkno6,
+    cn.chkno7,
+    cn.chkno8,
+    cn.chkno9,
+    cn.chkno10,
+    cn.chkno11,
+    cn.chkno12,
+    cn.chkno13,
+    cn.chkno14,
+    cn.chkno15,
+    cn.chksi1,
+    cn.chksi2,
+    cn.chksi3,
+    cn.chksi4,
+    cn.chksi5,
+    cn.chksi6,
+    cn.chksi7,
+    cn.chksi8,
+    cn.chksi9,
+    cn.chksi10,
+    cn.chksi11,
+    cn.chksi12,
+    cn.chksi13,
+    cn.chksi14,
+    cn.chksi15,
+    cn.chkeno1,
+    cn.chkeno2,
+    cn.chkeno3,
+    cn.chkeno4,
+    cn.chkeno5,
+    cn.chkeno6,
+    cn.chkeno7,
+    cn.chkesi1,
+    cn.chkesi2,
+    cn.chkesi3,
+    cn.chkesi4,
+    cn.chkesi5,
+    cn.chkesi6,
+    cn.chkesi7,
+    cn.rbe1,
+    cn.rbe2,
+    cn.rbe3,
+    cn.rbe4,
+    cn.rbe5,
+    cn.rbe6,
+    cn.rbe7,
+    cn.rbe8,
+    cn.rbe9,
+    cn.chkphno1,
+    cn.chkphno2,
+    cn.chkphno3,
+    cn.chkphno4,
+    cn.chkphno5,
+    cn.chkphsi1,
+    cn.chkphsi2,
+    cn.chkphsi3,
+    cn.chkphsi4,
+    cn.chkphsi5,
+    cn.chkph1,
+    cn.chkph2,
+    cn.chkph3,
+    cn.chkph4,
+    cn.chkph5,
+    cn.chkph6,
+    cn.chkph7,
+    cn.chkph8,
+    cn.chkph9,
+    cn.chkph10,
+    cn.chkph11,
+    cn.chkph12,
+    cn.chkph13,
+    cn.chkph14,
+    cn.chkph15,
+    cn.chkph16,
+    cn.chkph17,
+    cn.chkph18,
+    cn.chkph19,
+    cn.chkph20,
+    cn.chkpcno1,
+    cn.chkpcno2,
+    cn.chkpcno3,
+    cn.chkpcno4,
+    cn.chkpcno5,
+    cn.chkpcno6,
+    cn.chkpcno7,
+    cn.chkpcsi1,
+    cn.chkpcsi2,
+    cn.chkpcsi3,
+    cn.chkpcsi4,
+    cn.chkpcsi5,
+    cn.chkpcsi6,
+    cn.chkpcsi7,
+    cn.chkpc1,
+    cn.chkpc2,
+    cn.chkpc3,
+    cn.chkpc4,
+    cn.chkpc5,
+    cn.chkpc6,
+    cn.chkpc7,
+    cn.chkpc8,
+    cn.chkpc9,
+    cn.fecha_cuestionario,
+    noo.color,
+    CAST(sm.descripcion AS TEXT),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 4),
+    (SELECT email FROM sede WHERE cod_sede = 4),
+    (SELECT telefono FROM sede WHERE cod_sede = 4),
+    (SELECT celular FROM sede WHERE cod_sede = 4),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 3),
+    (SELECT email FROM sede WHERE cod_sede = 3),
+    (SELECT telefono FROM sede WHERE cod_sede = 3),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 2),
+    (SELECT email FROM sede WHERE cod_sede = 2),
+    (SELECT telefono FROM sede WHERE cod_sede = 2),
+    (SELECT celular FROM sede WHERE cod_sede = 2),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 1),
+    (SELECT email FROM sede WHERE cod_sede = 1),
+    (SELECT telefono FROM sede WHERE cod_sede = 1)
+
+  FROM datos_paciente dp
+  INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+  INNER JOIN cuestionario_nordico cn ON cn.n_orden = noo.n_orden
+  INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+  --LEFT JOIN usuarios u ON u.dni_user = ci.dni_user
+  WHERE noo.n_orden = p_norden;
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
+			values('cuestionario_nordico','formulario de cuestionario nordico',true,true,true,false,false);
+
 DROP FUNCTION buscar_odontograma_pornombreonorden(
     IN n_orden_param integer,
     IN nombres_param text)
@@ -461,13 +818,16 @@ BEGIN
         resultado := 'EvaluacionMuscoloEsqueletica2021_Digitalizado_boro';
     ELSIF name_service_param = 'consentimientoInformado' THEN
 	resultado := 'conInformadoOcupacional_Digitalizado';
+    ELSIF name_service_param = 'cuestionario_nordico' THEN
+	resultado := 'CuestionarioNordico';
     END IF;
     RETURN resultado;
 END;
 $BODY$
   LANGUAGE plpgsql;
 
-  CREATE OR REPLACE FUNCTION obtener_parametros_digitalizados(
+
+CREATE OR REPLACE FUNCTION obtener_parametros_digitalizados(
     IN norden_param bigint,
     IN name_servicio_param text)
   RETURNS TABLE(descripcion text, name_digitalizacion text, dni integer) AS
@@ -1209,11 +1569,13 @@ BEGIN
 
         IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
 
-		IF(empresa_var='OBRASCÓN HUARTE LAIN S.A') THEN
-		dni_user_registro_var :=42664426;
+		IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
+		    dni_user_registro_var := 42664426;
+		ELSIF empresa_var = 'MONARCA GOLD S.A.C.' THEN
+		    dni_user_registro_var := 66666666;
 		ELSE
-		dni_user_registro_var:=1;
-		end if;
+		    dni_user_registro_var := 1;
+		END IF;
             descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
             name_digitalizacion := 'SELLOFIRMADOCASIG';
             dni := dni_user_registro_var;
@@ -1235,11 +1597,13 @@ BEGIN
 
         IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
 
-		IF(empresa_var='OBRASCÓN HUARTE LAIN S.A') THEN
-		dni_user_registro_var :=42664426;
+		IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
+		    dni_user_registro_var := 42664426;
+		ELSIF empresa_var = 'MONARCA GOLD S.A.C.' THEN
+		    dni_user_registro_var := 66666666;
 		ELSE
-		dni_user_registro_var:=1;
-		end if;
+		    dni_user_registro_var := 1;
+		END IF;
             descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
             name_digitalizacion := 'SELLOFIRMADOCASIG';
             dni := dni_user_registro_var;
@@ -1274,11 +1638,13 @@ BEGIN
 
         IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
 
-		IF(empresa_var='OBRASCÓN HUARTE LAIN S.A') THEN
-		dni_user_registro_var :=42664426;
+		IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
+		    dni_user_registro_var := 42664426;
+		ELSIF empresa_var = 'MONARCA GOLD S.A.C.' THEN
+		    dni_user_registro_var := 66666666;
 		ELSE
-		dni_user_registro_var:=1;
-		end if;
+		    dni_user_registro_var := 1;
+		END IF;
             descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
             name_digitalizacion := 'SELLOFIRMADOCASIG';
             dni := dni_user_registro_var;
@@ -1447,6 +1813,31 @@ BEGIN
         END IF;
     END IF;
 
+    IF name_servicio_param = 'cuestionario_nordico' THEN
+        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            descripcion := 'FIRMA DEL PACIENTE';
+            name_digitalizacion := 'FIRMAP';
+            dni := dni_paciente_var;
+            RETURN NEXT;
+        END IF;
+
+        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            descripcion := 'HUELLA DEL PACIENTE';
+            name_digitalizacion := 'HUELLA';
+            dni := dni_paciente_var;
+            RETURN NEXT;
+        END IF;
+
+        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            SELECT user_registro INTO user_registro_var 
+            FROM cuestionario_nordico WHERE n_orden = norden_param;
+            select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
+            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
+            name_digitalizacion := 'SELLOFIRMA';
+            dni := dni_user_registro_var;
+            RETURN NEXT;
+        END IF;
+    END IF;
                  
 END;
 $BODY$
@@ -2030,6 +2421,17 @@ begin
 
         if(p_examen_med='evaluacion_musculo_esqueletica2021') THEN
 	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from evaluacion_musculo_esqueletica2021 where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+        if(p_examen_med='cuestionario_nordico') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from cuestionario_nordico where n_orden=p_historia_clinica limit 1;
 		if(v_id_existencia=0) THEN
 			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
 		else
