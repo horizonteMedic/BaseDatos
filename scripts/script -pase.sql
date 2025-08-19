@@ -1,3 +1,407 @@
+ALTER TABLE ficha_audiologica
+ADD COLUMN otros text;
+
+drop FUNCTION obtener_informacion_fichaaudiologica(IN p_norden integer)
+
+CREATE OR REPLACE FUNCTION obtener_informacion_fichaaudiologica(IN p_norden integer)
+  RETURNS TABLE(nombres text, edad text, n_orden integer, dni integer, fecha_nacimiento_pa date, empresa text, contrata text, nom_examen text, sexo_pa "char", area_o text, cod_fa integer, fecha_examen date, tiempo_trabajo integer, tiempo_exposicion_total_ponderado text, edad_fa text, chk_tapones boolean, chkgrajeras boolean, chkintenso boolean, chkmoderado boolean, chknomolesto boolean, txtmarca text, txtmodelo text, fechacalibracion date, chk1_si boolean, chk2_si boolean, chk3_si boolean, chk4_si boolean, chk5_si boolean, chk6_si boolean, chk7_si boolean, chk8_si boolean, chk9_si boolean, chk10_si boolean, chk11_si boolean, chk12_si boolean, chk1_no boolean, chk2_no boolean, chk3_no boolean, chk4_no boolean, chk5_no boolean, chk6_no boolean, chk7_no boolean, chk8_no boolean, chk9_no boolean, chk10_no boolean, chk11_no boolean, chk12_no boolean, txtdod250 text, txtdod500 text, txtdod1000 text, txtdoi250 text, txtdoi500 text, txtdoi1000 text, txtldumbraldiscriminacion text, txtliumbraldiscriminacion text, txtldporcentagediscriminacion text, txtliporcentagediscriminacion text, txtldconfort text, txtliconfort text, txtlddisconfort text, txtlidisconfort text, txtresponsable text, txtconclusiones text, txtmedico text, txtotoscopia text, txtmesestrabajo integer, user_registro text, otros text) AS
+$BODY$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    dp.apellidos_pa || ' ' || dp.nombres_pa,
+    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+
+    fa.n_orden,
+    noo.cod_pa,
+    dp.fecha_nacimiento_pa,
+    noo.razon_empresa,
+    noo.razon_contrata,
+    noo.nom_examen,
+    dp.sexo_pa,
+    noo.area_o,
+
+    fa.cod_fa,
+    fa.fecha_examen,
+    fa.tiempo_trabajo,
+    fa.tiempo_exposicion_total_ponderado,
+    fa.edad_fa,
+    fa.chk_tapones,
+    fa.chkgrajeras,
+    fa.chkintenso,
+    fa.chkmoderado,
+    fa.chknomolesto,
+    fa.txtmarca,
+    fa.txtmodelo,
+    fa.fechacalibracion,
+    fa.chk1_si,
+    fa.chk2_si,
+    fa.chk3_si,
+    fa.chk4_si,
+    fa.chk5_si,
+    fa.chk6_si,
+    fa.chk7_si,
+    fa.chk8_si,
+    fa.chk9_si,
+    fa.chk10_si,
+    fa.chk11_si,
+    fa.chk12_si,
+    fa.chk1_no,
+    fa.chk2_no,
+    fa.chk3_no,
+    fa.chk4_no,
+    fa.chk5_no,
+    fa.chk6_no,
+    fa.chk7_no,
+    fa.chk8_no,
+    fa.chk9_no,
+    fa.chk10_no,
+    fa.chk11_no,
+    fa.chk12_no,
+    fa.txtdod250,
+    fa.txtdod500,
+    fa.txtdod1000,
+    fa.txtdoi250,
+    fa.txtdoi500,
+    fa.txtdoi1000,
+    fa.txtldumbraldiscriminacion,
+    fa.txtliumbraldiscriminacion,
+    fa.txtldporcentagediscriminacion,
+    fa.txtliporcentagediscriminacion,
+    fa.txtldconfort,
+    fa.txtliconfort,
+    fa.txtlddisconfort,
+    fa.txtlidisconfort,
+    fa.txtresponsable,
+    fa.txtconclusiones,
+    fa.txtmedico,
+    fa.txtotoscopia,
+    fa.txtmesestrabajo,
+    fa.user_registro,
+    fa.otros
+
+    
+  FROM datos_paciente dp
+  INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+  INNER JOIN ficha_audiologica fa ON fa.n_orden = noo.n_orden
+  INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+  WHERE noo.n_orden = p_norden;
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+  drop FUNCTION obtener_reporte_audiometriam(IN p_norden integer)
+
+CREATE OR REPLACE FUNCTION obtener_reporte_audiometriam(IN p_norden integer)
+  RETURNS TABLE(nombres text, edad text, n_orden integer, dni integer, num_ticket integer, fecha_au date, o_d_500 text, o_d_1000 text, o_d_2000 text, o_d_3000 text, o_d_4000 text, o_d_6000 text, o_d_8000 text, o_i_500 text, o_i_1000 text, o_i_2000 text, o_i_3000 text, o_i_4000 text, o_i_6000 text, o_i_8000 text, o_d1_500 text, o_d1_1000 text, o_d1_2000 text, o_d1_3000 text, o_d1_4000 text, o_d1_6000 text, o_d1_8000 text, o_i1_500 text, o_i1_1000 text, o_i1_2000 text, o_i1_3000 text, o_i1_4000 text, o_i1_6000 text, o_i1_8000 text, diagnostico text, fecha_examen date, tiempo_trabajo integer, tiempo_exposicion_total_ponderado text, edad_fa text, chk_tapones boolean, chkgrajeras boolean, chkintenso boolean, chkmoderado boolean, chknomolesto boolean, txtmarca text, txtmodelo text, fechacalibracion date, chk1_si boolean, chk2_si boolean, chk3_si boolean, chk4_si boolean, chk5_si boolean, chk6_si boolean, chk7_si boolean, chk8_si boolean, chk9_si boolean, chk10_si boolean, chk11_si boolean, chk12_si boolean, chk1_no boolean, chk2_no boolean, chk3_no boolean, chk4_no boolean, chk5_no boolean, chk6_no boolean, chk7_no boolean, chk8_no boolean, chk9_no boolean, chk10_no boolean, chk11_no boolean, chk12_no boolean, txtdod250 text, txtdod500 text, txtdod1000 text, txtdoi250 text, txtdoi500 text, txtdoi1000 text, txtldumbraldiscriminacion text, txtliumbraldiscriminacion text, txtldporcentagediscriminacion text, txtliporcentagediscriminacion text, txtldconfort text, txtliconfort text, txtlddisconfort text, txtlidisconfort text, txtresponsable text, txtconclusiones text, txtmedico text, txtotoscopia text, txtmesestrabajo integer, color integer, sede_descripcion text, dir_sede4 text, email_sede4 text, tel_sede4 text, cel_sede4 text, dir_sede3 text, email_sede3 text, tel_sede3 text, dir_sede2 text, email_sede2 text, tel_sede2 text, cel_sede2 text, dir_sede1 text, email_sede1 text, tel_sede1 text, empresa text, contrata text, nom_examen text, sexo_pa "char", ocupacion text, otros text) AS
+$BODY$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    dp.nombres_pa || ' ' || dp.apellidos_pa,
+    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+
+    fa.n_orden,
+    noo.cod_pa,
+
+    apo.num_ticket,
+    apo.fecha_au,
+    apo.o_d_500,
+    apo.o_d_1000,
+    apo.o_d_2000,
+    apo.o_d_3000,
+    apo.o_d_4000,
+    apo.o_d_6000,
+    apo.o_d_8000,
+    apo.o_i_500,
+    apo.o_i_1000,
+    apo.o_i_2000,
+    apo.o_i_3000,
+    apo.o_i_4000,
+    apo.o_i_6000,
+    apo.o_i_8000,
+    apo.o_d1_500,
+    apo.o_d1_1000,
+    apo.o_d1_2000,
+    apo.o_d1_3000,
+    apo.o_d1_4000,
+    apo.o_d1_6000,
+    apo.o_d1_8000,
+    apo.o_i1_500,
+    apo.o_i1_1000,
+    apo.o_i1_2000,
+    apo.o_i1_3000,
+    apo.o_i1_4000,
+    apo.o_i1_6000,
+    apo.o_i1_8000,
+    apo.diagnostico,
+
+
+    fa.fecha_examen,
+    fa.tiempo_trabajo,
+    fa.tiempo_exposicion_total_ponderado,
+    fa.edad_fa,
+    fa.chk_tapones,
+    fa.chkgrajeras,
+    fa.chkintenso,
+    fa.chkmoderado,
+    fa.chknomolesto,
+    fa.txtmarca,
+    fa.txtmodelo,
+    fa.fechacalibracion,
+    fa.chk1_si,
+    fa.chk2_si,
+    fa.chk3_si,
+    fa.chk4_si,
+    fa.chk5_si,
+    fa.chk6_si,
+    fa.chk7_si,
+    fa.chk8_si,
+    fa.chk9_si,
+    fa.chk10_si,
+    fa.chk11_si,
+    fa.chk12_si,
+    fa.chk1_no,
+    fa.chk2_no,
+    fa.chk3_no,
+    fa.chk4_no,
+    fa.chk5_no,
+    fa.chk6_no,
+    fa.chk7_no,
+    fa.chk8_no,
+    fa.chk9_no,
+    fa.chk10_no,
+    fa.chk11_no,
+    fa.chk12_no,
+    fa.txtdod250,
+    fa.txtdod500,
+    fa.txtdod1000,
+    fa.txtdoi250,
+    fa.txtdoi500,
+    fa.txtdoi1000,
+    fa.txtldumbraldiscriminacion,
+    fa.txtliumbraldiscriminacion,
+    fa.txtldporcentagediscriminacion,
+    fa.txtliporcentagediscriminacion,
+    fa.txtldconfort,
+    fa.txtliconfort,
+    fa.txtlddisconfort,
+    fa.txtlidisconfort,
+    --fa.txtresponsable,
+    (select nombre_user || ' ' || apellido_user from usuarios where usuario_user = 'SGUTIERREZ') as txtresponsable,
+    fa.txtconclusiones,
+    fa.txtmedico,
+    fa.txtotoscopia,
+    fa.txtmesestrabajo,
+
+
+    noo.color,
+    CAST(sm.descripcion AS TEXT),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 4),
+    (SELECT email FROM sede WHERE cod_sede = 4),
+    (SELECT telefono FROM sede WHERE cod_sede = 4),
+    (SELECT celular FROM sede WHERE cod_sede = 4),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 3),
+    (SELECT email FROM sede WHERE cod_sede = 3),
+    (SELECT telefono FROM sede WHERE cod_sede = 3),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 2),
+    (SELECT email FROM sede WHERE cod_sede = 2),
+    (SELECT telefono FROM sede WHERE cod_sede = 2),
+    (SELECT celular FROM sede WHERE cod_sede = 2),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 1),
+    (SELECT email FROM sede WHERE cod_sede = 1),
+    (SELECT telefono FROM sede WHERE cod_sede = 1),
+    noo.razon_empresa,
+    noo.razon_contrata,
+    noo.nom_examen,
+    --dp.lugar_nac_pa,
+    --dp.cel_pa,
+    dp.sexo_pa,
+    noo.cargo_de,
+    fa.otros
+
+  FROM datos_paciente dp
+  INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+  INNER JOIN ficha_audiologica fa ON fa.n_orden = noo.n_orden
+  INNER JOIN audiometria_po apo ON apo.n_orden = fa.n_orden
+  INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+  WHERE noo.n_orden = p_norden;
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION obtener_reporte_historiaocupacional(IN p_norden integer)
+  RETURNS TABLE(nombres text, edad text, n_orden integer, dni integer, fecha_nac date, lugar_nacimiento text, cel_pa text, sexo "char", lugar_procedencia text, medico_asignado text, cod_ho integer, area_o text, fecha_ho date, na text, fecha text, empresa text, actividad text, area_empresa text, ocupacion text, superficie text, socavon text, riesgo text, proteccion text, altitud text, color integer, sede_descripcion text, dir_sede4 text, email_sede4 text, tel_sede4 text, cel_sede4 text, dir_sede3 text, email_sede3 text, tel_sede3 text, dir_sede2 text, email_sede2 text, tel_sede2 text, cel_sede2 text, dir_sede1 text, email_sede1 text, tel_sede1 text, orden integer, profesion text) AS
+$BODY$
+DECLARE 
+    empresa_var TEXT;
+BEGIN
+
+
+    SELECT trim(razon_empresa) INTO empresa_var FROM n_orden_ocupacional as n WHERE n.n_orden = p_norden;
+
+		IF(empresa_var='OBRASCÓN HUARTE LAIN S.A') THEN
+			UPDATE historia_oc_info SET dni_user=42664426, user_registro='AGARCIA' where historia_oc_info.n_orden=p_norden;
+		ELSIF(empresa_var='MONARCA GOLD S.A.C.') THEN
+			UPDATE historia_oc_info SET dni_user=66666666, user_registro='SHNEIDER' where historia_oc_info.n_orden=p_norden;
+		END IF;
+
+  RETURN QUERY
+  SELECT 
+    dp.nombres_pa || ' ' || dp.apellidos_pa,
+    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+
+    hoi.n_orden,
+    noo.cod_pa,
+    dp.fecha_nacimiento_pa,
+    dp.lugar_nac_pa,
+    dp.cel_pa,
+    dp.sexo_pa,
+    dp.direccion_pa ||'-'|| dp.distrito_pa ||'-'|| dp.provincia_pa ||'-'|| dp.departamento_pa,
+    CAST(' ' as text),
+
+    hoi.cod_ho,
+    hoi.area_o,
+    hoi.fecha_ho,
+    hoi.na,
+
+    hod.fecha,
+    hod.empresa,
+    hod.actividad,
+    hod.area_empresa,
+    hod.ocupacion,
+    hod.superficie,
+    hod.socavon,
+    hod.riesgo,
+    hod.proteccion,
+    hod.altitud,
+
+
+    noo.color,
+    CAST(sm.descripcion AS TEXT),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 4),
+    (SELECT email FROM sede WHERE cod_sede = 4),
+    (SELECT telefono FROM sede WHERE cod_sede = 4),
+    (SELECT celular FROM sede WHERE cod_sede = 4),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 3),
+    (SELECT email FROM sede WHERE cod_sede = 3),
+    (SELECT telefono FROM sede WHERE cod_sede = 3),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 2),
+    (SELECT email FROM sede WHERE cod_sede = 2),
+    (SELECT telefono FROM sede WHERE cod_sede = 2),
+    (SELECT celular FROM sede WHERE cod_sede = 2),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 1),
+    (SELECT email FROM sede WHERE cod_sede = 1),
+    (SELECT telefono FROM sede WHERE cod_sede = 1),
+    hod.cod_ho,
+    dp.ocupacion_pa
+
+  FROM datos_paciente dp
+  INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+  INNER JOIN historia_oc_info hoi ON hoi.n_orden = noo.n_orden
+  LEFT JOIN historia_oc_detalle hod ON hod.cod_ho = hoi.cod_ho
+  INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+  LEFT JOIN usuarios u ON LOWER(u.usuario_user) = LOWER(hoi.user_registro)
+  WHERE noo.n_orden = p_norden;
+END;
+$BODY$
+  LANGUAGE plpgsql
+
+CREATE OR REPLACE FUNCTION obtener_reporte_informe_electro_cardiograma(
+    IN p_norden integer,
+    IN name_service text)
+  RETURNS TABLE(
+	nombres text,
+	sexo "char",
+	dni integer,
+	edad text,
+	empresa text,
+	contrata text,
+	codigo_electrocardiograma integer,
+	n_orden integer,
+	fecha_informe date,
+	mensaje_ritmo text,
+	mensaje_pr text,
+	mensaje_fc text,
+	mensaje_qtc text,
+	mensaje_qrs text,
+	mensaje_eje text,
+	hallazgo text,
+	conclusion text,
+	recomendaciones text,
+	color integer,
+	sede text,
+	codigo_sede text,
+	name_jasper text,
+	descripcion_digitalizacion text,
+	name_digitalizacion text,
+	dni_digitalizacion integer
+  ) AS
+$BODY$
+BEGIN
+    -- Tabla temporal para los parametros digitalizados
+    CREATE TEMP TABLE temp_digitalizados_informe_electro_cardiograma AS
+    SELECT p_norden AS n_orden, *
+    FROM obtener_parametros_digitalizados(p_norden, name_service);
+    
+    RETURN QUERY
+    SELECT 
+        dp.nombres_pa || ' ' || dp.apellidos_pa,
+        dp.sexo_pa,
+        noo.cod_pa,
+        CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+        noo.razon_empresa,
+        noo.razon_contrata,
+        ie.cod_elec,
+	ie.n_orden,
+	ie.fecha_informe,
+	ie.ritmo,
+	ie.p_r,
+	ie.f_c,
+	ie.q_t_c,
+	ie.q_r_s,
+	ie.eje,
+	ie.hallazgo,
+	ie.conclusion,
+	ie.recomendaciones,
+        noo.color,
+        CAST(sm.descripcion AS TEXT),
+        CASE
+            WHEN UPPER(TRIM(noo.razon_empresa)) = 'CIA MINERA PODEROSA S A' THEN 'Huamachuco'
+            WHEN noo.cod_sede = 1 THEN 'Trujillo'
+            WHEN noo.cod_sede = 2 THEN 'Huamachuco'
+            WHEN noo.cod_sede = 3 THEN 'Huancayo'
+            WHEN noo.cod_sede = 4 THEN 'Trujillo'
+        END AS nom_sede,
+        obtener_name_jasper(p_norden, name_service),
+        td.descripcion,
+        td.name_digitalizacion,
+        td.dni
+    FROM datos_paciente dp
+    INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+    INNER JOIN informe_electrocardiograma ie ON ie.n_orden = noo.n_orden
+    INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+    INNER JOIN temp_digitalizados_informe_electro_cardiograma td ON ie.n_orden = td.n_orden
+    WHERE noo.n_orden = p_norden;
+
+    DROP TABLE IF EXISTS temp_digitalizados_informe_electro_cardiograma;
+
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
+			values('informe_electrocardiograma','formulario de informe electrocardiograma',false,false,true,false,false);
+
+
 drop FUNCTION obtener_reporte_consentimiento_informado(IN p_norden integer)
 
 CREATE OR REPLACE FUNCTION obtener_reporte_consentimiento_informado(
@@ -959,6 +1363,9 @@ BEGIN
 	ELSE
 		resultado := 'TestFatigaSomnolenia_Digitalizado';
 	END IF;
+	
+    ELSIF name_service_param = 'informe_electrocardiograma' THEN
+	resultado := 'InformeElectrocardiograma_Digitalizado';
   END IF; 
     RETURN resultado;
 END;
@@ -969,7 +1376,10 @@ $BODY$
   insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
 			values('test_fatiga_somnolencia','formulario de test_fatiga_somnolencia',true,true,true,false,false);
 
-CREATE OR REPLACE FUNCTION obtener_parametros_digitalizados(
+
+
+
+  CREATE OR REPLACE FUNCTION obtener_parametros_digitalizados(
     IN norden_param bigint,
     IN name_servicio_param text)
   RETURNS TABLE(descripcion text, name_digitalizacion text, dni integer) AS
@@ -1906,6 +2316,11 @@ BEGIN
             SELECT user_registro INTO user_registro_var 
             FROM evaluacion_musculo_esqueletica WHERE n_orden = norden_param;
             select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
+		IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
+		    dni_user_registro_var := 42664426;
+		ELSIF empresa_var = 'MONARCA GOLD S.A.C.' THEN
+		    dni_user_registro_var := 66666666;
+		END IF;
             descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
             name_digitalizacion := 'SELLOFIRMA';
             dni := dni_user_registro_var;
@@ -2023,7 +2438,20 @@ IF name_servicio_param = 'test_fatiga_somnolencia' THEN
             RETURN NEXT;
         END IF;
     END IF;
+
+    IF name_servicio_param = 'informe_electrocardiograma' THEN
+        
+        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            SELECT user_registro INTO user_registro_var 
+            FROM informe_electrocardiograma WHERE n_orden = norden_param;
+            select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
+            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
+            name_digitalizacion := 'SELLOFIRMA';
+            dni := dni_user_registro_var;
+            RETURN NEXT;
+        END IF;
+    END IF;
                  
 END;
 $BODY$
-  LANGUAGE plpgsql;			
+  LANGUAGE plpgsql;
