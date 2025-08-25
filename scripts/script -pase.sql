@@ -73,3 +73,33 @@ BEGIN
 END;
 $BODY$
   LANGUAGE plpgsql;
+
+  CREATE OR REPLACE FUNCTION buscar_electro_cardiograma_pornombreonorden(
+    IN n_orden_param integer,
+    IN nombres_param text)
+  RETURNS TABLE(codigo_electrocardiograma integer, nombres text, n_orden integer, fecha_informe date) AS
+$BODY$
+BEGIN
+
+ RETURN QUERY 
+ SELECT
+    e.cod_elec,
+    dp.nombres_pa || '' || dp.apellidos_pa AS nombres,
+    n.n_orden,
+    e.fecha_informe
+    
+FROM 
+    datos_paciente AS dp
+INNER JOIN 
+    n_orden_ocupacional AS n ON n.cod_pa = dp.cod_pa
+INNER JOIN 
+    informe_electrocardiograma AS e ON n.n_orden = e.n_orden
+WHERE 
+    (n_orden_param IS NULL OR e.n_orden = n_orden_param)
+    AND (nombres_param IS NULL OR CONCAT(dp.nombres_pa,' ',dp.apellidos_pa) ILIKE '%' || nombres_param || '%')
+ORDER BY 
+    e.fecha_informe DESC
+LIMIT 100;
+
+END; $BODY$
+  LANGUAGE plpgsql;
