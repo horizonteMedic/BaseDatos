@@ -1,111 +1,353 @@
-drop FUNCTION obtener_reporte_informe_electro_cardiograma(
-    IN p_norden integer,
-    IN name_service text)
-
-CREATE OR REPLACE FUNCTION obtener_reporte_informe_electro_cardiograma(
-    IN p_norden integer,
-    IN name_service text)
-  RETURNS TABLE(nombres text, sexo "char", dni integer, edad text, empresa text, contrata text, codigo_electrocardiograma integer, n_orden integer, fecha_informe date, mensaje_ritmo text, mensaje_pr text, mensaje_fc text, mensaje_qtc text, mensaje_qrs text, mensaje_eje text, hallazgo text, conclusion text, recomendaciones text, color integer, sede text, codigo_sede text, name_jasper text, onda_p text, s_t text, onda_t text, q_t text, fecha_nacimiento date, informe_completo boolean, presion_arterial text, procedencia text, descripcion_digitalizacion text, name_digitalizacion text, dni_digitalizacion integer) AS
+CREATE OR REPLACE FUNCTION eliminar_accidentes_trabajo(cod_anexo_param integer)
+  RETURNS text AS
 $BODY$
-BEGIN
-    -- Tabla temporal para los parametros digitalizados
-    CREATE TEMP TABLE temp_digitalizados_informe_electro_cardiograma AS
-    SELECT p_norden AS n_orden, *
-    FROM obtener_parametros_digitalizados(p_norden, name_service);
-    
-    RETURN QUERY
-    SELECT 
-        dp.nombres_pa || ' ' || dp.apellidos_pa,
-        dp.sexo_pa,
-        noo.cod_pa,
-        CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
-        noo.razon_empresa,
-        noo.razon_contrata,
-        ie.cod_elec,
-	ie.n_orden,
-	ie.fecha_informe,
-	ie.ritmo,
-	ie.p_r,
-	ie.f_c,
-	ie.q_t_c,
-	ie.q_r_s,
-	ie.eje,
-	ie.hallazgo,
-	ie.conclusion,
-	ie.recomendaciones,
-        noo.color,
-        CAST(sm.descripcion AS TEXT),
-        CASE
-            WHEN UPPER(TRIM(noo.razon_empresa)) = 'CIA MINERA PODEROSA S A' THEN 'Huamachuco'
-            WHEN noo.cod_sede = 1 THEN 'Trujillo'
-            WHEN noo.cod_sede = 2 THEN 'Huamachuco'
-            WHEN noo.cod_sede = 3 THEN 'Huancayo'
-            WHEN noo.cod_sede = 4 THEN 'Trujillo'
-        END AS nom_sede,
-        obtener_name_jasper(p_norden, name_service),
-        ie.onda_p,
-        ie.s_t,
-        ie.onda_t,
-        ie.q_t,
-        dp.fecha_nacimiento_pa,
-        CASE WHEN ie.informe_completo IS NULL THEN TRUE ELSE ie.informe_completo END AS informe_completo,
-        tr.sistolica || '/' || tr.diastolica || ' mmHg',
-        dp.lugar_nac_pa,
-        td.descripcion,
-        td.name_digitalizacion,
-        td.dni
-    FROM datos_paciente dp
-    INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
-    INNER JOIN informe_electrocardiograma ie ON ie.n_orden = noo.n_orden
-    LEFT JOIN triaje tr ON tr.n_orden = noo.n_orden
-    INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
-    INNER JOIN temp_digitalizados_informe_electro_cardiograma td ON ie.n_orden = td.n_orden
-    WHERE noo.n_orden = p_norden;
 
-    DROP TABLE IF EXISTS temp_digitalizados_informe_electro_cardiograma;
+	BEGIN
 
-END;
+	IF EXISTS (SELECT 1 FROM accidentes_trabajo WHERE cod_anexo = cod_anexo_param) THEN
+		DELETE FROM accidentes_trabajo atr WHERE atr.cod_anexo = cod_anexo_param;
+	END IF;
+
+	RETURN 'OK';
+
+	END;
+
 $BODY$
   LANGUAGE plpgsql;
 
 
-  drop FUNCTION buscar_electro_cardiograma_pornombreonorden(
-    IN n_orden_param integer,
-    IN nombres_param text)
+CREATE OR REPLACE FUNCTION registrar_accidente_trabajo(
+    cod_anexo_param INTEGER,
+    enfermedad_param TEXT,
+    asociadotrabajo_param TEXT,
+    anio_param TEXT,
+    diasdescanso_param TEXT,
+    fecha_param TEXT,
+    user_registro_param TEXT
+)
+RETURNS VOID AS
+$$
+BEGIN
+    INSERT INTO accidentes_trabajo (
+        cod_anexo, enfermedad, asociadotrabajo, anio,
+        diasdescanso, fecha, user_registro
+    ) VALUES (
+        cod_anexo_param, enfermedad_param, asociadotrabajo_param, anio_param,
+        diasdescanso_param, fecha_param, user_registro_param
+    );
+END;
+$$ LANGUAGE plpgsql;
 
 
+CREATE OR REPLACE FUNCTION obtener_reporte_anexo2_completo(
+    IN p_norden integer,
+    IN name_service text)
+  RETURNS TABLE(
+	telefonoTrabajoPaciente text,
+	telefonoCasaPaciente text,
+	celularPaciente text,
+	dni integer,
+	sexo "char",
+	direccionPaciente text,
+	fechaNacimientoPaciente date,
+	lugarNacPaciente text,
+	estadoCivilPaciente text,
+	nivelEstudiosPaciente text,
+	departamentoPaciente text,
+	provinciaPaciente text,
+	distritoPaciente text,
+	emailPaciente text,
+	nombres text,
+	edad text,
+	cargo text,
+	empresa text,
+	explotacion text,
+	altura text,
+	contrata text,
+	nOrden integer,
+	fechaApertura date,
+	mineral text,
+	color text,
+	nombreExamen text,
 
-CREATE OR REPLACE FUNCTION buscar_electro_cardiograma_pornombreonorden(
-    IN n_orden_param integer,
-    IN nombres_param text,
-    IN usuario_param text)
-  RETURNS TABLE(codigo_electrocardiograma integer, nombres text, n_orden integer, fecha_informe date) AS
+	fechaAnexo date,
+	codigoAnexo text,
+
+	neoplasia boolean,
+	neoplasiaDescripcion text,
+	its boolean,
+	itsDescripcion text,
+	quemaduras boolean,
+	quemadurasDescripcion text,
+	cirugias boolean,
+	cirugiasDescripcion text,
+	antecedentesPersonalesOtros boolean,
+	antecedentesPersonalesOtrosDescripcion text,
+
+	residenciaSi boolean,
+	residenciaNo boolean,
+	residenciaTiempo text,
+	essalud boolean,
+	eps boolean,
+	residenciaTrabajoOtros boolean,
+	sctr boolean,
+	sctrOtros boolean,
+	padre text,
+	madre text,
+	hermanos text,
+	esposa text,
+	totalHijos text,
+	numeroDependientes text,
+	puestoActual text,
+	tiempo text,
+	medicamentosSi boolean,
+	medicamentosNo boolean,
+	tipoMedicamento text,
+	frecuenciaMedicamentos text,
+
+	cabeza text,
+	nariz text,
+	cuello text,
+	perimetro text,
+	boca text,
+	oidos text,
+	faringe text,
+	miembrosSuperiores text,
+	miembrosInferiores text,
+	ectoscopia text,
+	estadoMental text,
+	anamnesis text,
+	marcha text,
+	columnaVertebral text,
+	aparatoRespiratorio text,
+	aparatoCardiovascular text,
+	aparatoDigestivo text,
+	aparatoGeiotourinario text,
+	aparatoLocomotor text,
+	sistemaLinfatico text,
+	piel text,
+	observacionesFichaMedica text,
+	conclusion text,
+	enfermedadesOcularesOtros text,
+	sistemaNervioso text,
+	otrosExamenes text,
+	restricciones text,
+	esApto boolean,
+	noEsApto boolean,
+	aptoRestriccion boolean,
+
+	fvc text,
+	fev1 text,
+	fev1fvc text,
+	fef2575 text,
+	interpretacion text,
+
+	perimetroCuello text,
+	imc text,
+	peso text,
+	talla text,
+	cintura text,
+	cadera text,
+	icc text,
+	temperatura text,
+	fRespiratoria text,
+	fCardiaca text,
+	sat02 text,
+	sistolica text,
+	diastolica text,
+
+	codigoAntecedentesPatologicos integer,
+	fechaAntecedentes date,
+	hijosVivosAntecedentesPatologicos text,
+	hijosFallecidosAntecedentesPatologicos text,
+	padreAntecedentesPatologicos text,
+	madreAntecedentesPatologicos text,
+	hermanosAntecedentesPatologicos text,
+	hijosAntecedentesPatologicos text,
+	esposaAntecedentesPatologicos text,
+
+	visionCercaSinCorregirOd text,
+	visionCercaSinCorregirOi text,
+	visionCercaCorregidaOd text,
+	visionCercaCorregidaOi text,
+	visionLejosSinCorregirOd text,
+	visionLejosSinCorregirOi text,
+	visionLejosCorregidaOd text,
+	visionLejosCorregidaOi text,
+	visionColores text,
+	visionBinocular text,
+	reflejosPupilares text,
+	enfermedadesOcularesOftalmo text,
+	enfermedadesOcularesOtrosOftalmo text,
+
+	odcc text,
+	oicc text,
+	odlc text,
+	oilc text,
+	vc text,
+	vb text,
+	rp text,
+
+	ausentes integer,
+	piezasMalEstado integer,
+	observaciones text,
+
+	oidoDerecho500 text,
+	oidoDerecho1000 text,
+	oidoDerecho2000 text,
+	oidoDerecho3000 text,
+	oidoDerecho4000 text,
+	oidoDerecho6000 text,
+	oidoDerecho8000 text,
+	oidoIzquierdo500 text,
+	oidoIzquierdo1000 text,
+	oidoIzquierdo2000 text,
+	oidoIzquierdo3000 text,
+	oidoIzquierdo4000 text,
+	oidoIzquierdo6000 text,
+	oidoIzquierdo8000 text,
+	diagnostico text,
+
+	recomendacionesInfoPsicologico text,
+
+	conclusionesRadiograficas text,
+
+	observacionesLabClinico text,
+
+	colesterol text,
+	ldlColesterol text,
+	hdlColesterol text,
+	vldlColesterol text,
+	trigliseridos text,
+
+	hallazgos text,
+	recomendaciones text,
+
+	sede text,
+	nameJasper text
+  ) AS
 $BODY$
 BEGIN
+    RETURN QUERY
+	SELECT 
+	    -- 📌 datos_paciente (d)
+	    d.tel_trabajo_pa, d.tel_casa_pa, d.cel_pa, d.cod_pa, 
+	    d.sexo_pa, d.direccion_pa, d.fecha_nacimiento_pa, d.lugar_nac_pa, 
+	    d.estado_civil_pa, d.nivel_est_pa, d.departamento_pa, d.provincia_pa, 
+	    d.distrito_pa, d.email_pa,
+	    d.apellidos_pa || ' ' || d.nombres_pa AS nombres,
+	    CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
 
- RETURN QUERY 
- SELECT
-    e.cod_elec,
-    dp.nombres_pa || ' ' || dp.apellidos_pa AS nombres,
-    n.n_orden,
-    e.fecha_informe
-FROM 
-    datos_paciente AS dp
-INNER JOIN 
-    n_orden_ocupacional AS n ON n.cod_pa = dp.cod_pa
-INNER JOIN 
-    informe_electrocardiograma AS e ON n.n_orden = e.n_orden
-WHERE 
-    (n_orden_param IS NULL OR e.n_orden = n_orden_param)
-    AND (nombres_param IS NULL OR CONCAT(dp.nombres_pa,' ',dp.apellidos_pa) ILIKE '%' || nombres_param || '%')
-    AND (
-        usuario_param IS NULL 
-        OR usuario_param <> 'AIRVING' 
-        OR e.user_registro = usuario_param
-    )
-ORDER BY 
-    e.fecha_informe DESC
-LIMIT 100;
+	    -- 📌 n_orden_ocupacional (n)
+	    n.cargo_de, n.razon_empresa, n.nom_ex, n.altura_po, 
+	    n.razon_contrata, n.n_orden, n.fecha_apertura_po, n.mineral_po, 
+	    n.color,
 
-END; $BODY$
+	    -- 📌 examen_medico_ocupacional (e)
+	    e.nom_examen,
+	    
+	    -- 📌 anexo_agroindustrial (a)
+	    a.fecha,
+	    a.cod_anexo, 
+	    a.chkneoplasia, a.txtneoplasia, 
+	    a.chkits, a.txtits, 
+	    a.chkquemaduras, a.txtquemaduras, 
+	    a.chkcirugias, a.txtcirugias,
+	    a.chkapotros, a.txtotrosantecendetes, 
+	    a.chkresidenciasi, a.chkresidenciano,
+	    a.txttiemporesidencia, 
+	    a.chkessalud, a.chkeps, a.chkotros, a.chksctr, a.chkotros1,
+	    a.txtpadre, a.txtmadre, a.txthermanos, a.txtesposa, 
+	    a.txtpuestoactual, a.txttiempo,
+	    a.rbsimed, a.rbnomed, a.txttipomedicamento, a.txtfrecuenciamed,
+	    a.txttotalhijos, a.txtndependientes,
+	    a.txtpelo, a.txtnariz, a.txtcuello, a.txtperimetro, 
+	    a.txtboca, a.txtoidos, a.txtfaringe,
+	    a.txtmiembrossuperiores, a.txtmiembrosinferiores, a.txtectoscopia,
+	    a.txtestadomental, a.txtanamnesis, a.txtmarcha, a.txtcolumnavertebral,
+	    a.txtaparatorespiratorio, a.txtaparatocardiovascular, a.txtaparatodigestivo,
+	    a.txtaparatogeiotourinario, a.txtaparatolocomotor, a.txtsistemalinfatico,
+	    a.txtpiel, a.txtobservacionesfm, a.txtconclusion, a.txtenfermedadesoculares1,
+	    a.sistemanervioso, a.txtotrosex, a.txtrestricciones, 
+	    a.apto_si, a.apto_no, a.apto_re,
+
+	    -- 📌 funcion_abs (f)
+	    f.fvc, f.fev1, f.fev1fvc, f.fef25_75,
+
+	    -- 📌 triaje (t)
+	    t.perimetro_cuello, t.imc, t.peso, t.talla, t.cintura, t.cadera, t.icc,
+	    t.temperatura, t.f_respiratoria, t.f_cardiaca, t.sat_02, 
+	    t.sistolica, t.diastolica,
+
+	    -- 📌 antecedentes_patologicos (ap)
+	    ap.cod_ap, ap.fecha_ap,
+	    ap.txtvhijosvivos,    ap.txtvhijosfallecidos, ap.padre_detall, ap.madre_detall,
+	    ap.hermanos_detall, ap.hijos_detall, ap.espos_cony_detall,
+
+	    -- 📌 oftalmologia (o) 
+	    o.v_cerca_s_od, o.v_cerca_s_oi,
+	    o.v_cerca_c_od, o.v_cerca_c_oi,
+	    o.v_lejos_s_od, o.v_lejos_s_oi,
+	    o.v_lejos_c_od, o.v_lejos_c_oi,
+	    o.v_colores, o.v_binocular, o.r_pupilares,
+	    o.e_oculares, o.e_oculares1,
+
+	    -- 📌 oftalmologia_lo (ol)
+	    CASE  WHEN ol.v_cerca_c_od IS NULL THEN o.v_cerca_c_od  ELSE ol.v_cerca_c_od  END as ODCC,
+	    CASE  WHEN ol.v_cerca_c_oi IS NULL THEN o.v_cerca_c_oi  ELSE ol.v_cerca_c_oi  END as OICC,
+	    CASE  WHEN ol.v_lejos_c_od IS NULL THEN o.v_lejos_c_od  ELSE ol.v_lejos_c_od  END as ODLC,
+	    CASE  WHEN ol.v_lejos_c_oi IS NULL THEN o.v_lejos_c_oi  ELSE ol.v_lejos_c_oi  END as OILC,
+	    CASE  WHEN ol.v_colores IS NULL THEN o.v_colores  ELSE ol.v_colores  END as VC,
+	    CASE  WHEN ol.v_binocular IS NULL THEN o.v_binocular  ELSE ol.v_binocular  END as VB,
+	    CASE  WHEN ol.r_pupilares IS NULL THEN o.r_pupilares  ELSE ol.r_pupilares  END as RP,
+
+	    -- 📌 odontograma (od)
+	    od.txtausentes, od.txtpiezasmalestado, od.txtobservaciones,
+
+	    -- 📌 audiometria_po (m)
+	    m.o_d_500, m.o_d_1000, m.o_d_2000, m.o_d_3000, m.o_d_4000, 
+	    m.o_d_6000, m.o_d_8000, m.o_i_500, m.o_i_1000, m.o_i_2000, 
+	    m.o_i_3000, m.o_i_4000, m.o_i_6000, m.o_i_8000, m.diagnostico,
+
+	    -- 📌 informe_psicologico (ip)
+	    ip.recomendaciones,
+
+	    -- 📌 radiografia_torax (r)
+	    r.txtconclusionesradiograficas,
+
+	    -- 📌 laboratorio clinico (la)
+	    la.txtobservacioneslb,
+
+	    -- 📌 analisis_bioquimicos (ab)
+	    ab.txtcolesterol, ab.txtldlcolesterol, ab.txthdlcolesterol, ab.txtvldlcolesterol,
+	    ab.txttrigliseridos,
+
+	    -- 📌 informe_electrocardiograma (ie)
+	    ie.hallazgo, ie.recomendaciones,
+
+	    -- 📌 sede
+	    CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+
+	    -- 📌 nombre jasper
+	    obtener_name_jasper(p_norden, name_service)
+	FROM n_orden_ocupacional AS n
+	INNER JOIN datos_paciente AS d ON n.cod_pa = d.cod_pa
+	INNER JOIN sede_multisucursal AS sm ON n.cod_sede = sm.id
+	LEFT JOIN examen_medico_ocupacional AS e ON e.nom_examen = n.nom_examen
+	LEFT JOIN anexo_agroindustrial AS a ON a.n_orden = n.n_orden
+	LEFT JOIN triaje AS t ON t.n_orden = n.n_orden
+	LEFT JOIN oftalmologia AS o ON o.n_orden = n.n_orden
+	LEFT JOIN oftalmologia_lo AS ol ON ol.n_orden = n.n_orden
+	LEFT JOIN funcion_abs AS f ON f.n_orden = n.n_orden
+	LEFT JOIN odontograma AS od ON od.n_orden = n.n_orden
+	LEFT JOIN antecedentes_patologicos AS ap ON ap.n_orden = n.n_orden
+	LEFT JOIN audiometria_po AS m ON m.n_orden = n.n_orden
+	LEFT JOIN informe_psicologico AS ip ON ip.n_orden = n.n_orden
+	LEFT JOIN radiografia_torax AS r ON r.n_orden = n.n_orden
+	LEFT JOIN lab_clinico AS la ON la.n_orden = n.n_orden
+	LEFT JOIN analisis_bioquimicos AS ab ON ab.n_orden = n.n_orden
+	LEFT JOIN informe_electrocardiograma AS ie ON ie.n_orden = n.n_orden
+	WHERE n.n_orden = p_norden;
+END;
+$BODY$
   LANGUAGE plpgsql;
