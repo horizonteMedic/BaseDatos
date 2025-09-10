@@ -43,182 +43,216 @@ CREATE OR REPLACE FUNCTION obtener_reporte_anexo2_completo(
     IN p_norden integer,
     IN name_service text)
   RETURNS TABLE(
-	telefonoTrabajoPaciente text,
-	telefonoCasaPaciente text,
-	celularPaciente text,
-	dni integer,
-	sexo "char",
-	direccionPaciente text,
-	fechaNacimientoPaciente date,
-	lugarNacPaciente text,
-	estadoCivilPaciente text,
-	nivelEstudiosPaciente text,
-	departamentoPaciente text,
-	provinciaPaciente text,
-	distritoPaciente text,
-	emailPaciente text,
-	nombres text,
-	edad text,
-	cargo text,
-	empresa text,
-	explotacion text,
-	altura text,
-	contrata text,
-	nOrden integer,
-	fechaApertura date,
-	mineral text,
-	color integer,
-	nombreExamen text,
+	telefonoTrabajoPaciente_tel_trabajo_pa text,
+	telefonoCasaPaciente_tel_casa_pa text,
+	celularPaciente_cel_pa text,
+	dni_cod_pa integer,
+	sexo_sexo_pa "char",
+	direccionPaciente_direccion_pa text,
+	fechaNacimientoPaciente_fecha_nacimiento_pa date,
+	lugarNacPaciente_lugar_nac_pa text,
+	estadoCivilPaciente_estado_civil_pa text,
+	nivelEstudiosPaciente_nivel_est_pa text,
+	departamentoPaciente_departamento_pa text,
+	provinciaPaciente_provincia_pa text,
+	distritoPaciente_distrito_pa text,
+	emailPaciente_email_pa text,
+	nombres_nombres_pa text,
+	apellidos_apellidos_pa text,
+	edad_fecha_nacimiento_pa text,
+	cargo_cargo_de text,
+	empresa_razon_empresa text,
+	explotacion_nom_ex text,
+	altura_altura_po text,
+	contrata_razon_contrata text,
+	nOrden_n_orden integer,
+	fechaApertura_fecha_apertura_po date,
+	mineral_mineral_po text,
+	color_color integer,
+	grupoSanguineoPrevio_grupofactorsan text,
+	area_area_o text,
+	nombreExamen_nom_examen text,
 
-	fechaAnexo date,
-	codigoAnexo integer,
-	neoplasia boolean,
-	neoplasiaDescripcion text,
-	its boolean,
-	itsDescripcion text,
-	quemaduras boolean,
-	quemadurasDescripcion text,
-	cirugias boolean,
-	cirugiasDescripcion text,
-	antecedentesPersonalesOtros boolean,
-	antecedentesPersonalesOtrosDescripcion text,
-	residenciaSi boolean,
-	residenciaNo boolean,
-	residenciaTiempo text,
-	essalud boolean,
-	eps boolean,
-	residenciaTrabajoOtros boolean,
-	sctr boolean,
-	sctrOtros boolean,
-	padre text,
-	madre text,
-	hermanos text,
-	esposa text,
-	totalHijos text,
-	numeroDependientes text,
-	puestoActual text,
-	tiempo text,
-	medicamentosSi boolean,
-	medicamentosNo boolean,
-	tipoMedicamento text,
-	frecuenciaMedicamentos text,
-	cabeza text,
-	nariz text,
-	cuello text,
-	perimetro text,
-	boca text,
-	oidos text,
-	faringe text,
-	miembrosSuperiores text,
-	miembrosInferiores text,
-	ectoscopia text,
-	estadoMental text,
-	anamnesis text,
-	marcha text,
-	columnaVertebral text,
-	aparatoRespiratorio text,
-	aparatoCardiovascular text,
-	aparatoDigestivo text,
-	aparatoGeiotourinario text,
-	aparatoLocomotor text,
-	sistemaLinfatico text,
-	piel text,
-	observacionesFichaMedica text,
-	conclusion text,
-	enfermedadesOcularesOtros text,
-	sistemaNervioso text,
-	otrosExamenes text,
-	restricciones text,
-	esApto boolean,
-	noEsApto boolean,
-	aptoRestriccion boolean,
+	fechaAnexo_fecha date,
+	codigoAnexo_cod_anexo integer,
+	neoplasia_chkneoplasia boolean,
+	neoplasiaDescripcion_txtneoplasia text,
+	its_chkits boolean,
+	itsDescripcion_txtits text,
+	quemaduras_chkquemaduras boolean,
+	quemadurasDescripcion_txtquemaduras text,
+	cirugias_chkcirugias boolean,
+	cirugiasDescripcion_txtcirugias text,
+	antecedentesPersonalesOtros_chkapotros boolean,
+	antecedentesPersonalesOtrosDescripcion_txtotrosantecendetes text,
+	residenciaSi_chkresidenciasi boolean,
+	residenciaNo_chkresidenciano boolean,
+	residenciaTiempo_txttiemporesidencia text,
+	essalud_chkessalud boolean,
+	eps_chkeps boolean,
+	residenciaTrabajoOtros_chkotros boolean,
+	sctr_chksctr boolean,
+	sctrOtros_chkotros1 boolean,
+	padre_txtpadre text,
+	madre_txtmadre text,
+	hermanos_txthermanos text,
+	esposa_txtesposa text,
+	totalHijos_txttotalhijos text,
+	numeroDependientes_txtndependientes text,
+	puestoActual_txtpuestoactual text,
+	tiempo_txttiempo text,
+	medicamentosSi_rbsimed boolean,
+	medicamentosNo_rbnomed boolean,
+	tipoMedicamento_txttipomedicamento text,
+	frecuenciaMedicamentos_txtfrecuenciamed text,
+	cabeza_txtpelo text,
+	nariz_txtnariz text,
+	cuello_txtcuello text,
+	perimetro_txtperimetro text,
+	boca_txtboca text,
+	oidos_txtoidos text,
+	faringe_txtfaringe text,
+	miembrosSuperiores_txtmiembrossuperiores text,
+	miembrosInferiores_txtmiembrosinferiores text,
+	ectoscopia_txtectoscopia text,
+	estadoMental_txtestadomental text,
+	anamnesis_txtanamnesis text,
+	marcha_txtmarcha text,
+	columnaVertebral_txtcolumnavertebral text,
+	aparatoRespiratorio_txtaparatorespiratorio text,
+	aparatoCardiovascular_txtaparatocardiovascular text,
+	aparatoDigestivo_txtaparatodigestivo text,
+	aparatoGeiotourinario_txtaparatogeiotourinario text,
+	aparatoLocomotor_txtaparatolocomotor text,
+	sistemaLinfatico_txtsistemalinfatico text,
+	piel_txtpiel text,
+	observacionesFichaMedica_txtobservacionesfm text,
+	conclusion_txtconclusion text,
+	enfermedadesOcularesOtros_txtenfermedadesoculares1 text,
+	sistemaNervioso_sistemanervioso text,
+	otrosExamenes_txtotrosex text,
+	restricciones_txtrestricciones text,
+	esApto_apto_si boolean,
+	noEsApto_apto_no boolean,
+	aptoRestriccion_apto_re boolean,
+	fechaDesde_fechadesde date,
+	fechaHasta_fechahasta date,
+	medico_medico text,
 
-	fvc text,
-	fev1 text,
-	fev1fvc text,
-	fef2575 text,
-	interpretacion text,
+	fvc_fvc text,
+	fev1_fev1 text,
+	fev1fvc_fev1fvc text,
+	fef2575_fef25_75 text,
+	interpretacion_interpretacion text,
 
-	perimetroCuello text,
-	imc text,
-	peso text,
-	talla text,
-	cintura text,
-	cadera text,
-	icc text,
-	temperatura text,
-	fRespiratoria text,
-	fCardiaca text,
-	sat02 text,
-	sistolica text,
-	diastolica text,
+	perimetroCuello_perimetro_cuello text,
+	imc_imc text,
+	peso_peso text,
+	talla_talla text,
+	cintura_cintura text,
+	cadera_cadera text,
+	icc_icc text,
+	temperatura_temperatura text,
+	fRespiratoria_f_respiratoria text,
+	fCardiaca_f_cardiaca text,
+	sat02_sat_02 text,
+	sistolica_sistolica text,
+	diastolica_diastolica text,
 
-	codigoAntecedentesPatologicos integer,
-	fechaAntecedentes date,
-	hijosVivosAntecedentesPatologicos text,
-	hijosFallecidosAntecedentesPatologicos text,
-	padreAntecedentesPatologicos text,
-	madreAntecedentesPatologicos text,
-	hermanosAntecedentesPatologicos text,
-	hijosAntecedentesPatologicos text,
-	esposaAntecedentesPatologicos text,
+	codigoAntecedentesPatologicos_cod_ap integer,
+	fechaAntecedentes_fecha_ap date,
+	hijosVivosAntecedentesPatologicos_txtvhijosvivos text,
+	hijosFallecidosAntecedentesPatologicos_txtvhijosfallecidos text,
+	padreAntecedentesPatologicos_padre_detall text,
+	madreAntecedentesPatologicos_madre_detall text,
+	hermanosAntecedentesPatologicos_hermanos_detall text,
+	hijosAntecedentesPatologicos_hijos_detall text,
+	esposaAntecedentesPatologicos_espos_cony_detall text,
 
-	visionCercaSinCorregirOd text,
-	visionCercaSinCorregirOi text,
-	visionCercaCorregidaOd text,
-	visionCercaCorregidaOi text,
-	visionLejosSinCorregirOd text,
-	visionLejosSinCorregirOi text,
-	visionLejosCorregidaOd text,
-	visionLejosCorregidaOi text,
-	visionColores text,
-	visionBinocular text,
-	reflejosPupilares text,
-	enfermedadesOcularesOftalmo text,
-	enfermedadesOcularesOtrosOftalmo text,
+	visionCercaSinCorregirOd_v_cerca_s_od text,
+	visionCercaSinCorregirOi_v_cerca_s_oi text,
+	visionCercaCorregidaOd_v_cerca_c_od text,
+	visionCercaCorregidaOi_v_cerca_c_oi text,
+	visionLejosSinCorregirOd_v_lejos_s_od text,
+	visionLejosSinCorregirOi_v_lejos_s_oi text,
+	visionLejosCorregidaOd_v_lejos_c_od text,
+	visionLejosCorregidaOi_v_lejos_c_oi text,
+	visionColores_v_colores text,
+	visionBinocular_v_binocular text,
+	reflejosPupilares_r_pupilares text,
+	enfermedadesOcularesOftalmo_e_oculares text,
+	enfermedadesOcularesOtrosOftalmo_e_oculares1 text,
 
-	odcc text,
-	oicc text,
-	odlc text,
-	oilc text,
-	vc text,
-	vb text,
-	rp text,
+	odcc_ODCC text,
+	oicc_OICC text,
+	odlc_ODLC text,
+	oilc_OILC text,
+	vc_VC text,
+	vb_VB text,
+	rp_RP text,
 
-	ausentes integer,
-	piezasMalEstado integer,
-	observaciones text,
 
-	oidoDerecho500 text,
-	oidoDerecho1000 text,
-	oidoDerecho2000 text,
-	oidoDerecho3000 text,
-	oidoDerecho4000 text,
-	oidoDerecho6000 text,
-	oidoDerecho8000 text,
-	oidoIzquierdo500 text,
-	oidoIzquierdo1000 text,
-	oidoIzquierdo2000 text,
-	oidoIzquierdo3000 text,
-	oidoIzquierdo4000 text,
-	oidoIzquierdo6000 text,
-	oidoIzquierdo8000 text,
-	diagnostico text,
+	ausentes_txtausentes integer,
+	piezasMalEstado_txtpiezasmalestado integer,
+	observacionesOdonto_txtobservaciones text,
 
-	recomendacionesInfoPsicologico text,
+	oidoDerecho500_o_d_500 text,
+	oidoDerecho1000_o_d_1000 text,
+	oidoDerecho2000_o_d_2000 text,
+	oidoDerecho3000_o_d_3000 text,
+	oidoDerecho4000_o_d_4000 text,
+	oidoDerecho6000_o_d_6000 text,
+	oidoDerecho8000_o_d_8000 text,
 
-	conclusionesRadiograficas text,
+	oidoIzquierdo500_o_i_500 text,
+	oidoIzquierdo1000_o_i_1000 text,
+	oidoIzquierdo2000_o_i_2000 text,
+	oidoIzquierdo3000_o_i_3000 text,
+	oidoIzquierdo4000_o_i_4000 text,
+	oidoIzquierdo6000_o_i_6000 text,
+	oidoIzquierdo8000_o_i_8000 text,
+	diagnosticoAudiometria_diagnostico text,
 
-	observacionesLabClinico text,
+	recomendacionesInfoPsicologico_recomendaciones text,
+	    
+	conclusionesRadiograficas_txtconclusionesradiograficas text,
+	verticesRadiografiaTorax_txtvertices text,
+	hilosRadiografiaTorax_txthilios text,
+	senosCostoFrenicos_txtsenoscostofrenicos text,
+	meadiastinos_txtmediastinos text,
+	siluetaCardioVascular_txtsiluetacardiovascular text,
+	osteoMuscular_txtosteomuscular text,
+	observacionesRadiografiaTorax_txtobservacionesrt text,
+	camposPulmones_txtcampospulm text,
 
-	colesterol text,
-	ldlColesterol text,
-	hdlColesterol text,
-	vldlColesterol text,
-	trigliseridos text,
+	observacionesLabClinico_txtobservacioneslb text,
+	grupoSanguineoO_chko boolean,
+	grupoSanguineoA_chka boolean,
+	grupoSanguineoB_chkb boolean,
+	grupoSanguineoAB_chkab boolean,
+	grupoSanguineoRhPositivo_rbrhpositivo boolean,
+	grupoSanguineoRhNegativo_rbrhnegativo boolean,
+	hemoglobina_txthemoglobina text,
+	glucosa_txtglucosabio text,
+	vSG_txtvsg text,
+	cocaina_txtcocaina text,
+	marihuana_txtmarihuana text,
+	creatina_txtcreatininabio text,
+	grupoFactorNuevo_grupo_factor_nuevo text,
 
-	hallazgos text,
-	recomendaciones text,
+	colesterol_txtcolesterol text,
+	ldlColesterol_txtldlcolesterol text,
+	hdlColesterol_txthdlcolesterol text,
+	vldlColesterol_txtvldlcolesterol text,
+	trigliseridos_txttrigliseridos text,
+
+	hallazgosInformeElectroCardiograma_hallazgo text,
+	recomendacionesInformeElectroCardiograma_recomendaciones text,
+
+	informacionesGeneralRadiografia_info_general text,
+	conclusionesRadiografia_conclu text,
+
+	examenRadiograficosSanguineos_txtobservacionesrs text,
 
 	sede text,
 	nameJasper text
@@ -232,13 +266,16 @@ BEGIN
 	    d.sexo_pa, d.direccion_pa, d.fecha_nacimiento_pa, d.lugar_nac_pa, 
 	    d.estado_civil_pa, d.nivel_est_pa, d.departamento_pa, d.provincia_pa, 
 	    d.distrito_pa, d.email_pa,
-	    d.apellidos_pa || ' ' || d.nombres_pa AS nombres,
+	    d.nombres_pa,
+	    d.apellidos_pa,
 	    CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
 
 	    -- 📌 n_orden_ocupacional (n)
 	    n.cargo_de, n.razon_empresa, n.nom_ex, n.altura_po, 
 	    n.razon_contrata, n.n_orden, n.fecha_apertura_po, n.mineral_po, 
 	    n.color,
+	    --nuevo
+	    n.grupofactorsan, n.area_o,
 
 	    -- 📌 examen_medico_ocupacional (e)
 	    e.nom_examen,
@@ -267,7 +304,7 @@ BEGIN
 		a.txtconclusion, a.txtenfermedadesoculares1, a.sistemanervioso,
 		a.txtotrosex, a.txtrestricciones,
 		a.apto_si, a.apto_no, a.apto_re,
-
+		a.fechadesde, a.fechahasta, a.medico,
 
 	    -- 📌 funcion_abs (f)
 	    f.fvc, f.fev1, f.fev1fvc, f.fef25_75, f.interpretacion,
@@ -310,11 +347,18 @@ BEGIN
 	    -- 📌 informe_psicologico (ip)
 	    ip.recomendaciones,
 
-	    -- 📌 radiografia_torax (r)
-	    r.txtconclusionesradiograficas,
+	    -- 📌 radiografia_torax (r) 
+	    r.txtconclusionesradiograficas, r.txtvertices,r.txthilios,
+	    r.txtsenoscostofrenicos, r.txtmediastinos, r.txtsiluetacardiovascular, r.txtosteomuscular,
+	    r.txtobservacionesrt, r.txtcampospulm,
 
 	    -- 📌 laboratorio clinico (la)
 	    la.txtobservacioneslb,
+	    --nuevo
+	    la.chko, la.chka , la.chkb , la.chkab,la.rbrhpositivo, la.rbrhnegativo, la.txthemoglobina,
+	    la.txtglucosabio, la.txtvsg, la.txtcocaina, la.txtmarihuana, la.txtcreatininabio,
+	    CASE WHEN la.chko = 'TRUE' THEN 'O' WHEN la.chka = 'TRUE' THEN 'A' WHEN la.chkb = 'TRUE' THEN 'B' WHEN la.chkab = 'TRUE' THEN 'AB' ELSE '.' END ||''||
+	    CASE WHEN la.rbrhpositivo ='TRUE' THEN '+' WHEN la.rbrhnegativo = 'TRUE' THEN '-' END AS grupo_factor_nuevo,
 
 	    -- 📌 analisis_bioquimicos (ab)
 	    ab.txtcolesterol, ab.txtldlcolesterol, ab.txthdlcolesterol, ab.txtvldlcolesterol,
@@ -322,6 +366,12 @@ BEGIN
 
 	    -- 📌 informe_electrocardiograma (ie)
 	    ie.hallazgo, ie.recomendaciones,
+
+	    -- 📌 radiografia (ra) nuevo
+	    ra.info_general, ra.conclu,
+
+	    -- 📌 ex_radiograficos_sanguineos (e)
+	    ersa.txtobservacionesrs,
 
 	    -- 📌 sede
 	    CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
@@ -345,11 +395,15 @@ BEGIN
 	LEFT JOIN lab_clinico AS la ON la.n_orden = n.n_orden
 	LEFT JOIN analisis_bioquimicos AS ab ON ab.n_orden = n.n_orden
 	LEFT JOIN informe_electrocardiograma AS ie ON ie.n_orden = n.n_orden
+	LEFT JOIN radiografia AS ra on ra.n_orden = n.n_orden
+	LEFT JOIN ex_radiograficos_sanguineos AS ersa ON(n.n_orden = ersa.n_orden)
 	WHERE n.n_orden = p_norden;
 END;
 $BODY$
   LANGUAGE plpgsql;
 
+insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
+			values('anexo_agroindustrial','formulario de anexo 2',true,true,true,false,false);
 
 
 CREATE OR REPLACE FUNCTION obtener_name_jasper(
@@ -1713,6 +1767,737 @@ IF name_servicio_param = 'test_fatiga_somnolencia' THEN
         END IF;
     END IF;
                  
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+ CREATE OR REPLACE FUNCTION sp_validar_existencia_servicios(
+    IN p_historia_clinica bigint,
+    IN p_examen_med text)
+  RETURNS TABLE(id_resp integer, mensaje text) AS
+$BODY$
+declare v_mensaje text;
+declare v_id_existencia integer;
+declare v_triaje_existencia_espirometria integer;
+
+begin
+		
+
+	if(p_examen_med='triaje') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from triaje where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+
+ 	if(p_examen_med='con_panel10D') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from consent_laboratorios where n_orden=p_historia_clinica and name_conset=p_examen_med limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;       
+
+        
+ 	if(p_examen_med='con_panel5D') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from consent_laboratorios where n_orden=p_historia_clinica and name_conset=p_examen_med limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if; 
+
+
+  	if(p_examen_med='con_panel3D') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from consent_laboratorios where n_orden=p_historia_clinica and name_conset=p_examen_med limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if; 
+
+
+        if(p_examen_med='con_panel2D') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from consent_laboratorios where n_orden=p_historia_clinica and name_conset=p_examen_med limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if; 
+
+        if(p_examen_med='consent_Muestra_Sangre') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from consent_laboratorios where n_orden=p_historia_clinica and name_conset=p_examen_med limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if; 
+
+        
+       if(p_examen_med='consent_marihuana') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from consent_laboratorios where n_orden=p_historia_clinica and name_conset=p_examen_med limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;     
+
+        if(p_examen_med='consent_Boro') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from consent_Boro where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;   
+
+
+        if(p_examen_med='panel10d') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from panel10d where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+
+        if(p_examen_med='toxicologia') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from toxicologia where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+
+        if(p_examen_med='panel3d') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from panel3d where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;       
+
+
+         if(p_examen_med='panel2d') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from panel2d where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;      
+
+
+        if(p_examen_med='analisis_bioquimicos') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from analisis_bioquimicos where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;      
+
+
+        if(p_examen_med='lab_clinico') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from lab_clinico where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;     
+
+
+        if(p_examen_med='examen_inmunologico') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from examen_inmunologico where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;   
+
+
+        if(p_examen_med='microbiologia') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from microbiologia where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;  
+
+
+        if(p_examen_med='inmunologia') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from inmunologia where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;           
+
+
+
+         if(p_examen_med='parasitologia') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from parasitologia where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;       
+
+
+         if(p_examen_med='ac_bioquimica2022') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from ac_bioquimica2022 where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+
+          if(p_examen_med='ac_coprocultivo') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from ac_coprocultivo where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;       
+
+
+          if(p_examen_med='ac_coproparasitologico') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from ac_coproparasitologico where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;            
+
+
+        if(p_examen_med='perfil_hepatico') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from perfil_hepatico where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+
+        if(p_examen_med='l_bioquimica') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from l_bioquimica where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;    
+
+
+        if(p_examen_med='lhepatitis') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from lhepatitis where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;   
+
+
+        if(p_examen_med='hemograma_autom') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from hemograma_autom where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;   
+
+
+        if(p_examen_med='ltest_altura') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from ltest_altura where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;   
+
+
+
+        if(p_examen_med='lanexo16a') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from lanexo16a where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;   
+
+
+
+        if(p_examen_med='lpsiconsensometria') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from lpsiconsensometria where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;   
+
+
+        if(p_examen_med='lgonadotropina') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from lgonadotropina where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;     
+
+        if(p_examen_med='consen_digit') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from consen_digit where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;    
+
+        if(p_examen_med='audiometria_2023') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from audiometria_2023 where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;  
+
+        if(p_examen_med='historia_oc_info') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from historia_oc_info where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;     
+
+        if(p_examen_med='audiometria_po') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from audiometria_po where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if; 
+
+        if(p_examen_med='ficha_audiologica') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from ficha_audiologica where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;   
+
+        if(p_examen_med='cuestionario_audiometria') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from cuestionario_audiometria where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;  
+
+        if(p_examen_med='funcion_abs') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from funcion_abs where n_orden=p_historia_clinica limit 1;
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_triaje_existencia_espirometria from triaje where n_orden=p_historia_clinica limit 1; 
+		if(v_triaje_existencia_espirometria=1) THEN
+			if(v_id_existencia=0) THEN
+				v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+			else
+				v_mensaje:='YA FUE REGISTRADO';
+					
+			end if;
+		else 
+			v_mensaje:='DEBE PASAR POR TRIAJE PRIMERO (OBLIGATORIO)';
+			v_id_existencia:=2;
+		end if;
+		
+        end if;  
+
+        if(p_examen_med='oftalmologia_lo') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from oftalmologia_lo where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+        if(p_examen_med='oftalmologia') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from oftalmologia where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+        if(p_examen_med='oftalmologia2021') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from oftalmologia2021 where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+        if(p_examen_med='odontograma') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from odontograma where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+        if(p_examen_med='odontograma_lo') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from odontograma_lo where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+        if(p_examen_med='radiografia_torax') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from radiografia_torax where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+        if(p_examen_med='radiografia') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from radiografia where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+        if(p_examen_med='oit') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from oit where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+        if(p_examen_med='consentimientoInformado') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from consentimientoInformado where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+        if(p_examen_med='radiografia') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from radiografia where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+        if(p_examen_med='radiografia_torax') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from radiografia_torax where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+        if(p_examen_med='evaluacion_musculo_esqueletica') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from evaluacion_musculo_esqueletica where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+        if(p_examen_med='evaluacion_musculo_esqueletica2021') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from evaluacion_musculo_esqueletica2021 where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+        if(p_examen_med='cuestionario_nordico') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from cuestionario_nordico where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+        if(p_examen_med='consentimiento_rayosx') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from consentimiento_rayosx where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+
+        if(p_examen_med='test_fatiga_somnolencia') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from test_fatiga_somnolencia where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+        if(p_examen_med='informe_electrocardiograma') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from informe_electrocardiograma where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+        if(p_examen_med='antece_enfermedades_altura') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from antece_enfermedades_altura where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+        if(p_examen_med='anexo_agroindustrial') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from anexo_agroindustrial where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+                                                                                              		                   	
+	RETURN query
+
+ SELECT v_id_existencia AS id_resp,v_mensaje as mensaje;
+end;
+$BODY$
+  LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION obtener_anexo2_examenes_realizados(
+    IN p_norden integer)
+  RETURNS TABLE(
+	triaje boolean,
+	laboratorioClinico boolean,
+	electroCardiograma boolean,
+	radiografiaTorax boolean,
+	fichaAudiologica boolean,
+	espirometria boolean,
+	odontograma boolean,
+	psicologia boolean,
+	anexo7D boolean,
+	historiaOcupacional boolean,
+	fichaAntecedentesPatologicos boolean,
+	cuestionarioNordico boolean,
+	certificadoTrabajoAltura boolean,
+	detencionSAS boolean,
+	consentimientoDosaje boolean,
+	examenRadiografiaSanguineos boolean,
+	perimetroToraxico boolean,
+	oftalmologia boolean
+  ) AS
+$BODY$
+BEGIN
+    
+    RETURN QUERY
+    SELECT 
+        CASE WHEN t.n_orden IS NULL THEN FALSE ELSE TRUE END AS triaje,
+        CASE WHEN lc.n_orden IS NULL THEN FALSE ELSE TRUE END AS laboratorioClinico,
+        CASE WHEN ie.n_orden IS NULL THEN FALSE ELSE TRUE END AS electroCardiograma,
+        CASE WHEN rt.n_orden IS NULL THEN FALSE ELSE TRUE END AS radiografiaTorax,
+        CASE WHEN fau.n_orden IS NULL THEN FALSE ELSE TRUE END AS fichaAudiologica,
+        CASE WHEN fa.n_orden IS NULL THEN FALSE ELSE TRUE END AS espirometria,
+        CASE WHEN od.n_orden IS NULL THEN FALSE ELSE TRUE END AS odontograma,
+        CASE WHEN ip.n_orden IS NULL THEN FALSE ELSE TRUE END AS psicologia,
+        CASE WHEN a7.n_orden IS NULL THEN FALSE ELSE TRUE END AS anexo7D,
+        CASE WHEN hoi.n_orden IS NULL THEN FALSE ELSE TRUE END AS historiaOcupacional,
+        CASE WHEN apa.n_orden IS NULL THEN FALSE ELSE TRUE END AS fichaAntecedentesPatologicos,
+        CASE WHEN cn.n_orden IS NULL THEN FALSE ELSE TRUE END AS cuestionarioNordico,
+        CASE WHEN cma.n_orden IS NULL THEN FALSE ELSE TRUE END AS certificadoTrabajoAltura,
+        CASE WHEN fsas.n_orden IS NULL THEN FALSE ELSE TRUE END AS detencionSAS,
+        CASE WHEN cl.n_orden IS NULL THEN FALSE ELSE TRUE END AS consentimientoDosaje,
+        CASE WHEN ers.n_orden IS NULL THEN FALSE ELSE TRUE END AS examenRadiografiaSanguineos,
+        CASE WHEN pto.n_orden IS NULL THEN FALSE ELSE TRUE END AS perimetroToraxico,
+        CASE WHEN oft.n_orden IS NULL THEN FALSE ELSE TRUE END AS oftalmologia
+    FROM n_orden_ocupacional noo
+    LEFT JOIN triaje t ON t.n_orden = noo.n_orden
+    LEFT JOIN lab_clinico lc ON lc.n_orden = noo.n_orden
+    LEFT JOIN informe_electrocardiograma ie ON ie.n_orden = noo.n_orden
+    LEFT JOIN radiografia_torax rt ON rt.n_orden = noo.n_orden
+    LEFT JOIN ficha_audiologica fau ON fau.n_orden = noo.n_orden
+    LEFT JOIN funcion_abs fa ON fa.n_orden = noo.n_orden
+    LEFT JOIN odontograma od ON od.n_orden = noo.n_orden
+    LEFT JOIN informe_psicologico ip ON ip.n_orden = noo.n_orden
+    LEFT JOIN anexo7d a7 ON a7.n_orden = noo.n_orden
+    LEFT JOIN historia_oc_info hoi ON hoi.n_orden = noo.n_orden
+    LEFT JOIN antecedentes_patologicos apa ON apa.n_orden = noo.n_orden
+    LEFT JOIN cuestionario_nordico cn ON cn.n_orden = noo.n_orden
+    LEFT JOIN certificacion_medica_altura cma ON cma.n_orden = noo.n_orden
+    LEFT JOIN ficha_sas fsas ON fsas.n_orden = noo.n_orden
+    LEFT JOIN consent_laboratorios cl ON cl.n_orden = noo.n_orden
+    LEFT JOIN ex_radiograficos_sanguineos ers ON ers.n_orden = noo.n_orden
+    LEFT JOIN perimetro_toracico pto ON pto.n_orden = noo.n_orden
+    LEFT JOIN oftalmologia oft ON oft.n_orden = noo.n_orden
+    INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+    WHERE noo.n_orden = p_norden;
+
 END;
 $BODY$
   LANGUAGE plpgsql;
