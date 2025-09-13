@@ -39,7 +39,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION obtener_reporte_anexo2_completo(
+  CREATE OR REPLACE FUNCTION obtener_reporte_anexo2_completo(
     IN p_norden integer,
     IN name_service text)
   RETURNS TABLE(
@@ -138,6 +138,8 @@ CREATE OR REPLACE FUNCTION obtener_reporte_anexo2_completo(
 	fechaDesde_fechadesde date,
 	fechaHasta_fechahasta date,
 	medico_medico text,
+	hijosVivosAnexo2_txthijosvivos text,
+	hijosMuertosAnexo2_txthijosmuertos text,
 
 	fvc_fvc text,
 	fev1_fev1 text,
@@ -168,6 +170,24 @@ CREATE OR REPLACE FUNCTION obtener_reporte_anexo2_completo(
 	hermanosAntecedentesPatologicos_hermanos_detall text,
 	hijosAntecedentesPatologicos_hijos_detall text,
 	esposaAntecedentesPatologicos_espos_cony_detall text,
+    alergias boolean,
+    asma boolean,
+    bronquitis boolean,
+    tbc boolean,
+    convulsiones boolean,
+    intoxicaciones boolean,
+    hepatitis boolean,
+    tifoidea boolean,
+    hta boolean,
+    diabetes boolean,
+    alcohol boolean,
+    tabaco boolean,
+    drogas boolean,
+    alcoholTipo text,
+    tabacoTipo text,
+    drogasTipo text,
+    alcoholFrecuencia text,
+    drogasFrecuencia text,
 
 	visionCercaSinCorregirOd_v_cerca_s_od text,
 	visionCercaSinCorregirOi_v_cerca_s_oi text,
@@ -255,6 +275,7 @@ CREATE OR REPLACE FUNCTION obtener_reporte_anexo2_completo(
 	examenRadiograficosSanguineos_txtobservacionesrs text,
 
 	sede text,
+	nombreSede text,
 	nameJasper text
   ) AS
 $BODY$
@@ -304,7 +325,7 @@ BEGIN
 		a.txtconclusion, a.txtenfermedadesoculares1, a.sistemanervioso,
 		a.txtotrosex, a.txtrestricciones,
 		a.apto_si, a.apto_no, a.apto_re,
-		a.fechadesde, a.fechahasta, a.medico,
+		a.fechadesde, a.fechahasta, a.medico, a.txthijosvivos, a.txthijosmuertos,
 
 	    -- 📌 funcion_abs (f)
 	    f.fvc, f.fev1, f.fev1fvc, f.fef25_75, f.interpretacion,
@@ -318,6 +339,11 @@ BEGIN
 	    ap.cod_ap, ap.fecha_ap,
 	    ap.txtvhijosvivos,    ap.txtvhijosfallecidos, ap.padre_detall, ap.madre_detall,
 	    ap.hermanos_detall, ap.hijos_detall, ap.espos_cony_detall,
+        ap.chk1, ap.chk4, ap.chk7, ap.chk55, ap.chk15, ap.chk29, ap.chk25,
+        ap.chk18, ap.chk27, ap.chk11, 
+        ap.rblicorsi, ap.rbfumarsi, ap.rbdrogassi,
+        ap.txtlicortipofrecuente, ap.txtncigarrillos, ap.txtdrogastipo, 
+        ap.txtlicorfrecuencia, ap.txtdrogasfrecuencia,
 
 	    -- 📌 oftalmologia (o) 
 	    o.v_cerca_s_od, o.v_cerca_s_oi,
@@ -375,6 +401,13 @@ BEGIN
 
 	    -- 📌 sede
 	    CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+	    CASE
+		    WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A' THEN 'Huamachuco'
+		    WHEN n.cod_sede = 1 THEN 'Trujillo'
+		    WHEN n.cod_sede = 2 THEN 'Huamachuco'
+		    WHEN n.cod_sede = 3 THEN 'Huancayo'
+		    WHEN n.cod_sede = 4 THEN 'Trujillo'
+	    END AS nombreSede,
 
 	    -- 📌 nombre jasper
 	    obtener_name_jasper(p_norden, name_service)
@@ -402,11 +435,12 @@ END;
 $BODY$
   LANGUAGE plpgsql;
 
+
 insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
 			values('anexo_agroindustrial','formulario de anexo 2',true,true,true,false,false);
 
 
-CREATE OR REPLACE FUNCTION obtener_name_jasper(
+ CREATE OR REPLACE FUNCTION obtener_name_jasper(
     norden_param bigint,
     name_service_param text)
   RETURNS text AS
@@ -615,7 +649,7 @@ BEGIN
 		resultado := 'AnexoCB_Digitalizado';
 	END IF;
     ELSIF name_service_param = 'anexo_agroindustrial' THEN
-	resultado := 'Anexo02';
+	resultado := 'Anexo2';
   END IF; 
     RETURN resultado;
 END;
@@ -2431,33 +2465,15 @@ end;
 $BODY$
   LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION obtener_anexo2_examenes_realizados(
-    IN p_norden integer)
-  RETURNS TABLE(
-	triaje boolean,
-	laboratorioClinico boolean,
-	electroCardiograma boolean,
-	radiografiaTorax boolean,
-	fichaAudiologica boolean,
-	espirometria boolean,
-	odontograma boolean,
-	psicologia boolean,
-	anexo7D boolean,
-	historiaOcupacional boolean,
-	fichaAntecedentesPatologicos boolean,
-	cuestionarioNordico boolean,
-	certificadoTrabajoAltura boolean,
-	detencionSAS boolean,
-	consentimientoDosaje boolean,
-	examenRadiografiaSanguineos boolean,
-	perimetroToraxico boolean,
-	oftalmologia boolean
-  ) AS
+CREATE OR REPLACE FUNCTION obtener_anexo2_examenes_realizados(IN p_norden integer)
+  RETURNS TABLE(nombresPaciente text, nombreExamen text, triaje boolean, laboratorioclinico boolean, electrocardiograma boolean, radiografiatorax boolean, fichaaudiologica boolean, espirometria boolean, odontograma boolean, psicologia boolean, anexo7d boolean, historiaocupacional boolean, fichaantecedentespatologicos boolean, cuestionarionordico boolean, certificadotrabajoaltura boolean, detencionsas boolean, consentimientodosaje boolean, examenradiografiasanguineos boolean, perimetrotoraxico boolean, oftalmologia boolean, audiometriapo boolean) AS
 $BODY$
 BEGIN
     
     RETURN QUERY
     SELECT 
+	dp.apellidos_pa || ' ' || dp.nombres_pa,
+	noo.nom_examen,
         CASE WHEN t.n_orden IS NULL THEN FALSE ELSE TRUE END AS triaje,
         CASE WHEN lc.n_orden IS NULL THEN FALSE ELSE TRUE END AS laboratorioClinico,
         CASE WHEN ie.n_orden IS NULL THEN FALSE ELSE TRUE END AS electroCardiograma,
@@ -2475,8 +2491,10 @@ BEGIN
         CASE WHEN cl.n_orden IS NULL THEN FALSE ELSE TRUE END AS consentimientoDosaje,
         CASE WHEN ers.n_orden IS NULL THEN FALSE ELSE TRUE END AS examenRadiografiaSanguineos,
         CASE WHEN pto.n_orden IS NULL THEN FALSE ELSE TRUE END AS perimetroToraxico,
-        CASE WHEN oft.n_orden IS NULL THEN FALSE ELSE TRUE END AS oftalmologia
+        CASE WHEN oft.n_orden IS NULL THEN FALSE ELSE TRUE END AS oftalmologia,
+        CASE WHEN apo.n_orden IS NULL THEN FALSE ELSE TRUE END AS audiometriaPo
     FROM n_orden_ocupacional noo
+    INNER JOIN datos_paciente dp ON noo.cod_pa = dp.cod_pa
     LEFT JOIN triaje t ON t.n_orden = noo.n_orden
     LEFT JOIN lab_clinico lc ON lc.n_orden = noo.n_orden
     LEFT JOIN informe_electrocardiograma ie ON ie.n_orden = noo.n_orden
@@ -2495,9 +2513,152 @@ BEGIN
     LEFT JOIN ex_radiograficos_sanguineos ers ON ers.n_orden = noo.n_orden
     LEFT JOIN perimetro_toracico pto ON pto.n_orden = noo.n_orden
     LEFT JOIN oftalmologia oft ON oft.n_orden = noo.n_orden
+    LEFT JOIN audiometria_po apo ON apo.n_orden = noo.n_orden
     INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
     WHERE noo.n_orden = p_norden;
 
 END;
 $BODY$
   LANGUAGE plpgsql;
+
+
+
+-----------------------------------------------------------------------------
+--PGADMIN 4
+
+CREATE TABLE area_secuencia (
+    prefijo VARCHAR(10) PRIMARY KEY,
+    ultimo_numero INTEGER NOT NULL DEFAULT 0
+);
+
+create table area (
+	id_area SERIAL PRIMARY KEY,
+	prefijo VARCHAR(10) NOT NULL,
+	codigo VARCHAR(15),
+	descripcion TEXT,
+	estado BOOLEAN NOT NULL
+);
+
+create table examen (
+	id_examen SERIAL PRIMARY KEY,
+	id_area INTEGER NOT NULL,
+	orden INTEGER NOT NULL,
+	nombre TEXT NOT NULL,
+	descripcion TEXT,
+	estado BOOLEAN,
+	precio_referencial NUMERIC(10,2),
+	FOREIGN KEY (id_area) REFERENCES area(id_area)
+);
+
+ALTER TABLE examen
+ADD COLUMN prefijo VARCHAR(50);
+
+create table protocolo (
+	id_protocolo SERIAL PRIMARY KEY,
+	nombre TEXT NOT NULL,
+	descripcion TEXT,
+	precio INTEGER,
+	estado BOOLEAN NOT NULL
+)
+
+create table protocolo_examenes (
+	id_protocolo_examen SERIAL PRIMARY KEY,
+	id_protocolo INTEGER NOT NULL,
+	id_examen INTEGER NOT NULL,
+	precio NUMERIC(10,2),
+	estado BOOLEAN NOT NULL,
+	orden INTEGER,
+	FOREIGN KEY (id_protocolo) REFERENCES protocolo(id_protocolo),
+	FOREIGN KEY (id_examen) REFERENCES examen(id_examen)
+)
+
+create table protocolo_empresa (
+	id_protocolo_empresa SERIAL PRIMARY KEY,
+	id_protocolo INTEGER NOT NULL,
+	ruc_empresa TEXT NOT NULL,
+	estado BOOLEAN NOT NULL,
+	FOREIGN KEY (id_protocolo) REFERENCES protocolo(id_protocolo)
+)
+
+-- Función para generar el código de área
+CREATE OR REPLACE FUNCTION generar_codigo_area()
+RETURNS TRIGGER AS $$
+DECLARE
+    nuevo_numero INTEGER;
+BEGIN
+    -- Se actualiza el contador para el prefijo
+    UPDATE area_secuencia
+    SET ultimo_numero = ultimo_numero + 1
+    WHERE prefijo = NEW.prefijo
+    RETURNING ultimo_numero INTO nuevo_numero;
+
+    -- Si no existe el prefijo en la tabla de secuencias, lo insertamos
+    IF NOT FOUND THEN
+        INSERT INTO area_secuencia (prefijo, ultimo_numero)
+        VALUES (NEW.prefijo, 1)
+        RETURNING ultimo_numero INTO nuevo_numero;
+    END IF;
+
+    -- Generamos el código con el prefijo y el número en 3 dígitos
+    NEW.codigo := NEW.prefijo || LPAD(nuevo_numero::TEXT, 3, '0');
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_generar_codigo_area
+BEFORE INSERT ON area
+FOR EACH ROW
+EXECUTE FUNCTION generar_codigo_area();
+
+
+-- Función para calcular el orden
+CREATE OR REPLACE FUNCTION set_orden_examen()
+RETURNS TRIGGER AS $$
+DECLARE
+    max_orden INTEGER;
+BEGIN
+    -- Buscar el máximo orden dentro del área considerando solo los activos
+    SELECT COALESCE(MAX(orden), 0)
+    INTO max_orden
+    FROM examen
+    WHERE id_area = NEW.id_area AND estado = TRUE;
+
+    -- Asignar el nuevo orden
+    NEW.orden := max_orden + 1;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger que llama a la función antes de insertar
+CREATE TRIGGER trigger_set_orden_examen
+BEFORE INSERT ON examen
+FOR EACH ROW
+EXECUTE FUNCTION set_orden_examen();
+
+
+-- Función para calcular el orden
+CREATE OR REPLACE FUNCTION set_orden_protocolo_examenes()
+RETURNS TRIGGER AS $$
+DECLARE
+    max_orden INTEGER;
+BEGIN
+    -- Buscar el máximo orden dentro del área considerando solo los activos
+    SELECT COALESCE(MAX(orden), 0)
+    INTO max_orden
+    FROM protocolo_examenes
+    WHERE id_protocolo = NEW.id_protocolo AND estado = TRUE;
+
+    -- Asignar el nuevo orden
+    NEW.orden := max_orden + 1;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger que llama a la función antes de insertar
+CREATE TRIGGER trigger_set_orden_protocolo_examenes
+BEFORE INSERT ON protocolo_examenes
+FOR EACH ROW
+EXECUTE FUNCTION set_orden_protocolo_examenes();
