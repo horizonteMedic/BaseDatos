@@ -440,6 +440,867 @@ insert into config_general_service_digital (name_service,descripcion,firma_p,hue
 			values('anexo_agroindustrial','formulario de anexo 2',true,true,true,false,false);
 
 
+---------------------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION obtener_anexo7c(
+    IN p_norden integer)
+  RETURNS TABLE(
+-- datos_paciente 
+dni_cod_pa integer,
+nombres_nombres_pa text,
+apellidos_apellidos_pa text,
+fechaNacimientoPaciente_fecha_nacimiento_pa date,
+sexo_sexo_pa "char",
+lugarNacimientoPaciente_lugar_nac_pa text,
+direccionPaciente_direccion_pa text,
+telefonoCasaPaciente_tel_casa_pa text,
+celularPaciente_cel_pa text,
+estadoCivilPaciente_estado_civil_pa text,
+nivelEstudiosPaciente_nivel_est_pa text,
+-- n_orden_ocupacional
+norden_n_orden integer,
+empresa_razon_empresa text,
+contrata_razon_contrata text,
+nombreExamen_nom_examen text,
+explotacion_nom_ex text,
+altura_altura_po text,
+mineral_mineral_po text,
+cargo_cargo_de text,
+area_area_o text,
+grupoFactorSanguineo_grupofactorsan text,
+-- antecedentes_patologicos
+hijosVivosAntecedentes_txtvhijosvivos text,
+hijosFallecidosAntecedentes_txtvhijosfallecidos text,
+dHijosVivosAntecedentes_txtdhijosvivos text,
+dHijosFallecidosAntecedentes_txtdhijosfallecidos text,
+antecedentes_rbfumarsi boolean,
+antecedentes_rblicorsi boolean,
+
+-- triaje
+tallaTriaje_talla text,
+pesoTriaje_peso text,
+imcTriaje_imc text,
+sistolicaTriaje_sistolica text,
+diastolicaTriaje_diastolica text,
+frecuenciaRespiratoriaTriaje_f_respiratoria text,
+frecuenciaCardiacaTriaje_f_cardiaca text,
+saturacionOxigenoTriaje_sat_02 text,
+temperaturaTriaje_temperatura text,
+cinturaTriaje_cintura text,
+caderaTriaje_cadera text,
+iccTriaje_icc text,
+perimetroCuelloTriaje_perimetro_cuello text,
+
+-- oftalmologia (
+enfermedadesOcularesOftalmo_e_oculares text,
+enfermedadesOcularesOtrosOftalmo_e_oculares1 text,
+visionLejosOftalmo_e_oculvisionlejos text,
+
+-- ftalmologia2021
+diagnosticoOftalmologia2021_txtdiagnostico text,
+
+-- odontograma
+ausentesOdontograma_txtausentes integer,
+observacionesOdontograma_txtobservaciones text,
+piezasMalEstadoOdontograma_txtpiezasmalestado integer,
+
+-- radiografia_torax
+verticesRadiografiaTorax_txtvertices text,
+hiliosRadiografiaTorax_txthilios text,
+senosCostoFrenicosRadiografiaTorax_txtsenoscostofrenicos text,
+mediastinosRadiografiaTorax_txtmediastinos text,
+siluetaCardioVascularRadiografiaTorax_txtsiluetacardiovascular text,
+osteomuscularRadiografiaTorax_txtosteomuscular text,
+conclusionesRadiograficasTorax_txtconclusionesradiograficas text,
+observacionesRadiografiaTorax_txtobservacionesrt text,
+camposPulmonesRadiografiaTorax_txtcampospulm text,
+
+-- lab_clinico
+observacionesLaboratorioClinico_txtobservacioneslb text,
+cocainaLaboratorioClinico_txtcocaina text,
+marihuanaLaboratorioClinico_txtmarihuana text,
+glucosaLaboratorioClinico_txtglucosabio text,
+vsgLaboratorioClinico_txtvsg text,
+creatininaLaboratorioClinico_txtcreatininabio text,
+
+-- lab_clinico
+grupoFactorSanguineoLaboratorioClinico_Grupofactor text,
+
+-- audiometria_2021, audiometria_2023, audiometria_po
+oidoDerecho500Audiometria_o_d_500 text,
+
+-- audiometria_2021, audiometria_2023, audiometria_po
+oidoDerecho1000Audiometria_o_d_1000 text,
+
+-- audiometria_2021, audiometria_2023, audiometria_po
+oidoDerecho2000Audiometria_o_d_2000 text,
+
+-- audiometria_2021, audiometria_2023, audiometria_po
+oidoDerecho3000Audiometria_o_d_3000 text,
+
+-- audiometria_2021, audiometria_2023, audiometria_po
+oidoDerecho4000Audiometria_o_d_4000 text,
+
+-- audiometria_2021, audiometria_2023, audiometria_po
+oidoDerecho6000Audiometria_o_d_6000 text,
+
+-- audiometria_2021, audiometria_2023, audiometria_po
+oidoDerecho8000Audiometria_o_d_8000 text,
+
+-- audiometria_2021, audiometria_2023, audiometria_po
+oidoIzquierdo500Audiometria_o_i_500 text,
+
+-- audiometria_2021, audiometria_2023, audiometria_po
+oidoIzquierdo1000Audiometria_o_i_1000 text,
+
+-- audiometria_2021, audiometria_2023, audiometria_po
+oidoIzquierdo2000Audiometria_o_i_2000 text,
+
+-- audiometria_2021, audiometria_2023, audiometria_po
+oidoIzquierdo3000Audiometria_o_i_3000 text,
+
+-- audiometria_2021, audiometria_2023, audiometria_po
+oidoIzquierdo4000Audiometria_o_i_4000 text,
+
+-- audiometria_2021, audiometria_2023, audiometria_po
+oidoIzquierdo6000Audiometria_o_i_6000 text,
+
+-- audiometria_2021, audiometria_2023, audiometria_po
+oidoIzquierdo8000Audiometria_o_i_8000 text,
+
+-- audiometria_2021, audiometria_2023, audiometria_po - Diagnóstico audiométrico (Prefijos: au, a25, m)
+diagnosticoAudiometricoCompleto_diagnostico text,
+
+-- funcion_abs
+fvcFuncionRespiratoria_fvc text,
+fev1FuncionRespiratoria_fev1 text,
+fev1FvcFuncionRespiratoria_fev1fvc text,
+fef2575FuncionRespiratoria_fef25_75 text,
+interpretacionFuncionRespiratoria_interpretacion text,
+
+-- b_certificado_altura
+ordenAlturaCertificado_ordenaltura integer,
+observacionesAlturaCertificado_alturabarrick text,
+
+-- b_certificado_conduccion
+ordenConduccionCertificado_ordencond integer,
+observacionesConduccionCertificado_conduccion text,
+
+-- certificacion_medica_altura
+numeroAlturaCertificacion_numalt integer,
+observacionesAlturaCertificacion_certialtura text,
+
+-- audiometria_2021 - Campos adicionales de diagnóstico 
+normalAudiometria_chkdnormal boolean,
+traumaLeveOdAudiometria_chkdtaleveod boolean,
+traumaLeveOiAudiometria_chkdtaleveoi boolean,
+traumaAvanzadoOdAudiometria_chkdtaavanzadood boolean,
+traumaAvanzadoOiAudiometria_chkdtaavanzadooi boolean,
+hipoacusiaLeveOdAudiometria_chkdhrleveod boolean,
+hipoacusiaLeveOiAudiometria_chkdhrleveoi boolean,
+hipoacusiaModeradaOdAudiometria_chkdhrmoderadood boolean,
+hipoacusiaModeradaOiAudiometria_chkdhrmoderadooi boolean,
+hipoacusiaAvanzadaOdAudiometria_chkdhravanzadaod boolean,
+hipoacusiaAvanzadaOiAudiometria_chkdhravanzadaoi boolean,
+otrasHipoacusiasAudiometria_chkotrashipoacusias boolean,
+otrasHipoacusiasAudiometria_txtotrashipoacusias text,
+
+-- radiografia
+infoGeneralRadiografia_info_general text,
+conclusionRadiografia_conclu text,
+
+-- anexo_agroindustrial 
+anamnesisAgroindustrial_txtanamnesis text,
+estadoMentalAgroindustrial_txtestadomental text
+  ) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+	SELECT 
+	    -- TABLA: datos_paciente (Prefijo: d)
+	    d.cod_pa,
+	    d.nombres_pa,
+	    d.apellidos_pa,
+	    d.fecha_nacimiento_pa,
+	    d.sexo_pa,
+	    d.lugar_nac_pa,
+	    d.direccion_pa,
+	    d.tel_casa_pa,
+	    d.cel_pa,
+	    d.estado_civil_pa,
+	    d.nivel_est_pa,
+	    
+	    -- TABLA: n_orden_ocupacional (Prefijo: n)
+	    n.n_orden,
+	    n.razon_empresa,
+	    n.razon_contrata,
+	    n.nom_examen,
+	    n.nom_ex,
+	    n.altura_po,
+	    n.mineral_po,
+	    n.cargo_de,
+	    n.area_o,
+	    n.grupofactorsan,
+	    
+	    -- TABLA: antecedentes_patologicos (Prefijo: a)
+	    a.txtvhijosvivos,
+	    a.txtvhijosfallecidos,
+	    a.txtdhijosvivos,
+	    a.txtdhijosfallecidos,
+	    a.rbfumarsi,
+	    a.rblicorsi,
+	    
+	    -- TABLA: triaje (Prefijo: t)
+	    t.talla,
+	    t.peso,
+	    t.imc,
+	    t.sistolica,
+	    t.diastolica,
+	    t.f_respiratoria,
+	    t.f_cardiaca,
+	    t.sat_02,
+	    t.temperatura,
+	    t.cintura,
+	    t.cadera,
+	    t.icc,
+	    t.perimetro_cuello,
+	    
+	    -- TABLA: oftalmologia (Prefijo: o)
+	    o.e_oculares,
+	    o.e_oculares1,
+	    o.e_oculvisionlejos,
+	    
+	    -- TABLA: oftalmologia2021 (Prefijo: oft)
+	    oft.txtdiagnostico,
+	    
+	    -- TABLA: odontograma (Prefijo: od)
+	    od.txtausentes,
+	    od.txtobservaciones,
+	    od.txtpiezasmalestado,
+	    
+	    -- TABLA: radiografia_torax (Prefijo: r)
+	    r.txtvertices,
+	    r.txthilios,
+	    r.txtsenoscostofrenicos,
+	    r.txtmediastinos,
+	    r.txtsiluetacardiovascular,
+	    r.txtosteomuscular,
+	    r.txtconclusionesradiograficas,
+	    r.txtobservacionesrt,
+	    r.txtcampospulm,
+	    
+	    -- TABLA: lab_clinico (Prefijo: l)
+	    l.txtobservacioneslb,
+	    l.txtcocaina,
+	    l.txtmarihuana,
+	    l.txtglucosabio,
+	    l.txtvsg,
+	    l.txtcreatininabio,
+	    
+	    -- TABLA: lab_clinico - Grupo sanguíneo y factor RH (Prefijo: l)
+	    CASE 
+		WHEN l.chko = 'TRUE' THEN 'O'
+		WHEN l.chka = 'TRUE' THEN 'A'
+		WHEN l.chkb = 'TRUE' THEN 'B'
+		WHEN l.chkab = 'TRUE' THEN 'AB'
+		ELSE '.'
+	    END || '' ||
+	    CASE 
+		WHEN l.rbrhpositivo = 'TRUE' THEN '+'
+		WHEN l.rbrhnegativo = 'TRUE' THEN '-'
+	    END AS Grupofactor,
+	    
+	    -- TABLA: audiometria_2021, audiometria_2023, audiometria_po - Oído derecho 500Hz (Prefijos: au, a25, m)
+	    CASE 
+		WHEN au.o_d_500 IS NOT NULL THEN au.o_d_500
+		WHEN a25.o_d_500 IS NOT NULL THEN a25.o_d_500
+		ELSE m.o_d_500
+	    END AS o_d_500,
+	    
+	    -- TABLA: audiometria_2021, audiometria_2023, audiometria_po - Oído derecho 1000Hz (Prefijos: au, a25, m)
+	    CASE 
+		WHEN au.o_d_1000 IS NOT NULL THEN au.o_d_1000
+		WHEN a25.o_d_1000 IS NOT NULL THEN a25.o_d_1000
+		ELSE m.o_d_1000
+	    END AS o_d_1000,
+	    
+	    -- TABLA: audiometria_2021, audiometria_2023, audiometria_po - Oído derecho 2000Hz (Prefijos: au, a25, m)
+	    CASE 
+		WHEN au.o_d_2000 IS NOT NULL THEN au.o_d_2000
+		WHEN a25.o_d_2000 IS NOT NULL THEN a25.o_d_2000
+		ELSE m.o_d_2000
+	    END AS o_d_2000,
+	    
+	    -- TABLA: audiometria_2021, audiometria_2023, audiometria_po - Oído derecho 3000Hz (Prefijos: au, a25, m)
+	    CASE 
+		WHEN au.o_d_3000 IS NOT NULL THEN au.o_d_3000
+		WHEN a25.o_d_3000 IS NOT NULL THEN a25.o_d_3000
+		ELSE m.o_d_3000
+	    END AS o_d_3000,
+	    
+	    -- TABLA: audiometria_2021, audiometria_2023, audiometria_po - Oído derecho 4000Hz (Prefijos: au, a25, m)
+	    CASE 
+		WHEN au.o_d_4000 IS NOT NULL THEN au.o_d_4000
+		WHEN a25.o_d_4000 IS NOT NULL THEN a25.o_d_4000
+		ELSE m.o_d_4000
+	    END AS o_d_4000,
+	    
+	    -- TABLA: audiometria_2021, audiometria_2023, audiometria_po - Oído derecho 6000Hz (Prefijos: au, a25, m)
+	    CASE 
+		WHEN au.o_d_6000 IS NOT NULL THEN au.o_d_6000
+		WHEN a25.o_d_6000 IS NOT NULL THEN a25.o_d_6000
+		ELSE m.o_d_6000
+	    END AS o_d_6000,
+	    
+	    -- TABLA: audiometria_2021, audiometria_2023, audiometria_po - Oído derecho 8000Hz (Prefijos: au, a25, m)
+	    CASE 
+		WHEN au.o_d_8000 IS NOT NULL THEN au.o_d_8000
+		WHEN a25.o_d_8000 IS NOT NULL THEN a25.o_d_8000
+		ELSE m.o_d_8000
+	    END AS o_d_8000,
+	    
+	    -- TABLA: audiometria_2021, audiometria_2023, audiometria_po - Oído izquierdo 500Hz (Prefijos: au, a25, m)
+	    CASE 
+		WHEN au.o_i_500 IS NOT NULL THEN au.o_i_500
+		WHEN a25.o_i_500 IS NOT NULL THEN a25.o_i_500
+		ELSE m.o_i_500
+	    END AS o_i_500,
+	    
+	    -- TABLA: audiometria_2021, audiometria_2023, audiometria_po - Oído izquierdo 1000Hz (Prefijos: au, a25, m)
+	    CASE 
+		WHEN au.o_i_1000 IS NOT NULL THEN au.o_i_1000
+		WHEN a25.o_i_1000 IS NOT NULL THEN a25.o_i_1000
+		ELSE m.o_i_1000
+	    END AS o_i_1000,
+	    
+	    -- TABLA: audiometria_2021, audiometria_2023, audiometria_po - Oído izquierdo 2000Hz (Prefijos: au, a25, m)
+	    CASE 
+		WHEN au.o_i_2000 IS NOT NULL THEN au.o_i_2000
+		WHEN a25.o_i_2000 IS NOT NULL THEN a25.o_i_2000
+		ELSE m.o_i_2000
+	    END AS o_i_2000,
+	    
+	    -- TABLA: audiometria_2021, audiometria_2023, audiometria_po - Oído izquierdo 3000Hz (Prefijos: au, a25, m)
+	    CASE 
+		WHEN au.o_i_3000 IS NOT NULL THEN au.o_i_3000
+		WHEN a25.o_i_3000 IS NOT NULL THEN a25.o_i_3000
+		ELSE m.o_i_3000
+	    END AS o_i_3000,
+	    
+	    -- TABLA: audiometria_2021, audiometria_2023, audiometria_po - Oído izquierdo 4000Hz (Prefijos: au, a25, m)
+	    CASE 
+		WHEN au.o_i_4000 IS NOT NULL THEN au.o_i_4000
+		WHEN a25.o_i_4000 IS NOT NULL THEN a25.o_i_4000
+		ELSE m.o_i_4000
+	    END AS o_i_4000,
+	    
+	    -- TABLA: audiometria_2021, audiometria_2023, audiometria_po - Oído izquierdo 6000Hz (Prefijos: au, a25, m)
+	    CASE 
+		WHEN au.o_i_6000 IS NOT NULL THEN au.o_i_6000
+		WHEN a25.o_i_6000 IS NOT NULL THEN a25.o_i_6000
+		ELSE m.o_i_6000
+	    END AS o_i_6000,
+	    
+	    -- TABLA: audiometria_2021, audiometria_2023, audiometria_po - Oído izquierdo 8000Hz (Prefijos: au, a25, m)
+	    CASE 
+		WHEN au.o_i_8000 IS NOT NULL THEN au.o_i_8000
+		WHEN a25.o_i_8000 IS NOT NULL THEN a25.o_i_8000
+		ELSE m.o_i_8000
+	    END AS o_i_8000,
+	    ----
+	    -- TABLA: audiometria_2021, audiometria_2023, audiometria_po - Diagnóstico audiométrico (Prefijos: au, a25, m)
+	    CASE 
+		WHEN au.chkdnormal = 'true' THEN 'NORMAL'
+		WHEN au.chkdtaleveod = 'true' AND au.chkdtaleveoi = 'true' THEN 'TRAUMA ACÚSTICO BILATERAL LEVE'
+		WHEN au.chkdtaleveod = 'true' THEN 'TRAUMA ACÚSTICO LEVE OD'
+		WHEN au.chkdtaleveoi = 'true' THEN 'TRAUMA ACÚSTICO LEVE OI'
+		WHEN au.chkdtaavanzadood = 'true' AND au.chkdtaavanzadooi = 'true' THEN 'TRAUMA ACÚSTICO BILATERAL AVANZADO'
+		WHEN au.chkdtaavanzadood = 'true' THEN 'TRAUMA ACÚSTICO AVANZADO OD'
+		WHEN au.chkdtaavanzadooi = 'true' THEN 'TRAUMA ACÚSTICO AVANZADO OI'
+		WHEN au.chkdhrleveod = 'true' AND au.chkdhrleveoi = 'true' THEN 'HIPOACUSIA INDUCIDA POR RUIDO, BILATERAL LEVE'
+		WHEN au.chkdhrleveod = 'true' THEN 'HIPOACUSIA INDUCIDA POR RUIDO, LEVE OD'
+		WHEN au.chkdhrleveoi = 'true' THEN 'HIPOACUSIA INDUCIDA POR RUIDO, LEVE OI'
+		WHEN au.chkdhrmoderadood = 'true' AND au.chkdhrmoderadooi = 'true' THEN 'HIPOACUSIA INDUCIDA POR RUIDO, BILATERAL MODERADA'
+		WHEN au.chkdhrmoderadood = 'true' THEN 'HIPOACUSIA INDUCIDA POR RUIDO, MODERADA OD'
+		WHEN au.chkdhrmoderadooi = 'true' THEN 'HIPOACUSIA INDUCIDA POR RUIDO, MODERADA OI'
+		WHEN au.chkdhravanzadaod = 'true' AND au.chkdhravanzadaoi = 'true' THEN 'HIPOACUSIA INDUCIDA POR RUIDO, BILATERAL AVANZADA'
+		WHEN au.chkdhravanzadaod = 'true' THEN 'HIPOACUSIA INDUCIDA POR RUIDO, AVANZADA OD'
+		WHEN au.chkdhravanzadaoi = 'true' THEN 'HIPOACUSIA INDUCIDA POR RUIDO, AVANZADA OI'
+		WHEN au.chkotrashipoacusias = 'true' THEN au.txtotrashipoacusias
+		WHEN a25.txtdiag_od IS NOT NULL THEN CONCAT(a25.txtdiag_od, ' ', a25.txtdiag_oi)
+		ELSE m.diagnostico
+	    END AS diagnostico,
+	    
+	    -- TABLA: funcion_abs (Prefijo: fa)
+	    fa.fvc,
+	    fa.fev1,
+	    fa.fev1fvc,
+	    fa.fef25_75,
+	    fa.interpretacion,
+	    
+	    -- TABLA: b_certificado_altura (Prefijo: ba)
+	    ba.n_orden AS ordenaltura,
+	    ba.b_c_observaciones AS alturabarrick,
+	    
+	    -- TABLA: b_certificado_conduccion (Prefijo: bc)
+	    bc.n_orden AS ordencond,
+	    bc.b_c_observaciones AS conduccion,
+	    
+	    -- TABLA: certificacion_medica_altura (Prefijo: ca)
+	    ca.n_orden AS numalt,
+	    ca.observaciones AS certialtura,
+	    
+	    -- TABLA: audiometria_2021 - Campos adicionales de diagnóstico (Prefijo: au)
+	    au.chkdnormal,
+	    au.chkdtaleveod,
+	    au.chkdtaleveoi,
+	    au.chkdtaavanzadood,
+	    au.chkdtaavanzadooi,
+	    au.chkdhrleveod,
+	    au.chkdhrleveoi,
+	    au.chkdhrmoderadood,
+	    au.chkdhrmoderadooi,
+	    au.chkdhravanzadaod,
+	    au.chkdhravanzadaoi,
+	    au.chkotrashipoacusias,
+	    au.txtotrashipoacusias,
+	    
+	    -- TABLA: radiografia (Prefijo: ra)
+	    ra.info_general,
+	    ra.conclu,
+	    
+	    -- TABLA: anexo_agroindustrial (Prefijo: ag)
+	    ag.txtanamnesis,
+	    ag.txtestadomental
+
+	FROM datos_paciente AS d
+	    INNER JOIN n_orden_ocupacional AS n ON (d.cod_pa = n.cod_pa)
+	    INNER JOIN antecedentes_patologicos AS a ON (n.n_orden = a.n_orden)
+	    INNER JOIN triaje AS t ON (n.n_orden = t.n_orden)
+	    LEFT JOIN oftalmologia AS o ON (n.n_orden = o.n_orden)
+	    INNER JOIN funcion_abs AS fa ON (n.n_orden = fa.n_orden)
+	    INNER JOIN radiografia_torax AS r ON (n.n_orden = r.n_orden)
+	    INNER JOIN lab_clinico AS l ON (n.n_orden = l.n_orden)
+	    INNER JOIN odontograma AS od ON (n.n_orden = od.n_orden)
+	    LEFT JOIN audiometria_po AS m ON (n.n_orden = m.n_orden)
+	    LEFT JOIN audiometria_2021 AS au ON (n.n_orden = au.n_orden)
+	    LEFT JOIN audiometria_2023 AS a25 ON (n.n_orden = a25.n_orden)
+	    LEFT JOIN oftalmologia2021 AS oft ON (n.n_orden = oft.n_orden)
+	    LEFT JOIN b_certificado_altura AS ba ON (ba.n_orden = n.n_orden)
+	    LEFT JOIN b_certificado_conduccion AS bc ON (bc.n_orden = n.n_orden)
+	    LEFT JOIN certificacion_medica_altura AS ca ON (ca.n_orden = n.n_orden)
+	    LEFT JOIN radiografia AS ra ON (ra.n_orden = n.n_orden)
+	    LEFT JOIN anexo_agroindustrial AS ag ON (n.n_orden = ag.n_orden)
+	WHERE n.n_orden = p_norden;
+
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION editar_anexo7c(
+    IN p_norden integer)
+  RETURNS TABLE(
+dni_cod_pa INTEGER,
+nombres_nombres_pa TEXT,
+apellidos_apellidos_pa TEXT,
+fechaNacimientoPaciente_fecha_nacimiento_pa DATE,
+sexo_sexo_pa "char",
+lugarNacimientoPaciente_lugar_nac_pa TEXT,
+direccionPaciente_direccion_pa TEXT,
+telefonoCasaPaciente_tel_casa_pa TEXT,
+celularPaciente_cel_pa TEXT,
+estadoCivilPaciente_estado_civil_pa TEXT,
+nivelEstudioPaciente_nivel_est_pa TEXT,
+empresa_razon_empresa TEXT,
+contrata_razon_contrata TEXT,
+nombreExamen_nom_examen TEXT,
+explotacion_nom_ex TEXT,
+altura_altura_po TEXT,
+mineral_mineral_po TEXT,
+cargo_cargo_de TEXT,
+areaOcupacional_area_o TEXT,
+hijosVivosAntecedentes_txtvhijosvivos TEXT,
+hijosFallecidosAntecedentes_txtvhijosfallecidos TEXT,
+detalleHijosVivosAntecedentes_txtdhijosvivos TEXT,
+detalleHijosFallecidosAntecedentes_txtdhijosfallecidos TEXT,
+
+tallaTriaje_talla TEXT,
+pesoTriaje_peso TEXT,
+imcTriaje_imc TEXT,
+sistolicaTriaje_sistolica TEXT,
+diastolicaTriaje_diastolica TEXT,
+frecuenciaRespiratoriaTriaje_f_respiratoria TEXT,
+frecuenciaCardiacaTriaje_f_cardiaca TEXT,
+saturacionOxigenoTriaje_sat_02 TEXT,
+temperaturaTriaje_temperatura TEXT,
+cinturaTriaje_cintura TEXT,
+caderaTriaje_cadera TEXT,
+iccTriaje_icc TEXT,
+perimetroCuelloTriaje_perimetro_cuello TEXT,
+
+visionCercaSinCorregirOd_v_cerca_s_od TEXT,
+visionCercaSinCorregirOi_v_cerca_s_oi TEXT,
+visionCercaCorregidaOd_v_cerca_c_od TEXT,
+visionCercaCorregidaOi_v_cerca_c_oi TEXT,
+visionLejosSinCorregirOd_v_lejos_s_od TEXT,
+visionLejosSinCorregirOi_v_lejos_s_oi TEXT,
+visionLejosCorregidaOd_v_lejos_c_od TEXT,
+visionLejosCorregidaOi_v_lejos_c_oi TEXT,
+visionBinocular_v_binocular TEXT,
+enfermedadesOcularesOftalmo_e_oculares TEXT,
+enfermedadesOcularesOtrosOftalmo_e_oculares1 TEXT,
+
+ausentesOdontograma_txtausentes INTEGER,
+observacionesOdontograma_txtobservaciones TEXT,
+piezasMalEstadoOdontograma_txtpiezasmalestado INTEGER,
+
+observacionesRadiografiaTorax_txtobservacionesrt TEXT,
+observacionesLaboratorioClinico_txtobservacioneslb TEXT,
+examenRadiograficosSanguineos_txtobservacionesrs TEXT,
+
+glucosaLaboratorioClinico_txtglucosabio TEXT,
+vsgLaboratorioClinico_txtvsg TEXT,
+cocainaLaboratorioClinico_txtcocaina TEXT,
+marihuanaLaboratorioClinico_txtmarihuana TEXT,
+creatininaLaboratorioClinico_txtcreatininabio TEXT,
+
+oidoDerecho500Audiometria_o_d_500 TEXT,
+oidoDerecho1000Audiometria_o_d_1000 TEXT,
+oidoDerecho2000Audiometria_o_d_2000 TEXT,
+oidoDerecho3000Audiometria_o_d_3000 TEXT,
+oidoDerecho4000Audiometria_o_d_4000 TEXT,
+oidoDerecho6000Audiometria_o_d_6000 TEXT,
+oidoDerecho8000Audiometria_o_d_8000 TEXT,
+
+oidoIzquierdo500Audiometria_o_i_500 TEXT,
+oidoIzquierdo1000Audiometria_o_i_1000 TEXT,
+oidoIzquierdo2000Audiometria_o_i_2000 TEXT,
+oidoIzquierdo3000Audiometria_o_i_3000 TEXT,
+oidoIzquierdo4000Audiometria_o_i_4000 TEXT,
+oidoIzquierdo6000Audiometria_o_i_6000 TEXT,
+oidoIzquierdo8000Audiometria_o_i_8000 TEXT,
+
+diagnosticoAudiometricoCompleto_diagnostico TEXT,
+
+normalAudiometria_chkdnormal BOOLEAN,
+traumaLeveOdAudiometria_chkdtaleveod BOOLEAN,
+traumaLeveOiAudiometria_chkdtaleveoi BOOLEAN,
+traumaAvanzadoOdAudiometria_chkdtaavanzadood BOOLEAN,
+traumaAvanzadoOiAudiometria_chkdtaavanzadooi BOOLEAN,
+hipoacusiaLeveOdAudiometria_chkdhrleveod BOOLEAN,
+hipoacusiaLeveOiAudiometria_chkdhrleveoi BOOLEAN,
+hipoacusiaModeradaOdAudiometria_chkdhrmoderadood BOOLEAN,
+hipoacusiaModeradaOiAudiometria_chkdhrmoderadooi BOOLEAN,
+hipoacusiaAvanzadaOdAudiometria_chkdhravanzadaod BOOLEAN,
+hipoacusiaAvanzadaOiAudiometria_chkdhravanzadaoi BOOLEAN,
+otrasHipoacusiasAudiometria_chkotrashipoacusias BOOLEAN,
+otrasHipoacusiasAudiometria_txtotrashipoacusias TEXT,
+
+fvcFuncionRespiratoria_fvc TEXT,
+fev1FuncionRespiratoria_fev1 TEXT,
+fev1FvcFuncionRespiratoria_fev1fvc TEXT,
+fef2575FuncionRespiratoria_fef25_75 TEXT,
+interpretacionFuncionRespiratoria_interpretacion TEXT,
+
+fechaAnexo7c_fecha DATE,
+ruidoAnexo7c_chkruido BOOLEAN,
+polvoAnexo7c_chkpolvo BOOLEAN,
+vidSegmentarioAnexo7c_chkvidsegmentario BOOLEAN,
+vidTotalAnexo7c_chkvidtotal BOOLEAN,
+cancerigenosAnexo7c_chkcancerigenos BOOLEAN,
+mutagenicosAnexo7c_chkmutagenicos BOOLEAN,
+solventesAnexo7c_chksolventes BOOLEAN,
+metalesAnexo7c_chkmetales BOOLEAN,
+temperaturaAnexo7c_chktemperatura BOOLEAN,
+biologicosAnexo7c_chkbiologicos BOOLEAN,
+posturasAnexo7c_chkposturas BOOLEAN,
+turnosAnexo7c_chkturnos BOOLEAN,
+cargasAnexo7c_chkcargas BOOLEAN,
+movRepetAnexo7c_chkmovrepet BOOLEAN,
+pvdAnexo7c_chkpvd BOOLEAN,
+otrosAnexo7c_chkotros BOOLEAN,
+reubicacionSiAnexo7c_tbrsi BOOLEAN,
+reubicacionNoAnexo7c_rbrno BOOLEAN,
+
+tabacoNadaAexo7c_chktnada BOOLEAN,
+tabacoPocoAnexo7c_chktpoco BOOLEAN,
+tabacoHabitualAnexo7c_chkthabitual BOOLEAN,
+tabacoExcesivoAnexo7c_chktexcesivo BOOLEAN,
+
+alcoholNadaAnexo7c_chkanada BOOLEAN,
+alcoholPocoAnexo7c_chkapoco BOOLEAN,
+alcoholHabitualAnexo7c_chkahabitual BOOLEAN,
+alcoholExcesivoAnexo7c_chkaexcesivo BOOLEAN,
+
+drogasNadaAnexo7c_chkdnada BOOLEAN,
+drogasPocoAnexo7c_chkdpoco BOOLEAN,
+drogasHabitualAnexo7c_chkdhabitual BOOLEAN,
+drogasExcesivoAnexo7c_chkdexcesivo BOOLEAN,
+
+puestoActualAnexo7c_txtpuestoactual TEXT,
+tiempoAnexo7c_txttiempo TEXT,
+antecedentesPersonalesAnexo7c_txtantecedentespersonales TEXT,
+antecedentesPersonales2Anexo7c_txtantecedentespersonales2 TEXT,
+antecedentesFamiliaresAnexo7c_txtantecedentesfamiliares TEXT,
+cabezaAnexo7c_txtcabeza TEXT,
+narizAnexo7c_txtnariz TEXT,
+cuelloAnexo7c_txtcuello TEXT,
+perimetroAnexo7c_txtperimetro TEXT,
+baflAnexo7c_txtb_a_f_l TEXT,
+visionColoresAnexo7c_txtvisioncolores TEXT,
+enfermedadesOcularesAnexo7c_txtenfermedadesoculares TEXT,
+diagnosticoAudioAnexo7c_txtdiagnosticoaudio TEXT,
+enfermedadesOculares2Anexo7c_txtenfermedadesoculares2 TEXT,
+reflejosPupilaresAnexo7c_txtreflejospupilares TEXT,
+binocularAnexo7c_txtbinocular TEXT,
+odAnexo7c_txtod TEXT,
+oiAnexo7c_txtoi TEXT,
+toraxAnexo7c_txttorax TEXT,
+corazonAnexo7c_txtcorazon TEXT,
+pulmonesNormalAnexo7c_rbnormal BOOLEAN,
+pulmonesAnormalAnexo7c_rbanormal BOOLEAN,
+pulmonesDescripcionAnexo7c_txtpulmones TEXT,
+miembrosSuperioresAnexo7c_txtmiembrossuperiores TEXT,
+miembrosInferioresAnexo7c_txtmiembrosinferiores TEXT,
+reflejosOsteotendinososAnexo7c_txtreflejososteotendinosos TEXT,
+marchaAnexo7c_txtmarcha TEXT,
+columnaVertebralAnexo7c_txtcolumnavertebral TEXT,
+abdomenAnexo7c_txtabdomen TEXT,
+anillosInguinalesAnexo7c_txtanillosinguinales TEXT,
+organosGenitalesAnexo7c_txtorganosgenitales TEXT,
+tactoRectalNoHizoAnexo7c_rbtnohizo BOOLEAN,
+tactoRectalNormalAnexo7c_rbtnormal BOOLEAN,
+tactoRectalAnormalAnexo7c_rbtanormal BOOLEAN,
+describirObservacionAnexo7c_chkdescribirobservacion BOOLEAN,
+herniasAnexo7c_txthernias TEXT,
+varicesAnexo7c_txtvarices TEXT,
+gangliosAnexo7c_txtganglios TEXT,
+lenguageAnexo7c_txtlenguage TEXT,
+observacionesFichaMedicaAnexo7c_txtobservacionesfm TEXT,
+conclusionAnexo7c_txtconclusion TEXT,
+tetanoAnexo7c_tetano BOOLEAN,
+hepatitisBAnexo7c_hepatitisb BOOLEAN,
+fiebreAmarillaAnexo7c_fiebreamarilla BOOLEAN,
+diagnosticoAudio2Anexo7c_txtdiagnosticoaudio TEXT,
+conclusionMedicoAnexo7c_txtconclusionmed TEXT,
+estadoMentalAnexo7c_txtestadomental TEXT,
+anamnesisAnexo7c_txtanamnesis TEXT,
+alturaEstructuraAnexo7c_altura_estructura BOOLEAN,
+alturaGeogAnexo7c_altura_geog BOOLEAN,
+quimicosAnexo7c_quimicos BOOLEAN,
+electricosAnexo7c_electricos BOOLEAN,
+vibracionesAnexo7c_vibraciones BOOLEAN
+
+  ) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+	SELECT 
+	    d.cod_pa,
+	    d.nombres_pa,
+	    d.apellidos_pa,
+	    d.fecha_nacimiento_pa,
+	    d.sexo_pa,
+	    d.lugar_nac_pa,
+	    d.direccion_pa,
+	    d.tel_casa_pa,
+	    d.cel_pa,
+	    d.estado_civil_pa,
+	    d.nivel_est_pa,
+	    n.razon_empresa,
+	    n.razon_contrata,
+	    n.nom_examen,
+	    n.nom_ex,
+	    n.altura_po,
+	    n.mineral_po,
+	    n.cargo_de,
+	    n.area_o,
+	    ap.txtvhijosvivos,
+	    ap.txtvhijosfallecidos,
+	    ap.txtdhijosvivos,
+	    ap.txtdhijosfallecidos,
+	    triaje.talla,
+	    triaje.peso,
+	    triaje.imc,
+	    triaje.sistolica,
+	    triaje.diastolica,
+	    triaje.f_respiratoria,
+	    triaje.f_cardiaca,
+	    triaje.sat_02,
+	    triaje.temperatura,
+	    triaje.cintura,
+	    triaje.cadera,
+	    triaje.icc,
+	    triaje.perimetro_cuello,
+	    o.v_cerca_s_od,
+	    o.v_cerca_s_oi,
+	    o.v_cerca_c_od,
+	    o.v_cerca_c_oi,
+	    o.v_lejos_s_od,
+	    o.v_lejos_s_oi,
+	    o.v_lejos_c_od,
+	    o.v_lejos_c_oi,
+	    o.v_binocular,
+	    o.e_oculares,
+	    o.e_oculares1,
+	    odontograma.txtausentes,
+	    odontograma.txtobservaciones,
+	    odontograma.txtpiezasmalestado,
+	    r.txtobservacionesrt,
+	    l.txtobservacioneslb,
+	    e.txtobservacionesrs,
+	    l.txtglucosabio,
+	    l.txtvsg,
+	    l.txtcocaina,
+	    l.txtmarihuana,
+	    l.txtcreatininabio,
+
+	    CASE WHEN n.razon_empresa='MINERA BOROO MISQUICHILCA S.A.' THEN au.o_d_500 ELSE m.o_d_500 END AS o_d_500,
+	    CASE WHEN n.razon_empresa='MINERA BOROO MISQUICHILCA S.A.' THEN au.o_d_1000 ELSE m.o_d_1000 END AS o_d_1000,
+	    CASE WHEN n.razon_empresa='MINERA BOROO MISQUICHILCA S.A.' THEN au.o_d_2000 ELSE m.o_d_2000 END AS o_d_2000,
+	    CASE WHEN n.razon_empresa='MINERA BOROO MISQUICHILCA S.A.' THEN au.o_d_3000 ELSE m.o_d_3000 END AS o_d_3000,
+	    CASE WHEN n.razon_empresa='MINERA BOROO MISQUICHILCA S.A.' THEN au.o_d_4000 ELSE m.o_d_4000 END AS o_d_4000,
+	    CASE WHEN n.razon_empresa='MINERA BOROO MISQUICHILCA S.A.' THEN au.o_d_6000 ELSE m.o_d_6000 END AS o_d_6000,
+	    CASE WHEN n.razon_empresa='MINERA BOROO MISQUICHILCA S.A.' THEN au.o_d_8000 ELSE m.o_d_8000 END AS o_d_8000,
+
+	    CASE WHEN n.razon_empresa='MINERA BOROO MISQUICHILCA S.A.' THEN au.o_i_500 ELSE m.o_i_500 END AS o_i_500,
+	    CASE WHEN n.razon_empresa='MINERA BOROO MISQUICHILCA S.A.' THEN au.o_i_1000 ELSE m.o_i_1000 END AS o_i_1000,
+	    CASE WHEN n.razon_empresa='MINERA BOROO MISQUICHILCA S.A.' THEN au.o_i_2000 ELSE m.o_i_2000 END AS o_i_2000,
+	    CASE WHEN n.razon_empresa='MINERA BOROO MISQUICHILCA S.A.' THEN au.o_i_3000 ELSE m.o_i_3000 END AS o_i_3000,
+	    CASE WHEN n.razon_empresa='MINERA BOROO MISQUICHILCA S.A.' THEN au.o_i_4000 ELSE m.o_i_4000 END AS o_i_4000,
+	    CASE WHEN n.razon_empresa='MINERA BOROO MISQUICHILCA S.A.' THEN au.o_i_6000 ELSE m.o_i_6000 END AS o_i_6000,
+	    CASE WHEN n.razon_empresa='MINERA BOROO MISQUICHILCA S.A.' THEN au.o_i_8000 ELSE m.o_i_8000 END AS o_i_8000,
+	    CASE WHEN n.razon_empresa='MINERA BOROO MISQUICHILCA S.A.' THEN '' ELSE m.diagnostico END AS diagnostico,
+
+	    au.chkdnormal,
+	    au.chkdtaleveod,
+	    au.chkdtaleveoi,
+	    au.chkdtaavanzadood,
+	    au.chkdtaavanzadooi,
+	    au.chkdhrleveod,
+	    au.chkdhrleveoi,
+	    au.chkdhrmoderadood,
+	    au.chkdhrmoderadooi,
+	    au.chkdhravanzadaod,
+	    au.chkdhravanzadaoi,
+	    au.chkotrashipoacusias,
+	    au.txtotrashipoacusias,
+
+	    funcion_abs.fvc,
+	    funcion_abs.fev1,
+	    funcion_abs.fev1fvc,
+	    funcion_abs.fef25_75,
+	    funcion_abs.interpretacion,
+
+	    a.fecha,
+	    a.chkruido,
+	    a.chkpolvo,
+	    a.chkvidsegmentario,
+	    a.chkvidtotal,
+	    a.chkcancerigenos,
+	    a.chkmutagenicos,
+	    a.chksolventes,
+	    a.chkmetales,
+	    a.chktemperatura,
+	    a.chkbiologicos,
+	    a.chkposturas,
+	    a.chkturnos,
+	    a.chkcargas,
+	    a.chkmovrepet,
+	    a.chkpvd,
+	    a.chkotros,
+	    a.tbrsi,
+	    a.rbrno,
+	    a.chktnada,
+	    a.chktpoco,
+	    a.chkthabitual,
+	    a.chktexcesivo,
+	    a.chkanada,
+	    a.chkapoco,
+	    a.chkahabitual,
+	    a.chkaexcesivo,
+	    a.chkdnada,
+	    a.chkdpoco,
+	    a.chkdhabitual,
+	    a.chkdexcesivo,
+	    a.txtpuestoactual,
+	    a.txttiempo,
+	    a.txtantecedentespersonales,
+	    a.txtantecedentespersonales2,
+	    a.txtantecedentesfamiliares,
+	    a.txtcabeza,
+	    a.txtnariz,
+	    a.txtcuello,
+	    a.txtperimetro,
+	    a.txtb_a_f_l,
+	    a.txtvisioncolores,
+	    a.txtenfermedadesoculares,
+	    a.txtdiagnosticoaudio,
+	    a.txtenfermedadesoculares2,
+	    a.txtreflejospupilares,
+	    a.txtbinocular,
+	    a.txtod,
+	    a.txtoi,
+	    a.txttorax,
+	    a.txtcorazon,
+	    a.rbnormal,
+	    a.rbanormal,
+	    a.txtpulmones,
+	    a.txtmiembrossuperiores,
+	    a.txtmiembrosinferiores,
+	    a.txtreflejososteotendinosos,
+	    a.txtmarcha,
+	    a.txtcolumnavertebral,
+	    a.txtabdomen,
+	    a.txtanillosinguinales,
+	    a.txtorganosgenitales,
+	    a.rbtnohizo,
+	    a.rbtnormal,
+	    a.rbtanormal,
+	    a.chkdescribirobservacion,
+	    a.txthernias,
+	    a.txtvarices,
+	    a.txtganglios,
+	    a.txtlenguage,
+	    a.txtobservacionesfm,
+	    a.txtconclusion,
+	    a.tetano,
+	    a.hepatitisb,
+	    fiebreamarilla,
+	    txtdiagnosticoaudio,
+	    txtconclusionmed,
+	    a.txtestadomental,
+	    a.txtanamnesis,
+	    a.altura_estructura,
+	    a.altura_geog,
+	    a.quimicos,
+	    a.electricos,
+	    a.vibraciones
+
+	FROM datos_paciente AS d
+	INNER JOIN n_orden_ocupacional AS n ON (d.cod_pa = n.cod_pa)
+	INNER JOIN antecedentes_patologicos AS ap ON (n.n_orden = ap.n_orden)
+	INNER JOIN triaje ON (n.n_orden = triaje.n_orden)
+	LEFT JOIN oftalmologia AS o ON (n.n_orden = o.n_orden)
+	INNER JOIN funcion_abs ON (n.n_orden = funcion_abs.n_orden)
+	INNER JOIN radiografia_torax AS r ON (n.n_orden = r.n_orden)
+	INNER JOIN lab_clinico AS l ON (n.n_orden = l.n_orden)
+	LEFT JOIN ex_radiograficos_sanguineos AS e ON (n.n_orden = e.n_orden)
+	INNER JOIN odontograma ON (n.n_orden = odontograma.n_orden)
+	LEFT JOIN audiometria_po AS m ON (n.n_orden = m.n_orden)
+	INNER JOIN anexo7c AS a ON (n.n_orden = a.n_orden)
+	LEFT JOIN audiometria_2021 AS au ON (n.n_orden = au.n_orden)
+	LEFT JOIN oftalmologia2021 AS oft ON (n.n_orden = oft.n_orden)
+	WHERE a.n_orden = p_norden;
+
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+------------------------------------------------------------------------------------------------------
+
+
  CREATE OR REPLACE FUNCTION obtener_name_jasper(
     norden_param bigint,
     name_service_param text)
