@@ -1298,10 +1298,73 @@ END;
 $BODY$
   LANGUAGE plpgsql;
 
+-----------------------------------------------------------------------------------------------------
+
+
+CREATE OR REPLACE FUNCTION obtener_reporte_consentimiento_buena_salud(
+    IN p_norden integer,
+    IN name_service text)
+  RETURNS TABLE(
+nombres text,
+dni integer,
+sexo "char",
+edad text,
+fechaNac date,
+empresa text,
+contrata text,
+ocupacion text,
+area text,
+norden integer,
+fecha date,
+hora time without time zone,
+usuarioRegistro text,
+color integer,
+sede_descripcion text,
+nom_sede text,
+nombre_jasper text
+  ) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+    dp.nombres_pa || ' ' || dp.apellidos_pa,
+    noo.cod_pa,
+    dp.sexo_pa,
+    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+    dp.fecha_nacimiento_pa,
+    noo.razon_empresa,
+    noo.razon_contrata,
+    noo.cargo_de,
+    noo.area_o,
+    CASE WHEN cb.n_orden IS NULL THEN noo.n_orden ELSE cb.n_orden END,
+    cb.fecha,
+    cb.hora,
+    cb.user_registro,
+    noo.color,
+    CASE WHEN UPPER(TRIM(noo.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+    CASE
+        WHEN UPPER(TRIM(noo.razon_empresa)) = 'CIA MINERA PODEROSA S A' THEN 'Huamachuco'
+        WHEN noo.cod_sede = 1 THEN 'Trujillo'
+        WHEN noo.cod_sede = 2 THEN 'Huamachuco'
+        WHEN noo.cod_sede = 3 THEN 'Huancayo'
+        WHEN noo.cod_sede = 4 THEN 'Trujillo'
+    END AS nom_sede,
+    obtener_name_jasper(p_norden, name_service)
+  FROM datos_paciente dp
+  INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+  LEFT JOIN consentimientobuenasalud cb ON cb.n_orden = noo.n_orden
+  INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+  WHERE noo.n_orden = p_norden;
+
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+
 ------------------------------------------------------------------------------------------------------
 
 
- CREATE OR REPLACE FUNCTION obtener_name_jasper(
+CREATE OR REPLACE FUNCTION obtener_name_jasper(
     norden_param bigint,
     name_service_param text)
   RETURNS text AS
@@ -1511,6 +1574,8 @@ BEGIN
 	END IF;
     ELSIF name_service_param = 'anexo_agroindustrial' THEN
 	resultado := 'Anexo2';
+    ELSIF name_service_param = 'consentimientobuenasalud' THEN
+	resultado := 'ConsentimientoBuenaSalud2021_Digitalizado';
   END IF; 
     RETURN resultado;
 END;
@@ -1520,7 +1585,8 @@ $BODY$
 insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
 			values('anexo_agroindustrial','formulario de anexo 2',true,true,true,false,false);
 
-
+insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
+			values('consentimientobuenasalud','formulario de consentimiento de buena salud',true,true,false,false,false);
 
 CREATE OR REPLACE FUNCTION obtener_parametros_digitalizados(
     IN norden_param bigint,
@@ -2661,12 +2727,28 @@ IF name_servicio_param = 'test_fatiga_somnolencia' THEN
             RETURN NEXT;
         END IF;
     END IF;
+
+    IF name_servicio_param = 'consentimientobuenasalud' THEN
+        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            descripcion := 'FIRMA DEL PACIENTE';
+            name_digitalizacion := 'FIRMAP';
+            dni := dni_paciente_var;
+            RETURN NEXT;
+        END IF;
+
+        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            descripcion := 'HUELLA DEL PACIENTE';
+            name_digitalizacion := 'HUELLA';
+            dni := dni_paciente_var;
+            RETURN NEXT;
+        END IF;
+    END IF;
                  
 END;
 $BODY$
   LANGUAGE plpgsql;
 
- CREATE OR REPLACE FUNCTION sp_validar_existencia_servicios(
+CREATE OR REPLACE FUNCTION sp_validar_existencia_servicios(
     IN p_historia_clinica bigint,
     IN p_examen_med text)
   RETURNS TABLE(id_resp integer, mensaje text) AS
@@ -3318,6 +3400,17 @@ begin
 		end if;
 		
         end if;
+
+        if(p_examen_med='consentimientobuenasalud') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from consentimientobuenasalud where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
                                                                                               		                   	
 	RETURN query
 
@@ -3325,6 +3418,7 @@ begin
 end;
 $BODY$
   LANGUAGE plpgsql;
+
 
 CREATE OR REPLACE FUNCTION obtener_anexo2_examenes_realizados(IN p_norden integer)
   RETURNS TABLE(nombresPaciente text, nombreExamen text, triaje boolean, laboratorioclinico boolean, electrocardiograma boolean, radiografiatorax boolean, fichaaudiologica boolean, espirometria boolean, odontograma boolean, psicologia boolean, anexo7d boolean, historiaocupacional boolean, fichaantecedentespatologicos boolean, cuestionarionordico boolean, certificadotrabajoaltura boolean, detencionsas boolean, consentimientodosaje boolean, examenradiografiasanguineos boolean, perimetrotoraxico boolean, oftalmologia boolean, audiometriapo boolean) AS
