@@ -468,13 +468,14 @@ mineral_mineral_po text,
 cargo_cargo_de text,
 area_area_o text,
 grupoFactorSanguineo_grupofactorsan text,
--- antecedentes_patologicos
-hijosVivosAntecedentes_txtvhijosvivos text,
-hijosFallecidosAntecedentes_txtvhijosfallecidos text,
+-- aecedentes_patologicos
+hijosVivosaecedentes_txtvhijosvivos text,
+hijosFallecidosaecedentes_txtvhijosfallecidos text,
 dHijosVivosAntecedentes_txtdhijosvivos text,
 dHijosFallecidosAntecedentes_txtdhijosfallecidos text,
 antecedentes_rbfumarsi boolean,
 antecedentes_rblicorsi boolean,
+antecedentesPatologicos_ante_patologicos text,
 
 -- triaje
 tallaTriaje_talla text,
@@ -492,6 +493,17 @@ iccTriaje_icc text,
 perimetroCuelloTriaje_perimetro_cuello text,
 
 -- oftalmologia (
+visionCercaSinCorregirOd_v_cerca_s_od text,
+visionCercaSinCorregirOi_v_cerca_s_oi TEXT,
+odcc_odcc text,
+oicc_oicc text,
+visionLejosSinCorregirOd_v_lejos_s_od text,
+visionLejosSinCorregirOi_v_lejos_s_oi text,
+odlc_odlc text,
+oilo_oilc text,
+vc_vc text,
+vb_vb text,
+rp_rp text,
 enfermedadesOcularesOftalmo_e_oculares text,
 enfermedadesOcularesOtrosOftalmo_e_oculares1 text,
 visionLejosOftalmo_e_oculvisionlejos text,
@@ -522,8 +534,35 @@ marihuanaLaboratorioClinico_txtmarihuana text,
 glucosaLaboratorioClinico_txtglucosabio text,
 vsgLaboratorioClinico_txtvsg text,
 creatininaLaboratorioClinico_txtcreatininabio text,
-
--- lab_clinico
+positivoLaboratorioClinico_chkpositivo boolean,
+negativoLaboratorioClinico_chknegativo boolean,
+grupoSanguineoO_chko boolean,
+grupoSanguineoA_chka boolean,
+grupoSanguineoB_chkb boolean,
+grupoSanguineoAB_chkab boolean,
+grupoSanguineoRhPositivo_rbrhpositivo boolean,
+grupoSanguineoRhNegativo_rbrhnegativo boolean,
+hemoglobina_txthemoglobina text,
+examenFisicoColor_txtcoloref text,
+examenFisicoDensidad_txtdensidadef text, 
+examenFisicoAspecto_txtaspectoef text, 
+examenFisicoPh_txtphef text, 
+examenQuimicoNitritos_txtnitritoseq text, 
+examenQuimicoProteinas_txtproteinaseq text, 
+examenQuimicoCetonas_txtcetonaseq text,
+examenQuimicoLeucocitos_txtleucocitoseq text, 
+examenQuimicoUrobilinogeno_txturobilinogenoeq text, 
+examenQuimicoBilirubina_txtbilirubinaeq text, 
+examenQuimicoGlucosa_txtglucosaeq text, 
+examenQuimicoSangre_txtsangreeq text, 
+sedimientoUrinarioLeucocitos_txtleucocitossu text,
+sedimientoUrinarioEpiteliales_txtcelepitelialessu text, 
+sedimientoUrinarioCilindios_txtcilindiossu text, 
+sedimientoUrinarioBacterias_txtbacteriassu text, 
+sedimientoUrinarioHematies_txthematiessu text, 
+sedimientoUrinarioCristales_txtcristalessu text, 
+sedimientoUrinarioPus_txtpussu text, 
+sedimientoUrinarioOtros_txtotrossu text,
 grupoFactorSanguineoLaboratorioClinico_Grupofactor text,
 
 -- audiometria_2021, audiometria_2023, audiometria_po
@@ -611,7 +650,18 @@ conclusionRadiografia_conclu text,
 
 -- anexo_agroindustrial 
 anamnesisAgroindustrial_txtanamnesis text,
-estadoMentalAgroindustrial_txtestadomental text
+estadoMentalAgroindustrial_txtestadomental text,
+
+-- electro_cardiograma
+hallazgosInformeElectroCardiograma_hallazgo text,
+recomendacionesInformeElectroCardiograma_recomendaciones text,
+
+-- analisis_bioquimico
+colesterolAnalisisBioquimico_txtcolesterol text,
+ldlcolesterolAnalisisBioquimico_txtldlcolesterol text,
+hdlcolesterolAnalisisBioquimico_txthdlcolesterol text, 
+vldlcolesterolAnalisisBioquimico_txtvldlcolesterol text,
+trigliseridosAnalisisBioquimico_txttrigliseridos text
   ) AS
 $BODY$
 BEGIN
@@ -649,6 +699,193 @@ BEGIN
 	    a.txtdhijosfallecidos,
 	    a.rbfumarsi,
 	    a.rblicorsi,
+	    CASE 
+		WHEN (
+		    CASE WHEN a.chk1 = 'TRUE' THEN 'Alergias, ' ELSE '' END ||
+		    CASE WHEN a.chk2 = 'TRUE' THEN 'Amigdalitis crónica, ' ELSE '' END ||
+		    CASE WHEN a.chk3 = 'TRUE' THEN 'Arritmias cardíacas, ' ELSE '' END ||
+		    CASE WHEN a.chk4 = 'TRUE' THEN 'Asma, ' ELSE '' END ||
+		    CASE WHEN a.chk5 = 'TRUE' THEN 'Bocio, ' ELSE '' END ||
+		    CASE WHEN a.chk6 = 'TRUE' THEN 'Bronconeumonía, ' ELSE '' END ||
+		    CASE WHEN a.chk7 = 'TRUE' THEN 'Bronquitis a repetición, ' ELSE '' END ||
+		    CASE WHEN a.chk8 = 'TRUE' THEN 'Caries o gingivitis, ' ELSE '' END ||
+		    CASE WHEN a.chk9 = 'TRUE' THEN 'Colecistitis, ' ELSE '' END ||
+		    CASE WHEN a.chk10 = 'TRUE' THEN 'Dermatitis, ' ELSE '' END ||
+		    CASE WHEN a.chk11 = 'TRUE' THEN 'Diabetes, ' ELSE '' END ||
+		    CASE WHEN a.chk12 = 'TRUE' THEN 'Disentería, ' ELSE '' END ||
+		    CASE WHEN a.chk13 = 'TRUE' THEN 'Enfermedades del corazón, ' ELSE '' END ||
+		    CASE WHEN a.chk14 = 'TRUE' THEN 'Enfermedades oculares, ' ELSE '' END ||
+		    CASE WHEN a.chk15 = 'TRUE' THEN 'Epilepsia o convulsiones, ' ELSE '' END ||
+		    CASE WHEN a.chk16 = 'TRUE' THEN 'Faringitis crónica, ' ELSE '' END ||
+		    CASE WHEN a.chk17 = 'TRUE' THEN 'Fiebre malta, ' ELSE '' END ||
+		    CASE WHEN a.chk18 = 'TRUE' THEN 'Fiebre tifoidea, ' ELSE '' END ||
+		    CASE WHEN a.chk19 = 'TRUE' THEN 'Fiebre reumática, ' ELSE '' END ||
+		    CASE WHEN a.chk20 = 'TRUE' THEN 'Forunculosis, ' ELSE '' END ||
+		    CASE WHEN a.chk21 = 'TRUE' THEN 'Gastritis crónica, ' ELSE '' END ||
+		    CASE WHEN a.chk22 = 'TRUE' THEN 'Gonorrea, ' ELSE '' END ||
+		    CASE WHEN a.chk23 = 'TRUE' THEN 'Gota, ' ELSE '' END ||
+		    CASE WHEN a.chk24 = 'TRUE' THEN 'Hemorroides, ' ELSE '' END ||
+		    CASE WHEN a.chk25 = 'TRUE' THEN 'Hepatitis, ' ELSE '' END ||
+		    CASE WHEN a.chk26 = 'TRUE' THEN 'Hernias, ' ELSE '' END ||
+		    CASE WHEN a.chk27 = 'TRUE' THEN 'Hipertensión arterial, ' ELSE '' END ||
+		    CASE WHEN a.chk28 = 'TRUE' THEN 'Infecciones urinarias repetidas, ' ELSE '' END ||
+		    CASE WHEN a.chk29 = 'TRUE' THEN 'Intoxicaciones, ' ELSE '' END ||
+		    CASE WHEN a.chk30 = 'TRUE' THEN 'Insuficiencia cardíaca, ' ELSE '' END ||
+		    CASE WHEN a.chk31 = 'TRUE' THEN 'Insuficiencia coronaria crónica, ' ELSE '' END ||
+		    CASE WHEN a.chk32 = 'TRUE' THEN 'Insuficiencia renal crónica, ' ELSE '' END ||
+		    CASE WHEN a.chk33 = 'TRUE' THEN 'Litiasis urinaria, ' ELSE '' END ||
+		    CASE WHEN a.chk34 = 'TRUE' THEN 'Meningitis, ' ELSE '' END ||
+		    CASE WHEN a.chk35 = 'TRUE' THEN 'Neuritis a repetición, ' ELSE '' END ||
+		    CASE WHEN a.chk36 = 'TRUE' THEN 'Otitis media, ' ELSE '' END ||
+		    CASE WHEN a.chk37 = 'TRUE' THEN 'Presión alta o baja, ' ELSE '' END ||
+		    CASE WHEN a.chk38 = 'TRUE' THEN 'Paludismo o malaria, ' ELSE '' END ||
+		    CASE WHEN a.chk39 = 'TRUE' THEN 'Parasitosis intestinal, ' ELSE '' END ||
+		    CASE WHEN a.chk40 = 'TRUE' THEN 'Parotiditis, ' ELSE '' END ||
+		    CASE WHEN a.chk41 = 'TRUE' THEN 'Pleuresia, ' ELSE '' END ||
+		    CASE WHEN a.chk42 = 'TRUE' THEN 'Plumbismo, ' ELSE '' END ||
+		    CASE WHEN a.chk43 = 'TRUE' THEN 'Poliomielitis, ' ELSE '' END ||
+		    CASE WHEN a.chk44 = 'TRUE' THEN 'Portador de marcapasos, ' ELSE '' END ||
+		    CASE WHEN a.chk45 = 'TRUE' THEN 'Prótesis cardíacas valvulares, ' ELSE '' END ||
+		    CASE WHEN a.chk46 = 'TRUE' THEN 'Resfriados frecuentes, ' ELSE '' END ||
+		    CASE WHEN a.chk47 = 'TRUE' THEN 'Reumatismo a repetición, ' ELSE '' END ||
+		    CASE WHEN a.chk48 = 'TRUE' THEN 'Sarampión, ' ELSE '' END ||
+		    CASE WHEN a.chk49 = 'TRUE' THEN 'Sífilis, ' ELSE '' END ||
+		    CASE WHEN a.chk50 = 'TRUE' THEN 'Silicosis, ' ELSE '' END ||
+		    CASE WHEN a.chk51 = 'TRUE' THEN 'Sinusitis crónica, ' ELSE '' END ||
+		    CASE WHEN a.chk52 = 'TRUE' THEN 'Tos convulsiva, ' ELSE '' END ||
+		    CASE WHEN a.chk53 = 'TRUE' THEN 'Trastornos nerviosos, ' ELSE '' END ||
+		    CASE WHEN a.chk54 = 'TRUE' THEN 'Traumatismo encefalocraneano, ' ELSE '' END ||
+		    CASE WHEN a.chk55 = 'TRUE' THEN 'Tuberculosis, ' ELSE '' END ||
+		    CASE WHEN a.chk56 = 'TRUE' THEN 'Tumores - quistes, ' ELSE '' END ||
+		    CASE WHEN a.chk57 = 'TRUE' THEN 'Úlcera péptica, ' ELSE '' END ||
+		    CASE WHEN a.chk58 = 'TRUE' THEN 'Varicela, ' ELSE '' END ||
+		    CASE WHEN a.chk59 = 'TRUE' THEN 'Várices, ' ELSE '' END ||
+		    CASE WHEN a.chk60 = 'TRUE' THEN 'Varicocele, ' ELSE '' END ||
+		    CASE WHEN a.chk61 = 'TRUE' THEN 'Pérdida de memoria, ' ELSE '' END ||
+		    CASE WHEN a.chk62 = 'TRUE' THEN 'Preocupaciones o angustia, ' ELSE '' END ||
+		    CASE WHEN a.chk63 = 'TRUE' THEN 'Dolores articulares y/o huesos, ' ELSE '' END ||
+		    CASE WHEN a.chk64 = 'TRUE' THEN 'Aumento o disminución de peso, ' ELSE '' END ||
+		    CASE WHEN a.chk65 = 'TRUE' THEN 'Dolor de cabeza, ' ELSE '' END ||
+		    CASE WHEN a.chk66 = 'TRUE' THEN 'Diarrea, ' ELSE '' END ||
+		    CASE WHEN a.chk67 = 'TRUE' THEN 'Agitación al hacer ejercicios, ' ELSE '' END ||
+		    CASE WHEN a.chk68 = 'TRUE' THEN 'Dolor ocular, ' ELSE '' END ||
+		    CASE WHEN a.chk69 = 'TRUE' THEN 'Dolor Opresivo Torax, ' ELSE '' END ||
+		    CASE WHEN a.chk70 = 'TRUE' THEN 'Hinchazón de pies o manos, ' ELSE '' END ||
+		    CASE WHEN a.chk71 = 'TRUE' THEN 'Estreñimiento, ' ELSE '' END ||
+		    CASE WHEN a.chk72 = 'TRUE' THEN 'Vómitos con sangre, ' ELSE '' END ||
+		    CASE WHEN a.chk73 = 'TRUE' THEN 'Sangrado por orina, ' ELSE '' END ||
+		    CASE WHEN a.chk74 = 'TRUE' THEN 'Tos con sangre, ' ELSE '' END ||
+		    CASE WHEN a.chk75 = 'TRUE' THEN 'Coloración amarilla de la piel, ' ELSE '' END ||
+		    CASE WHEN a.chk76 = 'TRUE' THEN 'Indigestión frecuente, ' ELSE '' END ||
+		    CASE WHEN a.chk77 = 'TRUE' THEN 'Insomnio, ' ELSE '' END ||
+		    CASE WHEN a.chk78 = 'TRUE' THEN 'Lumbalgias o dolor de cintura, ' ELSE '' END ||
+		    CASE WHEN a.chk79 = 'TRUE' THEN 'Mareos- Desmayos- Vertigos, ' ELSE '' END ||
+		    CASE WHEN a.chk80 = 'TRUE' THEN 'Heces negras, ' ELSE '' END ||
+		    CASE WHEN a.chk81 = 'TRUE' THEN 'Orina con dolor o ardor, ' ELSE '' END ||
+		    CASE WHEN a.chk82 = 'TRUE' THEN 'Orina involuntaria, ' ELSE '' END ||
+		    CASE WHEN a.chk83 = 'TRUE' THEN 'Dolor de oído, ' ELSE '' END ||
+		    CASE WHEN a.chk84 = 'TRUE' THEN 'Secreciones por el oído, ' ELSE '' END ||
+		    CASE WHEN a.chk85 = 'TRUE' THEN 'Palpitaciones, ' ELSE '' END ||
+		    CASE WHEN a.chk86 = 'TRUE' THEN 'Adormecimientos, ' ELSE '' END ||
+		    CASE WHEN a.chk87 = 'TRUE' THEN 'Pesadillas frecuentes, ' ELSE '' END ||
+		    CASE WHEN a.chk88 = 'TRUE' THEN 'Dolores musculares, ' ELSE '' END ||
+		    CASE WHEN a.chk89 = 'TRUE' THEN 'Tos crónica, ' ELSE '' END ||
+		    CASE WHEN a.chk90 = 'TRUE' THEN 'Sangrado por encías' ELSE '' END
+		) = '' 
+		THEN 'NINGUNO'
+		ELSE (
+		    CASE WHEN a.chk1 = 'TRUE' THEN 'Alergias, ' ELSE '' END ||
+		    CASE WHEN a.chk2 = 'TRUE' THEN 'Amigdalitis crónica, ' ELSE '' END ||
+		    CASE WHEN a.chk3 = 'TRUE' THEN 'Arritmias cardíacas, ' ELSE '' END ||
+		    CASE WHEN a.chk4 = 'TRUE' THEN 'Asma, ' ELSE '' END ||
+		    CASE WHEN a.chk5 = 'TRUE' THEN 'Bocio, ' ELSE '' END ||
+		    CASE WHEN a.chk6 = 'TRUE' THEN 'Bronconeumonía, ' ELSE '' END ||
+		    CASE WHEN a.chk7 = 'TRUE' THEN 'Bronquitis a repetición, ' ELSE '' END ||
+		    CASE WHEN a.chk8 = 'TRUE' THEN 'Caries o gingivitis, ' ELSE '' END ||
+		    CASE WHEN a.chk9 = 'TRUE' THEN 'Colecistitis, ' ELSE '' END ||
+		    CASE WHEN a.chk10 = 'TRUE' THEN 'Dermatitis, ' ELSE '' END ||
+		    CASE WHEN a.chk11 = 'TRUE' THEN 'Diabetes, ' ELSE '' END ||
+		    CASE WHEN a.chk12 = 'TRUE' THEN 'Disentería, ' ELSE '' END ||
+		    CASE WHEN a.chk13 = 'TRUE' THEN 'Enfermedades del corazón, ' ELSE '' END ||
+		    CASE WHEN a.chk14 = 'TRUE' THEN 'Enfermedades oculares, ' ELSE '' END ||
+		    CASE WHEN a.chk15 = 'TRUE' THEN 'Epilepsia o convulsiones, ' ELSE '' END ||
+		    CASE WHEN a.chk16 = 'TRUE' THEN 'Faringitis crónica, ' ELSE '' END ||
+		    CASE WHEN a.chk17 = 'TRUE' THEN 'Fiebre malta, ' ELSE '' END ||
+		    CASE WHEN a.chk18 = 'TRUE' THEN 'Fiebre tifoidea, ' ELSE '' END ||
+		    CASE WHEN a.chk19 = 'TRUE' THEN 'Fiebre reumática, ' ELSE '' END ||
+		    CASE WHEN a.chk20 = 'TRUE' THEN 'Forunculosis, ' ELSE '' END ||
+		    CASE WHEN a.chk21 = 'TRUE' THEN 'Gastritis crónica, ' ELSE '' END ||
+		    CASE WHEN a.chk22 = 'TRUE' THEN 'Gonorrea, ' ELSE '' END ||
+		    CASE WHEN a.chk23 = 'TRUE' THEN 'Gota, ' ELSE '' END ||
+		    CASE WHEN a.chk24 = 'TRUE' THEN 'Hemorroides, ' ELSE '' END ||
+		    CASE WHEN a.chk25 = 'TRUE' THEN 'Hepatitis, ' ELSE '' END ||
+		    CASE WHEN a.chk26 = 'TRUE' THEN 'Hernias, ' ELSE '' END ||
+		    CASE WHEN a.chk27 = 'TRUE' THEN 'Hipertensión arterial, ' ELSE '' END ||
+		    CASE WHEN a.chk28 = 'TRUE' THEN 'Infecciones urinarias repetidas, ' ELSE '' END ||
+		    CASE WHEN a.chk29 = 'TRUE' THEN 'Intoxicaciones, ' ELSE '' END ||
+		    CASE WHEN a.chk30 = 'TRUE' THEN 'Insuficiencia cardíaca, ' ELSE '' END ||
+		    CASE WHEN a.chk31 = 'TRUE' THEN 'Insuficiencia coronaria crónica, ' ELSE '' END ||
+		    CASE WHEN a.chk32 = 'TRUE' THEN 'Insuficiencia renal crónica, ' ELSE '' END ||
+		    CASE WHEN a.chk33 = 'TRUE' THEN 'Litiasis urinaria, ' ELSE '' END ||
+		    CASE WHEN a.chk34 = 'TRUE' THEN 'Meningitis, ' ELSE '' END ||
+		    CASE WHEN a.chk35 = 'TRUE' THEN 'Neuritis a repetición, ' ELSE '' END ||
+		    CASE WHEN a.chk36 = 'TRUE' THEN 'Otitis media, ' ELSE '' END ||
+		    CASE WHEN a.chk37 = 'TRUE' THEN 'Presión alta o baja, ' ELSE '' END ||
+		    CASE WHEN a.chk38 = 'TRUE' THEN 'Paludismo o malaria, ' ELSE '' END ||
+		    CASE WHEN a.chk39 = 'TRUE' THEN 'Parasitosis intestinal, ' ELSE '' END ||
+		    CASE WHEN a.chk40 = 'TRUE' THEN 'Parotiditis, ' ELSE '' END ||
+		    CASE WHEN a.chk41 = 'TRUE' THEN 'Pleuresia, ' ELSE '' END ||
+		    CASE WHEN a.chk42 = 'TRUE' THEN 'Plumbismo, ' ELSE '' END ||
+		    CASE WHEN a.chk43 = 'TRUE' THEN 'Poliomielitis, ' ELSE '' END ||
+		    CASE WHEN a.chk44 = 'TRUE' THEN 'Portador de marcapasos, ' ELSE '' END ||
+		    CASE WHEN a.chk45 = 'TRUE' THEN 'Prótesis cardíacas valvulares, ' ELSE '' END ||
+		    CASE WHEN a.chk46 = 'TRUE' THEN 'Resfriados frecuentes, ' ELSE '' END ||
+		    CASE WHEN a.chk47 = 'TRUE' THEN 'Reumatismo a repetición, ' ELSE '' END ||
+		    CASE WHEN a.chk48 = 'TRUE' THEN 'Sarampión, ' ELSE '' END ||
+		    CASE WHEN a.chk49 = 'TRUE' THEN 'Sífilis, ' ELSE '' END ||
+		    CASE WHEN a.chk50 = 'TRUE' THEN 'Silicosis, ' ELSE '' END ||
+		    CASE WHEN a.chk51 = 'TRUE' THEN 'Sinusitis crónica, ' ELSE '' END ||
+		    CASE WHEN a.chk52 = 'TRUE' THEN 'Tos convulsiva, ' ELSE '' END ||
+		    CASE WHEN a.chk53 = 'TRUE' THEN 'Trastornos nerviosos, ' ELSE '' END ||
+		    CASE WHEN a.chk54 = 'TRUE' THEN 'Traumatismo encefalocraneano, ' ELSE '' END ||
+		    CASE WHEN a.chk55 = 'TRUE' THEN 'Tuberculosis, ' ELSE '' END ||
+		    CASE WHEN a.chk56 = 'TRUE' THEN 'Tumores - quistes, ' ELSE '' END ||
+		    CASE WHEN a.chk57 = 'TRUE' THEN 'Úlcera péptica, ' ELSE '' END ||
+		    CASE WHEN a.chk58 = 'TRUE' THEN 'Varicela, ' ELSE '' END ||
+		    CASE WHEN a.chk59 = 'TRUE' THEN 'Várices, ' ELSE '' END ||
+		    CASE WHEN a.chk60 = 'TRUE' THEN 'Varicocele, ' ELSE '' END ||
+		    CASE WHEN a.chk61 = 'TRUE' THEN 'Pérdida de memoria, ' ELSE '' END ||
+		    CASE WHEN a.chk62 = 'TRUE' THEN 'Preocupaciones o angustia, ' ELSE '' END ||
+		    CASE WHEN a.chk63 = 'TRUE' THEN 'Dolores articulares y/o huesos, ' ELSE '' END ||
+		    CASE WHEN a.chk64 = 'TRUE' THEN 'Aumento o disminución de peso, ' ELSE '' END ||
+		    CASE WHEN a.chk65 = 'TRUE' THEN 'Dolor de cabeza, ' ELSE '' END ||
+		    CASE WHEN a.chk66 = 'TRUE' THEN 'Diarrea, ' ELSE '' END ||
+		    CASE WHEN a.chk67 = 'TRUE' THEN 'Agitación al hacer ejercicios, ' ELSE '' END ||
+		    CASE WHEN a.chk68 = 'TRUE' THEN 'Dolor ocular, ' ELSE '' END ||
+		    CASE WHEN a.chk69 = 'TRUE' THEN 'Dolor Opresivo Torax, ' ELSE '' END ||
+		    CASE WHEN a.chk70 = 'TRUE' THEN 'Hinchazón de pies o manos, ' ELSE '' END ||
+		    CASE WHEN a.chk71 = 'TRUE' THEN 'Estreñimiento, ' ELSE '' END ||
+		    CASE WHEN a.chk72 = 'TRUE' THEN 'Vómitos con sangre, ' ELSE '' END ||
+		    CASE WHEN a.chk73 = 'TRUE' THEN 'Sangrado por orina, ' ELSE '' END ||
+		    CASE WHEN a.chk74 = 'TRUE' THEN 'Tos con sangre, ' ELSE '' END ||
+		    CASE WHEN a.chk75 = 'TRUE' THEN 'Coloración amarilla de la piel, ' ELSE '' END ||
+		    CASE WHEN a.chk76 = 'TRUE' THEN 'Indigestión frecuente, ' ELSE '' END ||
+		    CASE WHEN a.chk77 = 'TRUE' THEN 'Insomnio, ' ELSE '' END ||
+		    CASE WHEN a.chk78 = 'TRUE' THEN 'Lumbalgias o dolor de cintura, ' ELSE '' END ||
+		    CASE WHEN a.chk79 = 'TRUE' THEN 'Mareos- Desmayos- Vertigos, ' ELSE '' END ||
+		    CASE WHEN a.chk80 = 'TRUE' THEN 'Heces negras, ' ELSE '' END ||
+		    CASE WHEN a.chk81 = 'TRUE' THEN 'Orina con dolor o ardor, ' ELSE '' END ||
+		    CASE WHEN a.chk82 = 'TRUE' THEN 'Orina involuntaria, ' ELSE '' END ||
+		    CASE WHEN a.chk83 = 'TRUE' THEN 'Dolor de oído, ' ELSE '' END ||
+		    CASE WHEN a.chk84 = 'TRUE' THEN 'Secreciones por el oído, ' ELSE '' END ||
+		    CASE WHEN a.chk85 = 'TRUE' THEN 'Palpitaciones, ' ELSE '' END ||
+		    CASE WHEN a.chk86 = 'TRUE' THEN 'Adormecimientos, ' ELSE '' END ||
+		    CASE WHEN a.chk87 = 'TRUE' THEN 'Pesadillas frecuentes, ' ELSE '' END ||
+		    CASE WHEN a.chk88 = 'TRUE' THEN 'Dolores musculares, ' ELSE '' END ||
+		    CASE WHEN a.chk89 = 'TRUE' THEN 'Tos crónica, ' ELSE '' END ||
+		    CASE WHEN a.chk90 = 'TRUE' THEN 'Sangrado por encías' ELSE '' END
+		)    
+	    END AS ante_patologicos,
 	    
 	    -- TABLA: triaje (Prefijo: t)
 	    t.talla,
@@ -666,7 +903,73 @@ BEGIN
 	    t.perimetro_cuello,
 	    
 	    -- TABLA: oftalmologia (Prefijo: o)
-	    o.e_oculares,
+	    CASE 
+		WHEN oft.txtcercasincorregirod IS NOT NULL THEN oft.txtcercasincorregirod 
+		ELSE o.v_cerca_s_od 
+	    END AS v_cerca_s_od,
+	    
+	    CASE 
+		WHEN oft.txtcercasincorregiroi IS NOT NULL THEN oft.txtcercasincorregiroi 
+		ELSE o.v_cerca_s_oi 
+	    END AS v_cerca_s_oi,
+	    
+	    CASE 
+		WHEN oft.txtcercacorregidaod IS NOT NULL THEN oft.txtcercacorregidaod 
+		WHEN ol.v_cerca_c_od IS NULL THEN o.v_cerca_c_od
+		ELSE ol.v_cerca_c_od 
+	    END AS ODCC,
+	    
+	    CASE 
+		WHEN oft.txtcercacorregidaoi IS NOT NULL THEN oft.txtcercacorregidaoi 
+		WHEN ol.v_cerca_c_oi IS NULL THEN o.v_cerca_c_oi
+		ELSE ol.v_cerca_c_oi 
+	    END AS OICC,
+	    
+	    CASE 
+		WHEN oft.txtlejossincorregirod IS NOT NULL THEN oft.txtlejossincorregirod 
+		ELSE o.v_lejos_s_od 
+	    END AS v_lejos_s_od,
+	    
+	    CASE 
+		WHEN oft.txtlejossincorregiroi IS NOT NULL THEN oft.txtlejossincorregiroi 
+		ELSE o.v_lejos_s_oi 
+	    END AS v_lejos_s_oi,
+	    
+	    CASE 
+		WHEN oft.txtlejoscorregidaod IS NOT NULL THEN oft.txtlejoscorregidaod 
+		WHEN ol.v_lejos_c_od IS NULL THEN o.v_lejos_c_od  
+		ELSE ol.v_lejos_c_od  
+	    END AS ODLC, 
+	    
+	    CASE 
+		WHEN oft.txtlejoscorregidaoi IS NOT NULL THEN oft.txtlejoscorregidaoi 
+		WHEN ol.v_lejos_c_oi IS NULL THEN o.v_lejos_c_oi  
+		ELSE ol.v_lejos_c_oi  
+	    END AS OILC,
+	    
+	    CASE  
+		WHEN oft.rbtecishihara_normal = 'TRUE' THEN 'NORMAL'
+		WHEN oft.rbtecishihara_anormal = 'TRUE' THEN 'ANORMAL'
+		WHEN ol.v_colores IS NULL THEN o.v_colores  
+		ELSE ol.v_colores  
+	    END AS VC,
+	    
+	    CASE  
+		WHEN oft.txtbinocularsincorregir IS NOT NULL THEN oft.txtbinocularsincorregir  
+		WHEN ol.v_binocular IS NULL THEN o.v_binocular  
+		ELSE ol.v_binocular 
+	    END AS VB,
+	    
+	    CASE  
+		WHEN oft.txtrp IS NOT NULL THEN oft.txtrp
+		WHEN ol.r_pupilares IS NULL THEN o.r_pupilares
+		ELSE ol.r_pupilares  
+	    END AS RP,
+	    
+	    CASE  
+		WHEN oft.txtdiagnostico IS NOT NULL THEN oft.txtdiagnostico  
+		ELSE o.e_oculares 
+	    END AS e_oculares,
 	    o.e_oculares1,
 	    o.e_oculvisionlejos,
 	    
@@ -696,7 +999,36 @@ BEGIN
 	    l.txtglucosabio,
 	    l.txtvsg,
 	    l.txtcreatininabio,
-	    
+	    ----
+	    l.chkpositivo,
+	    l.chknegativo,
+	    l.chko, 
+	    l.chka, 
+	    l.chkb, 
+	    l.chkab,
+	    l.rbrhpositivo, 
+	    l.rbrhnegativo,
+	    l.txthemoglobina,
+	    -----
+	    l.txtcoloref, 
+	    l.txtdensidadef, 
+	    l.txtaspectoef, 
+	    l.txtphef, l.txtnitritoseq, 
+	    l.txtproteinaseq, 
+	    l.txtcetonaseq,
+	    l.txtleucocitoseq, 
+	    l.txturobilinogenoeq, 
+	    l.txtbilirubinaeq, 
+	    l.txtglucosaeq, 
+	    l.txtsangreeq, 
+	    l.txtleucocitossu,
+	    l.txtcelepitelialessu, 
+	    l.txtcilindiossu, 
+	    l.txtbacteriassu, 
+	    l.txthematiessu, 
+	    l.txtcristalessu, 
+	    l.txtpussu, 
+	    l.txtotrossu,
 	    -- TABLA: lab_clinico - Grupo sanguíneo y factor RH (Prefijo: l)
 	    CASE 
 		WHEN l.chko = 'TRUE' THEN 'O'
@@ -871,13 +1203,21 @@ BEGIN
 	    
 	    -- TABLA: anexo_agroindustrial (Prefijo: ag)
 	    ag.txtanamnesis,
-	    ag.txtestadomental
+	    ag.txtestadomental,
+
+	    -- TABLA: informe_electrocardiograma (Prefijo: ie)
+	    ie.hallazgo, ie.recomendaciones,
+
+	    -- TABLA: analisis_bioquimicos (Prefijo: ab)
+	    ab.txtcolesterol, ab.txtldlcolesterol, ab.txthdlcolesterol, ab.txtvldlcolesterol,
+	    ab.txttrigliseridos
 
 	FROM datos_paciente AS d
 	    INNER JOIN n_orden_ocupacional AS n ON (d.cod_pa = n.cod_pa)
 	    INNER JOIN antecedentes_patologicos AS a ON (n.n_orden = a.n_orden)
 	    INNER JOIN triaje AS t ON (n.n_orden = t.n_orden)
 	    LEFT JOIN oftalmologia AS o ON (n.n_orden = o.n_orden)
+	    LEFT JOIN oftalmologia_lo AS ol ON (n.n_orden = ol.n_orden)
 	    INNER JOIN funcion_abs AS fa ON (n.n_orden = fa.n_orden)
 	    INNER JOIN radiografia_torax AS r ON (n.n_orden = r.n_orden)
 	    INNER JOIN lab_clinico AS l ON (n.n_orden = l.n_orden)
@@ -891,6 +1231,8 @@ BEGIN
 	    LEFT JOIN certificacion_medica_altura AS ca ON (ca.n_orden = n.n_orden)
 	    LEFT JOIN radiografia AS ra ON (ra.n_orden = n.n_orden)
 	    LEFT JOIN anexo_agroindustrial AS ag ON (n.n_orden = ag.n_orden)
+	    LEFT JOIN informe_electrocardiograma AS ie ON (n.n_orden = ie.n_orden)
+	    LEFT JOIN analisis_bioquimicos AS ab ON (n.n_orden = ab.n_orden)
 	WHERE n.n_orden = p_norden;
 
 END;
@@ -898,200 +1240,54 @@ $BODY$
   LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION editar_anexo7c(
-    IN p_norden integer)
-  RETURNS TABLE(
-dni_cod_pa INTEGER,
-nombres_nombres_pa TEXT,
-apellidos_apellidos_pa TEXT,
-fechaNacimientoPaciente_fecha_nacimiento_pa DATE,
-sexo_sexo_pa "char",
-lugarNacimientoPaciente_lugar_nac_pa TEXT,
-direccionPaciente_direccion_pa TEXT,
-telefonoCasaPaciente_tel_casa_pa TEXT,
-celularPaciente_cel_pa TEXT,
-estadoCivilPaciente_estado_civil_pa TEXT,
-nivelEstudioPaciente_nivel_est_pa TEXT,
-empresa_razon_empresa TEXT,
-contrata_razon_contrata TEXT,
-nombreExamen_nom_examen TEXT,
-explotacion_nom_ex TEXT,
-altura_altura_po TEXT,
-mineral_mineral_po TEXT,
-cargo_cargo_de TEXT,
-areaOcupacional_area_o TEXT,
-hijosVivosAntecedentes_txtvhijosvivos TEXT,
-hijosFallecidosAntecedentes_txtvhijosfallecidos TEXT,
-detalleHijosVivosAntecedentes_txtdhijosvivos TEXT,
-detalleHijosFallecidosAntecedentes_txtdhijosfallecidos TEXT,
-
-tallaTriaje_talla TEXT,
-pesoTriaje_peso TEXT,
-imcTriaje_imc TEXT,
-sistolicaTriaje_sistolica TEXT,
-diastolicaTriaje_diastolica TEXT,
-frecuenciaRespiratoriaTriaje_f_respiratoria TEXT,
-frecuenciaCardiacaTriaje_f_cardiaca TEXT,
-saturacionOxigenoTriaje_sat_02 TEXT,
-temperaturaTriaje_temperatura TEXT,
-cinturaTriaje_cintura TEXT,
-caderaTriaje_cadera TEXT,
-iccTriaje_icc TEXT,
-perimetroCuelloTriaje_perimetro_cuello TEXT,
-
-visionCercaSinCorregirOd_v_cerca_s_od TEXT,
-visionCercaSinCorregirOi_v_cerca_s_oi TEXT,
-visionCercaCorregidaOd_v_cerca_c_od TEXT,
-visionCercaCorregidaOi_v_cerca_c_oi TEXT,
-visionLejosSinCorregirOd_v_lejos_s_od TEXT,
-visionLejosSinCorregirOi_v_lejos_s_oi TEXT,
-visionLejosCorregidaOd_v_lejos_c_od TEXT,
-visionLejosCorregidaOi_v_lejos_c_oi TEXT,
-visionBinocular_v_binocular TEXT,
-enfermedadesOcularesOftalmo_e_oculares TEXT,
-enfermedadesOcularesOtrosOftalmo_e_oculares1 TEXT,
-
-ausentesOdontograma_txtausentes INTEGER,
-observacionesOdontograma_txtobservaciones TEXT,
-piezasMalEstadoOdontograma_txtpiezasmalestado INTEGER,
-
-observacionesRadiografiaTorax_txtobservacionesrt TEXT,
-observacionesLaboratorioClinico_txtobservacioneslb TEXT,
-examenRadiograficosSanguineos_txtobservacionesrs TEXT,
-
-glucosaLaboratorioClinico_txtglucosabio TEXT,
-vsgLaboratorioClinico_txtvsg TEXT,
-cocainaLaboratorioClinico_txtcocaina TEXT,
-marihuanaLaboratorioClinico_txtmarihuana TEXT,
-creatininaLaboratorioClinico_txtcreatininabio TEXT,
-
-oidoDerecho500Audiometria_o_d_500 TEXT,
-oidoDerecho1000Audiometria_o_d_1000 TEXT,
-oidoDerecho2000Audiometria_o_d_2000 TEXT,
-oidoDerecho3000Audiometria_o_d_3000 TEXT,
-oidoDerecho4000Audiometria_o_d_4000 TEXT,
-oidoDerecho6000Audiometria_o_d_6000 TEXT,
-oidoDerecho8000Audiometria_o_d_8000 TEXT,
-
-oidoIzquierdo500Audiometria_o_i_500 TEXT,
-oidoIzquierdo1000Audiometria_o_i_1000 TEXT,
-oidoIzquierdo2000Audiometria_o_i_2000 TEXT,
-oidoIzquierdo3000Audiometria_o_i_3000 TEXT,
-oidoIzquierdo4000Audiometria_o_i_4000 TEXT,
-oidoIzquierdo6000Audiometria_o_i_6000 TEXT,
-oidoIzquierdo8000Audiometria_o_i_8000 TEXT,
-
-diagnosticoAudiometricoCompleto_diagnostico TEXT,
-
-normalAudiometria_chkdnormal BOOLEAN,
-traumaLeveOdAudiometria_chkdtaleveod BOOLEAN,
-traumaLeveOiAudiometria_chkdtaleveoi BOOLEAN,
-traumaAvanzadoOdAudiometria_chkdtaavanzadood BOOLEAN,
-traumaAvanzadoOiAudiometria_chkdtaavanzadooi BOOLEAN,
-hipoacusiaLeveOdAudiometria_chkdhrleveod BOOLEAN,
-hipoacusiaLeveOiAudiometria_chkdhrleveoi BOOLEAN,
-hipoacusiaModeradaOdAudiometria_chkdhrmoderadood BOOLEAN,
-hipoacusiaModeradaOiAudiometria_chkdhrmoderadooi BOOLEAN,
-hipoacusiaAvanzadaOdAudiometria_chkdhravanzadaod BOOLEAN,
-hipoacusiaAvanzadaOiAudiometria_chkdhravanzadaoi BOOLEAN,
-otrasHipoacusiasAudiometria_chkotrashipoacusias BOOLEAN,
-otrasHipoacusiasAudiometria_txtotrashipoacusias TEXT,
-
-fvcFuncionRespiratoria_fvc TEXT,
-fev1FuncionRespiratoria_fev1 TEXT,
-fev1FvcFuncionRespiratoria_fev1fvc TEXT,
-fef2575FuncionRespiratoria_fef25_75 TEXT,
-interpretacionFuncionRespiratoria_interpretacion TEXT,
-
-fechaAnexo7c_fecha DATE,
-ruidoAnexo7c_chkruido BOOLEAN,
-polvoAnexo7c_chkpolvo BOOLEAN,
-vidSegmentarioAnexo7c_chkvidsegmentario BOOLEAN,
-vidTotalAnexo7c_chkvidtotal BOOLEAN,
-cancerigenosAnexo7c_chkcancerigenos BOOLEAN,
-mutagenicosAnexo7c_chkmutagenicos BOOLEAN,
-solventesAnexo7c_chksolventes BOOLEAN,
-metalesAnexo7c_chkmetales BOOLEAN,
-temperaturaAnexo7c_chktemperatura BOOLEAN,
-biologicosAnexo7c_chkbiologicos BOOLEAN,
-posturasAnexo7c_chkposturas BOOLEAN,
-turnosAnexo7c_chkturnos BOOLEAN,
-cargasAnexo7c_chkcargas BOOLEAN,
-movRepetAnexo7c_chkmovrepet BOOLEAN,
-pvdAnexo7c_chkpvd BOOLEAN,
-otrosAnexo7c_chkotros BOOLEAN,
-reubicacionSiAnexo7c_tbrsi BOOLEAN,
-reubicacionNoAnexo7c_rbrno BOOLEAN,
-
-tabacoNadaAexo7c_chktnada BOOLEAN,
-tabacoPocoAnexo7c_chktpoco BOOLEAN,
-tabacoHabitualAnexo7c_chkthabitual BOOLEAN,
-tabacoExcesivoAnexo7c_chktexcesivo BOOLEAN,
-
-alcoholNadaAnexo7c_chkanada BOOLEAN,
-alcoholPocoAnexo7c_chkapoco BOOLEAN,
-alcoholHabitualAnexo7c_chkahabitual BOOLEAN,
-alcoholExcesivoAnexo7c_chkaexcesivo BOOLEAN,
-
-drogasNadaAnexo7c_chkdnada BOOLEAN,
-drogasPocoAnexo7c_chkdpoco BOOLEAN,
-drogasHabitualAnexo7c_chkdhabitual BOOLEAN,
-drogasExcesivoAnexo7c_chkdexcesivo BOOLEAN,
-
-puestoActualAnexo7c_txtpuestoactual TEXT,
-tiempoAnexo7c_txttiempo TEXT,
-antecedentesPersonalesAnexo7c_txtantecedentespersonales TEXT,
-antecedentesPersonales2Anexo7c_txtantecedentespersonales2 TEXT,
-antecedentesFamiliaresAnexo7c_txtantecedentesfamiliares TEXT,
-cabezaAnexo7c_txtcabeza TEXT,
-narizAnexo7c_txtnariz TEXT,
-cuelloAnexo7c_txtcuello TEXT,
-perimetroAnexo7c_txtperimetro TEXT,
-baflAnexo7c_txtb_a_f_l TEXT,
-visionColoresAnexo7c_txtvisioncolores TEXT,
-enfermedadesOcularesAnexo7c_txtenfermedadesoculares TEXT,
-diagnosticoAudioAnexo7c_txtdiagnosticoaudio TEXT,
-enfermedadesOculares2Anexo7c_txtenfermedadesoculares2 TEXT,
-reflejosPupilaresAnexo7c_txtreflejospupilares TEXT,
-binocularAnexo7c_txtbinocular TEXT,
-odAnexo7c_txtod TEXT,
-oiAnexo7c_txtoi TEXT,
-toraxAnexo7c_txttorax TEXT,
-corazonAnexo7c_txtcorazon TEXT,
-pulmonesNormalAnexo7c_rbnormal BOOLEAN,
-pulmonesAnormalAnexo7c_rbanormal BOOLEAN,
-pulmonesDescripcionAnexo7c_txtpulmones TEXT,
-miembrosSuperioresAnexo7c_txtmiembrossuperiores TEXT,
-miembrosInferioresAnexo7c_txtmiembrosinferiores TEXT,
-reflejosOsteotendinososAnexo7c_txtreflejososteotendinosos TEXT,
-marchaAnexo7c_txtmarcha TEXT,
-columnaVertebralAnexo7c_txtcolumnavertebral TEXT,
-abdomenAnexo7c_txtabdomen TEXT,
-anillosInguinalesAnexo7c_txtanillosinguinales TEXT,
-organosGenitalesAnexo7c_txtorganosgenitales TEXT,
-tactoRectalNoHizoAnexo7c_rbtnohizo BOOLEAN,
-tactoRectalNormalAnexo7c_rbtnormal BOOLEAN,
-tactoRectalAnormalAnexo7c_rbtanormal BOOLEAN,
-describirObservacionAnexo7c_chkdescribirobservacion BOOLEAN,
-herniasAnexo7c_txthernias TEXT,
-varicesAnexo7c_txtvarices TEXT,
-gangliosAnexo7c_txtganglios TEXT,
-lenguageAnexo7c_txtlenguage TEXT,
-observacionesFichaMedicaAnexo7c_txtobservacionesfm TEXT,
-conclusionAnexo7c_txtconclusion TEXT,
-tetanoAnexo7c_tetano BOOLEAN,
-hepatitisBAnexo7c_hepatitisb BOOLEAN,
-fiebreAmarillaAnexo7c_fiebreamarilla BOOLEAN,
-diagnosticoAudio2Anexo7c_txtdiagnosticoaudio TEXT,
-conclusionMedicoAnexo7c_txtconclusionmed TEXT,
-estadoMentalAnexo7c_txtestadomental TEXT,
-anamnesisAnexo7c_txtanamnesis TEXT,
-alturaEstructuraAnexo7c_altura_estructura BOOLEAN,
-alturaGeogAnexo7c_altura_geog BOOLEAN,
-quimicosAnexo7c_quimicos BOOLEAN,
-electricosAnexo7c_electricos BOOLEAN,
-vibracionesAnexo7c_vibraciones BOOLEAN
-
+CREATE OR REPLACE FUNCTION editar_anexo7c(IN p_norden integer)
+  RETURNS TABLE(dni_cod_pa integer, nombres_nombres_pa text, apellidos_apellidos_pa text, fechanacimientopaciente_fecha_nacimiento_pa date, sexo_sexo_pa "char", lugarnacimientopaciente_lugar_nac_pa text, direccionpaciente_direccion_pa text, telefonocasapaciente_tel_casa_pa text, celularpaciente_cel_pa text, estadocivilpaciente_estado_civil_pa text, nivelestudiopaciente_nivel_est_pa text, empresa_razon_empresa text, contrata_razon_contrata text, nombreexamen_nom_examen text, explotacion_nom_ex text, altura_altura_po text, mineral_mineral_po text, cargo_cargo_de text, areaocupacional_area_o text, hijosvivosantecedentes_txtvhijosvivos text, hijosfallecidosantecedentes_txtvhijosfallecidos text, detallehijosvivosantecedentes_txtdhijosvivos text, detallehijosfallecidosantecedentes_txtdhijosfallecidos text, tallatriaje_talla text, pesotriaje_peso text, imctriaje_imc text, sistolicatriaje_sistolica text, diastolicatriaje_diastolica text, frecuenciarespiratoriatriaje_f_respiratoria text, frecuenciacardiacatriaje_f_cardiaca text, saturacionoxigenotriaje_sat_02 text, temperaturatriaje_temperatura text, cinturatriaje_cintura text, caderatriaje_cadera text, icctriaje_icc text, perimetrocuellotriaje_perimetro_cuello text, visioncercasincorregirod_v_cerca_s_od text, visioncercasincorregiroi_v_cerca_s_oi text, visioncercacorregidaod_v_cerca_c_od text, visioncercacorregidaoi_v_cerca_c_oi text, visionlejossincorregirod_v_lejos_s_od text, visionlejossincorregiroi_v_lejos_s_oi text, visionlejoscorregidaod_v_lejos_c_od text, visionlejoscorregidaoi_v_lejos_c_oi text, visionbinocular_v_binocular text, enfermedadesocularesoftalmo_e_oculares text, enfermedadesocularesotrosoftalmo_e_oculares1 text, ausentesodontograma_txtausentes integer, observacionesodontograma_txtobservaciones text, piezasmalestadoodontograma_txtpiezasmalestado integer, observacionesradiografiatorax_txtobservacionesrt text, observacioneslaboratorioclinico_txtobservacioneslb text, examenradiograficossanguineos_txtobservacionesrs text, glucosalaboratorioclinico_txtglucosabio text, vsglaboratorioclinico_txtvsg text, cocainalaboratorioclinico_txtcocaina text, marihuanalaboratorioclinico_txtmarihuana text, creatininalaboratorioclinico_txtcreatininabio text, oidoderecho500audiometria_o_d_500 text, oidoderecho1000audiometria_o_d_1000 text, oidoderecho2000audiometria_o_d_2000 text, oidoderecho3000audiometria_o_d_3000 text, oidoderecho4000audiometria_o_d_4000 text, oidoderecho6000audiometria_o_d_6000 text, oidoderecho8000audiometria_o_d_8000 text, oidoizquierdo500audiometria_o_i_500 text, oidoizquierdo1000audiometria_o_i_1000 text, oidoizquierdo2000audiometria_o_i_2000 text, oidoizquierdo3000audiometria_o_i_3000 text, oidoizquierdo4000audiometria_o_i_4000 text, oidoizquierdo6000audiometria_o_i_6000 text, oidoizquierdo8000audiometria_o_i_8000 text, diagnosticoaudiometricocompleto_diagnostico text, normalaudiometria_chkdnormal boolean, traumaleveodaudiometria_chkdtaleveod boolean, traumaleveoiaudiometria_chkdtaleveoi boolean, traumaavanzadoodaudiometria_chkdtaavanzadood boolean, traumaavanzadooiaudiometria_chkdtaavanzadooi boolean, hipoacusialeveodaudiometria_chkdhrleveod boolean, hipoacusialeveoiaudiometria_chkdhrleveoi boolean, hipoacusiamoderadaodaudiometria_chkdhrmoderadood boolean, hipoacusiamoderadaoiaudiometria_chkdhrmoderadooi boolean, hipoacusiaavanzadaodaudiometria_chkdhravanzadaod boolean, hipoacusiaavanzadaoiaudiometria_chkdhravanzadaoi boolean, otrashipoacusiasaudiometria_chkotrashipoacusias boolean, otrashipoacusiasaudiometria_txtotrashipoacusias text, fvcfuncionrespiratoria_fvc text, fev1funcionrespiratoria_fev1 text, fev1fvcfuncionrespiratoria_fev1fvc text, fef2575funcionrespiratoria_fef25_75 text, interpretacionfuncionrespiratoria_interpretacion text, fechaanexo7c_fecha date, ruidoanexo7c_chkruido boolean, polvoanexo7c_chkpolvo boolean, vidsegmentarioanexo7c_chkvidsegmentario boolean, vidtotalanexo7c_chkvidtotal boolean, cancerigenosanexo7c_chkcancerigenos boolean, mutagenicosanexo7c_chkmutagenicos boolean, solventesanexo7c_chksolventes boolean, metalesanexo7c_chkmetales boolean, temperaturaanexo7c_chktemperatura boolean, biologicosanexo7c_chkbiologicos boolean, posturasanexo7c_chkposturas boolean, turnosanexo7c_chkturnos boolean, cargasanexo7c_chkcargas boolean, movrepetanexo7c_chkmovrepet boolean, pvdanexo7c_chkpvd boolean, otrosanexo7c_chkotros boolean, reubicacionsianexo7c_tbrsi boolean, reubicacionnoanexo7c_rbrno boolean, tabaconadaaexo7c_chktnada boolean, tabacopocoanexo7c_chktpoco boolean, tabacohabitualanexo7c_chkthabitual boolean, tabacoexcesivoanexo7c_chktexcesivo boolean, alcoholnadaanexo7c_chkanada boolean, alcoholpocoanexo7c_chkapoco boolean, alcoholhabitualanexo7c_chkahabitual boolean, alcoholexcesivoanexo7c_chkaexcesivo boolean, drogasnadaanexo7c_chkdnada boolean, drogaspocoanexo7c_chkdpoco boolean, drogashabitualanexo7c_chkdhabitual boolean, drogasexcesivoanexo7c_chkdexcesivo boolean, puestoactualanexo7c_txtpuestoactual text, tiempoanexo7c_txttiempo text, antecedentespersonalesanexo7c_txtantecedentespersonales text, antecedentespersonales2anexo7c_txtantecedentespersonales2 text, antecedentesfamiliaresanexo7c_txtantecedentesfamiliares text, cabezaanexo7c_txtcabeza text, narizanexo7c_txtnariz text, cuelloanexo7c_txtcuello text, perimetroanexo7c_txtperimetro text, baflanexo7c_txtb_a_f_l text, visioncoloresanexo7c_txtvisioncolores text, enfermedadesocularesanexo7c_txtenfermedadesoculares text, diagnosticoaudioanexo7c_txtdiagnosticoaudio text, enfermedadesoculares2anexo7c_txtenfermedadesoculares2 text, reflejospupilaresanexo7c_txtreflejospupilares text, binocularanexo7c_txtbinocular text, odanexo7c_txtod text, oianexo7c_txtoi text, toraxanexo7c_txttorax text, corazonanexo7c_txtcorazon text, pulmonesnormalanexo7c_rbnormal boolean, pulmonesanormalanexo7c_rbanormal boolean, pulmonesdescripcionanexo7c_txtpulmones text, miembrossuperioresanexo7c_txtmiembrossuperiores text, miembrosinferioresanexo7c_txtmiembrosinferiores text, reflejososteotendinososanexo7c_txtreflejososteotendinosos text, marchaanexo7c_txtmarcha text, columnavertebralanexo7c_txtcolumnavertebral text, abdomenanexo7c_txtabdomen text, anillosinguinalesanexo7c_txtanillosinguinales text, organosgenitalesanexo7c_txtorganosgenitales text, tactorectalnohizoanexo7c_rbtnohizo boolean, tactorectalnormalanexo7c_rbtnormal boolean, tactorectalanormalanexo7c_rbtanormal boolean, describirobservacionanexo7c_chkdescribirobservacion boolean, herniasanexo7c_txthernias text, varicesanexo7c_txtvarices text, gangliosanexo7c_txtganglios text, lenguageanexo7c_txtlenguage text, observacionesfichamedicaanexo7c_txtobservacionesfm text, conclusionanexo7c_txtconclusion text, tetanoanexo7c_tetano boolean, hepatitisbanexo7c_hepatitisb boolean, fiebreamarillaanexo7c_fiebreamarilla boolean, diagnosticoaudio2anexo7c_txtdiagnosticoaudio text, conclusionmedicoanexo7c_txtconclusionmed text, estadomentalanexo7c_txtestadomental text, anamnesisanexo7c_txtanamnesis text, alturaestructuraanexo7c_altura_estructura boolean, alturageoganexo7c_altura_geog boolean, quimicosanexo7c_quimicos boolean, electricosanexo7c_electricos boolean, vibracionesanexo7c_vibraciones boolean,
+antecedentesPatologicos_ante_patologicos text,
+positivoLaboratorioClinico_chkpositivo boolean,
+negativoLaboratorioClinico_chknegativo boolean,
+grupoSanguineoO_chko boolean,
+grupoSanguineoA_chka boolean,
+grupoSanguineoB_chkb boolean,
+grupoSanguineoAB_chkab boolean,
+grupoSanguineoRhPositivo_rbrhpositivo boolean,
+grupoSanguineoRhNegativo_rbrhnegativo boolean,
+hemoglobina_txthemoglobina text,
+examenFisicoColor_txtcoloref text,
+examenFisicoDensidad_txtdensidadef text, 
+examenFisicoAspecto_txtaspectoef text,
+examenFisicoPh_txtphef text, 
+examenQuimicoNitritos_txtnitritoseq text,
+examenQuimicoProteinas_txtproteinaseq text, 
+examenQuimicoCetonas_txtcetonaseq text,
+examenQuimicoLeucocitos_txtleucocitoseq text, 
+examenQuimicoUrobilinogeno_txturobilinogenoeq text, 
+examenQuimicoBilirubina_txtbilirubinaeq text, 
+examenQuimicoGlucosa_txtglucosaeq text,
+examenQuimicoSangre_txtsangreeq text,
+sedimientoUrinarioLeucocitos_txtleucocitossu text,
+sedimientoUrinarioEpiteliales_txtcelepitelialessu text, 
+sedimientoUrinarioCilindios_txtcilindiossu text, 
+sedimientoUrinarioBacterias_txtbacteriassu text, 
+sedimientoUrinarioHematies_txthematiessu text, 
+sedimientoUrinarioCristales_txtcristalessu text, 
+sedimientoUrinarioPus_txtpussu text, 
+sedimientoUrinarioOtros_txtotrossu text,
+hallazgosInformeElectroCardiograma_hallazgo text,
+recomendacionesInformeElectroCardiograma_recomendaciones text,
+verticesRadiografiaTorax_txtvertices text,
+hiliosRadiografiaTorax_txthilios text,
+senosCostoFrenicosRadiografiaTorax_txtsenoscostofrenicos text,
+mediastinosRadiografiaTorax_txtmediastinos text,
+siluetaCardioVascularRadiografiaTorax_txtsiluetacardiovascular text,
+osteomuscularRadiografiaTorax_txtosteomuscular text,
+conclusionesRadiograficasTorax_txtconclusionesradiograficas text,
+camposPulmonesRadiografiaTorax_txtcampospulm text,
+colesterolAnalisisBioquimico_txtcolesterol text, 
+ldlcolesterolAnalisisBioquimico_txtldlcolesterol text,
+hdlcolesterolAnalisisBioquimico_txthdlcolesterol text, 
+vldlcolesterolAnalisisBioquimico_txtvldlcolesterol text,
+trigliseridosAnalisisBioquimico_txttrigliseridos text,
+norden_n_orden integer
   ) AS
 $BODY$
 BEGIN
@@ -1276,8 +1472,237 @@ BEGIN
 	    a.altura_geog,
 	    a.quimicos,
 	    a.electricos,
-	    a.vibraciones
-
+	    a.vibraciones,
+	    CASE 
+		WHEN (
+		    CASE WHEN ap.chk1 = 'TRUE' THEN 'Alergias, ' ELSE '' END ||
+		    CASE WHEN ap.chk2 = 'TRUE' THEN 'Amigdalitis crónica, ' ELSE '' END ||
+		    CASE WHEN ap.chk3 = 'TRUE' THEN 'Arritmias cardíacas, ' ELSE '' END ||
+		    CASE WHEN ap.chk4 = 'TRUE' THEN 'Asma, ' ELSE '' END ||
+		    CASE WHEN ap.chk5 = 'TRUE' THEN 'Bocio, ' ELSE '' END ||
+		    CASE WHEN ap.chk6 = 'TRUE' THEN 'Bronconeumonía, ' ELSE '' END ||
+		    CASE WHEN ap.chk7 = 'TRUE' THEN 'Bronquitis a repetición, ' ELSE '' END ||
+		    CASE WHEN ap.chk8 = 'TRUE' THEN 'Caries o gingivitis, ' ELSE '' END ||
+		    CASE WHEN ap.chk9 = 'TRUE' THEN 'Colecistitis, ' ELSE '' END ||
+		    CASE WHEN ap.chk10 = 'TRUE' THEN 'Dermatitis, ' ELSE '' END ||
+		    CASE WHEN ap.chk11 = 'TRUE' THEN 'Diabetes, ' ELSE '' END ||
+		    CASE WHEN ap.chk12 = 'TRUE' THEN 'Disentería, ' ELSE '' END ||
+		    CASE WHEN ap.chk13 = 'TRUE' THEN 'Enfermedades del corazón, ' ELSE '' END ||
+		    CASE WHEN ap.chk14 = 'TRUE' THEN 'Enfermedades oculares, ' ELSE '' END ||
+		    CASE WHEN ap.chk15 = 'TRUE' THEN 'Epilepsia o convulsiones, ' ELSE '' END ||
+		    CASE WHEN ap.chk16 = 'TRUE' THEN 'Faringitis crónica, ' ELSE '' END ||
+		    CASE WHEN ap.chk17 = 'TRUE' THEN 'Fiebre malta, ' ELSE '' END ||
+		    CASE WHEN ap.chk18 = 'TRUE' THEN 'Fiebre tifoidea, ' ELSE '' END ||
+		    CASE WHEN ap.chk19 = 'TRUE' THEN 'Fiebre reumática, ' ELSE '' END ||
+		    CASE WHEN ap.chk20 = 'TRUE' THEN 'Forunculosis, ' ELSE '' END ||
+		    CASE WHEN ap.chk21 = 'TRUE' THEN 'Gastritis crónica, ' ELSE '' END ||
+		    CASE WHEN ap.chk22 = 'TRUE' THEN 'Gonorrea, ' ELSE '' END ||
+		    CASE WHEN ap.chk23 = 'TRUE' THEN 'Gota, ' ELSE '' END ||
+		    CASE WHEN ap.chk24 = 'TRUE' THEN 'Hemorroides, ' ELSE '' END ||
+		    CASE WHEN ap.chk25 = 'TRUE' THEN 'Hepatitis, ' ELSE '' END ||
+		    CASE WHEN ap.chk26 = 'TRUE' THEN 'Hernias, ' ELSE '' END ||
+		    CASE WHEN ap.chk27 = 'TRUE' THEN 'Hipertensión arterial, ' ELSE '' END ||
+		    CASE WHEN ap.chk28 = 'TRUE' THEN 'Infecciones urinarias repetidas, ' ELSE '' END ||
+		    CASE WHEN ap.chk29 = 'TRUE' THEN 'Intoxicaciones, ' ELSE '' END ||
+		    CASE WHEN ap.chk30 = 'TRUE' THEN 'Insuficiencia cardíaca, ' ELSE '' END ||
+		    CASE WHEN ap.chk31 = 'TRUE' THEN 'Insuficiencia coronaria crónica, ' ELSE '' END ||
+		    CASE WHEN ap.chk32 = 'TRUE' THEN 'Insuficiencia renal crónica, ' ELSE '' END ||
+		    CASE WHEN ap.chk33 = 'TRUE' THEN 'Litiasis urinaria, ' ELSE '' END ||
+		    CASE WHEN ap.chk34 = 'TRUE' THEN 'Meningitis, ' ELSE '' END ||
+		    CASE WHEN ap.chk35 = 'TRUE' THEN 'Neuritis a repetición, ' ELSE '' END ||
+		    CASE WHEN ap.chk36 = 'TRUE' THEN 'Otitis media, ' ELSE '' END ||
+		    CASE WHEN ap.chk37 = 'TRUE' THEN 'Presión alta o baja, ' ELSE '' END ||
+		    CASE WHEN ap.chk38 = 'TRUE' THEN 'Paludismo o malaria, ' ELSE '' END ||
+		    CASE WHEN ap.chk39 = 'TRUE' THEN 'Parasitosis intestinal, ' ELSE '' END ||
+		    CASE WHEN ap.chk40 = 'TRUE' THEN 'Parotiditis, ' ELSE '' END ||
+		    CASE WHEN ap.chk41 = 'TRUE' THEN 'Pleuresia, ' ELSE '' END ||
+		    CASE WHEN ap.chk42 = 'TRUE' THEN 'Plumbismo, ' ELSE '' END ||
+		    CASE WHEN ap.chk43 = 'TRUE' THEN 'Poliomielitis, ' ELSE '' END ||
+		    CASE WHEN ap.chk44 = 'TRUE' THEN 'Portador de marcapasos, ' ELSE '' END ||
+		    CASE WHEN ap.chk45 = 'TRUE' THEN 'Prótesis cardíacas valvulares, ' ELSE '' END ||
+		    CASE WHEN ap.chk46 = 'TRUE' THEN 'Resfriados frecuentes, ' ELSE '' END ||
+		    CASE WHEN ap.chk47 = 'TRUE' THEN 'Reumatismo a repetición, ' ELSE '' END ||
+		    CASE WHEN ap.chk48 = 'TRUE' THEN 'Sarampión, ' ELSE '' END ||
+		    CASE WHEN ap.chk49 = 'TRUE' THEN 'Sífilis, ' ELSE '' END ||
+		    CASE WHEN ap.chk50 = 'TRUE' THEN 'Silicosis, ' ELSE '' END ||
+		    CASE WHEN ap.chk51 = 'TRUE' THEN 'Sinusitis crónica, ' ELSE '' END ||
+		    CASE WHEN ap.chk52 = 'TRUE' THEN 'Tos convulsiva, ' ELSE '' END ||
+		    CASE WHEN ap.chk53 = 'TRUE' THEN 'Trastornos nerviosos, ' ELSE '' END ||
+		    CASE WHEN ap.chk54 = 'TRUE' THEN 'Traumatismo encefalocraneano, ' ELSE '' END ||
+		    CASE WHEN ap.chk55 = 'TRUE' THEN 'Tuberculosis, ' ELSE '' END ||
+		    CASE WHEN ap.chk56 = 'TRUE' THEN 'Tumores - quistes, ' ELSE '' END ||
+		    CASE WHEN ap.chk57 = 'TRUE' THEN 'Úlcera péptica, ' ELSE '' END ||
+		    CASE WHEN ap.chk58 = 'TRUE' THEN 'Varicela, ' ELSE '' END ||
+		    CASE WHEN ap.chk59 = 'TRUE' THEN 'Várices, ' ELSE '' END ||
+		    CASE WHEN ap.chk60 = 'TRUE' THEN 'Varicocele, ' ELSE '' END ||
+		    CASE WHEN ap.chk61 = 'TRUE' THEN 'Pérdida de memoria, ' ELSE '' END ||
+		    CASE WHEN ap.chk62 = 'TRUE' THEN 'Preocupaciones o angustia, ' ELSE '' END ||
+		    CASE WHEN ap.chk63 = 'TRUE' THEN 'Dolores articulares y/o huesos, ' ELSE '' END ||
+		    CASE WHEN ap.chk64 = 'TRUE' THEN 'Aumento o disminución de peso, ' ELSE '' END ||
+		    CASE WHEN ap.chk65 = 'TRUE' THEN 'Dolor de cabeza, ' ELSE '' END ||
+		    CASE WHEN ap.chk66 = 'TRUE' THEN 'Diarrea, ' ELSE '' END ||
+		    CASE WHEN ap.chk67 = 'TRUE' THEN 'Agitación al hacer ejercicios, ' ELSE '' END ||
+		    CASE WHEN ap.chk68 = 'TRUE' THEN 'Dolor ocular, ' ELSE '' END ||
+		    CASE WHEN ap.chk69 = 'TRUE' THEN 'Dolor Opresivo Torax, ' ELSE '' END ||
+		    CASE WHEN ap.chk70 = 'TRUE' THEN 'Hinchazón de pies o manos, ' ELSE '' END ||
+		    CASE WHEN ap.chk71 = 'TRUE' THEN 'Estreñimiento, ' ELSE '' END ||
+		    CASE WHEN ap.chk72 = 'TRUE' THEN 'Vómitos con sangre, ' ELSE '' END ||
+		    CASE WHEN ap.chk73 = 'TRUE' THEN 'Sangrado por orina, ' ELSE '' END ||
+		    CASE WHEN ap.chk74 = 'TRUE' THEN 'Tos con sangre, ' ELSE '' END ||
+		    CASE WHEN ap.chk75 = 'TRUE' THEN 'Coloración amarilla de la piel, ' ELSE '' END ||
+		    CASE WHEN ap.chk76 = 'TRUE' THEN 'Indigestión frecuente, ' ELSE '' END ||
+		    CASE WHEN ap.chk77 = 'TRUE' THEN 'Insomnio, ' ELSE '' END ||
+		    CASE WHEN ap.chk78 = 'TRUE' THEN 'Lumbalgias o dolor de cintura, ' ELSE '' END ||
+		    CASE WHEN ap.chk79 = 'TRUE' THEN 'Mareos- Desmayos- Vertigos, ' ELSE '' END ||
+		    CASE WHEN ap.chk80 = 'TRUE' THEN 'Heces negras, ' ELSE '' END ||
+		    CASE WHEN ap.chk81 = 'TRUE' THEN 'Orina con dolor o ardor, ' ELSE '' END ||
+		    CASE WHEN ap.chk82 = 'TRUE' THEN 'Orina involuntaria, ' ELSE '' END ||
+		    CASE WHEN ap.chk83 = 'TRUE' THEN 'Dolor de oído, ' ELSE '' END ||
+		    CASE WHEN ap.chk84 = 'TRUE' THEN 'Secreciones por el oído, ' ELSE '' END ||
+		    CASE WHEN ap.chk85 = 'TRUE' THEN 'Palpitaciones, ' ELSE '' END ||
+		    CASE WHEN ap.chk86 = 'TRUE' THEN 'Adormecimientos, ' ELSE '' END ||
+		    CASE WHEN ap.chk87 = 'TRUE' THEN 'Pesadillas frecuentes, ' ELSE '' END ||
+		    CASE WHEN ap.chk88 = 'TRUE' THEN 'Dolores musculares, ' ELSE '' END ||
+		    CASE WHEN ap.chk89 = 'TRUE' THEN 'Tos crónica, ' ELSE '' END ||
+		    CASE WHEN ap.chk90 = 'TRUE' THEN 'Sangrado por encías' ELSE '' END
+		) = '' 
+		THEN 'NINGUNO'
+		ELSE (
+		    CASE WHEN ap.chk1 = 'TRUE' THEN 'Alergias, ' ELSE '' END ||
+		    CASE WHEN ap.chk2 = 'TRUE' THEN 'Amigdalitis crónica, ' ELSE '' END ||
+		    CASE WHEN ap.chk3 = 'TRUE' THEN 'Arritmias cardíacas, ' ELSE '' END ||
+		    CASE WHEN ap.chk4 = 'TRUE' THEN 'Asma, ' ELSE '' END ||
+		    CASE WHEN ap.chk5 = 'TRUE' THEN 'Bocio, ' ELSE '' END ||
+		    CASE WHEN ap.chk6 = 'TRUE' THEN 'Bronconeumonía, ' ELSE '' END ||
+		    CASE WHEN ap.chk7 = 'TRUE' THEN 'Bronquitis a repetición, ' ELSE '' END ||
+		    CASE WHEN ap.chk8 = 'TRUE' THEN 'Caries o gingivitis, ' ELSE '' END ||
+		    CASE WHEN ap.chk9 = 'TRUE' THEN 'Colecistitis, ' ELSE '' END ||
+		    CASE WHEN ap.chk10 = 'TRUE' THEN 'Dermatitis, ' ELSE '' END ||
+		    CASE WHEN ap.chk11 = 'TRUE' THEN 'Diabetes, ' ELSE '' END ||
+		    CASE WHEN ap.chk12 = 'TRUE' THEN 'Disentería, ' ELSE '' END ||
+		    CASE WHEN ap.chk13 = 'TRUE' THEN 'Enfermedades del corazón, ' ELSE '' END ||
+		    CASE WHEN ap.chk14 = 'TRUE' THEN 'Enfermedades oculares, ' ELSE '' END ||
+		    CASE WHEN ap.chk15 = 'TRUE' THEN 'Epilepsia o convulsiones, ' ELSE '' END ||
+		    CASE WHEN ap.chk16 = 'TRUE' THEN 'Faringitis crónica, ' ELSE '' END ||
+		    CASE WHEN ap.chk17 = 'TRUE' THEN 'Fiebre malta, ' ELSE '' END ||
+		    CASE WHEN ap.chk18 = 'TRUE' THEN 'Fiebre tifoidea, ' ELSE '' END ||
+		    CASE WHEN ap.chk19 = 'TRUE' THEN 'Fiebre reumática, ' ELSE '' END ||
+		    CASE WHEN ap.chk20 = 'TRUE' THEN 'Forunculosis, ' ELSE '' END ||
+		    CASE WHEN ap.chk21 = 'TRUE' THEN 'Gastritis crónica, ' ELSE '' END ||
+		    CASE WHEN ap.chk22 = 'TRUE' THEN 'Gonorrea, ' ELSE '' END ||
+		    CASE WHEN ap.chk23 = 'TRUE' THEN 'Gota, ' ELSE '' END ||
+		    CASE WHEN ap.chk24 = 'TRUE' THEN 'Hemorroides, ' ELSE '' END ||
+		    CASE WHEN ap.chk25 = 'TRUE' THEN 'Hepatitis, ' ELSE '' END ||
+		    CASE WHEN ap.chk26 = 'TRUE' THEN 'Hernias, ' ELSE '' END ||
+		    CASE WHEN ap.chk27 = 'TRUE' THEN 'Hipertensión arterial, ' ELSE '' END ||
+		    CASE WHEN ap.chk28 = 'TRUE' THEN 'Infecciones urinarias repetidas, ' ELSE '' END ||
+		    CASE WHEN ap.chk29 = 'TRUE' THEN 'Intoxicaciones, ' ELSE '' END ||
+		    CASE WHEN ap.chk30 = 'TRUE' THEN 'Insuficiencia cardíaca, ' ELSE '' END ||
+		    CASE WHEN ap.chk31 = 'TRUE' THEN 'Insuficiencia coronaria crónica, ' ELSE '' END ||
+		    CASE WHEN ap.chk32 = 'TRUE' THEN 'Insuficiencia renal crónica, ' ELSE '' END ||
+		    CASE WHEN ap.chk33 = 'TRUE' THEN 'Litiasis urinaria, ' ELSE '' END ||
+		    CASE WHEN ap.chk34 = 'TRUE' THEN 'Meningitis, ' ELSE '' END ||
+		    CASE WHEN ap.chk35 = 'TRUE' THEN 'Neuritis a repetición, ' ELSE '' END ||
+		    CASE WHEN ap.chk36 = 'TRUE' THEN 'Otitis media, ' ELSE '' END ||
+		    CASE WHEN ap.chk37 = 'TRUE' THEN 'Presión alta o baja, ' ELSE '' END ||
+		    CASE WHEN ap.chk38 = 'TRUE' THEN 'Paludismo o malaria, ' ELSE '' END ||
+		    CASE WHEN ap.chk39 = 'TRUE' THEN 'Parasitosis intestinal, ' ELSE '' END ||
+		    CASE WHEN ap.chk40 = 'TRUE' THEN 'Parotiditis, ' ELSE '' END ||
+		    CASE WHEN ap.chk41 = 'TRUE' THEN 'Pleuresia, ' ELSE '' END ||
+		    CASE WHEN ap.chk42 = 'TRUE' THEN 'Plumbismo, ' ELSE '' END ||
+		    CASE WHEN ap.chk43 = 'TRUE' THEN 'Poliomielitis, ' ELSE '' END ||
+		    CASE WHEN ap.chk44 = 'TRUE' THEN 'Portador de marcapasos, ' ELSE '' END ||
+		    CASE WHEN ap.chk45 = 'TRUE' THEN 'Prótesis cardíacas valvulares, ' ELSE '' END ||
+		    CASE WHEN ap.chk46 = 'TRUE' THEN 'Resfriados frecuentes, ' ELSE '' END ||
+		    CASE WHEN ap.chk47 = 'TRUE' THEN 'Reumatismo a repetición, ' ELSE '' END ||
+		    CASE WHEN ap.chk48 = 'TRUE' THEN 'Sarampión, ' ELSE '' END ||
+		    CASE WHEN ap.chk49 = 'TRUE' THEN 'Sífilis, ' ELSE '' END ||
+		    CASE WHEN ap.chk50 = 'TRUE' THEN 'Silicosis, ' ELSE '' END ||
+		    CASE WHEN ap.chk51 = 'TRUE' THEN 'Sinusitis crónica, ' ELSE '' END ||
+		    CASE WHEN ap.chk52 = 'TRUE' THEN 'Tos convulsiva, ' ELSE '' END ||
+		    CASE WHEN ap.chk53 = 'TRUE' THEN 'Trastornos nerviosos, ' ELSE '' END ||
+		    CASE WHEN ap.chk54 = 'TRUE' THEN 'Traumatismo encefalocraneano, ' ELSE '' END ||
+		    CASE WHEN ap.chk55 = 'TRUE' THEN 'Tuberculosis, ' ELSE '' END ||
+		    CASE WHEN ap.chk56 = 'TRUE' THEN 'Tumores - quistes, ' ELSE '' END ||
+		    CASE WHEN ap.chk57 = 'TRUE' THEN 'Úlcera péptica, ' ELSE '' END ||
+		    CASE WHEN ap.chk58 = 'TRUE' THEN 'Varicela, ' ELSE '' END ||
+		    CASE WHEN ap.chk59 = 'TRUE' THEN 'Várices, ' ELSE '' END ||
+		    CASE WHEN ap.chk60 = 'TRUE' THEN 'Varicocele, ' ELSE '' END ||
+		    CASE WHEN ap.chk61 = 'TRUE' THEN 'Pérdida de memoria, ' ELSE '' END ||
+		    CASE WHEN ap.chk62 = 'TRUE' THEN 'Preocupaciones o angustia, ' ELSE '' END ||
+		    CASE WHEN ap.chk63 = 'TRUE' THEN 'Dolores articulares y/o huesos, ' ELSE '' END ||
+		    CASE WHEN ap.chk64 = 'TRUE' THEN 'Aumento o disminución de peso, ' ELSE '' END ||
+		    CASE WHEN ap.chk65 = 'TRUE' THEN 'Dolor de cabeza, ' ELSE '' END ||
+		    CASE WHEN ap.chk66 = 'TRUE' THEN 'Diarrea, ' ELSE '' END ||
+		    CASE WHEN ap.chk67 = 'TRUE' THEN 'Agitación al hacer ejercicios, ' ELSE '' END ||
+		    CASE WHEN ap.chk68 = 'TRUE' THEN 'Dolor ocular, ' ELSE '' END ||
+		    CASE WHEN ap.chk69 = 'TRUE' THEN 'Dolor Opresivo Torax, ' ELSE '' END ||
+		    CASE WHEN ap.chk70 = 'TRUE' THEN 'Hinchazón de pies o manos, ' ELSE '' END ||
+		    CASE WHEN ap.chk71 = 'TRUE' THEN 'Estreñimiento, ' ELSE '' END ||
+		    CASE WHEN ap.chk72 = 'TRUE' THEN 'Vómitos con sangre, ' ELSE '' END ||
+		    CASE WHEN ap.chk73 = 'TRUE' THEN 'Sangrado por orina, ' ELSE '' END ||
+		    CASE WHEN ap.chk74 = 'TRUE' THEN 'Tos con sangre, ' ELSE '' END ||
+		    CASE WHEN ap.chk75 = 'TRUE' THEN 'Coloración amarilla de la piel, ' ELSE '' END ||
+		    CASE WHEN ap.chk76 = 'TRUE' THEN 'Indigestión frecuente, ' ELSE '' END ||
+		    CASE WHEN ap.chk77 = 'TRUE' THEN 'Insomnio, ' ELSE '' END ||
+		    CASE WHEN ap.chk78 = 'TRUE' THEN 'Lumbalgias o dolor de cintura, ' ELSE '' END ||
+		    CASE WHEN ap.chk79 = 'TRUE' THEN 'Mareos- Desmayos- Vertigos, ' ELSE '' END ||
+		    CASE WHEN ap.chk80 = 'TRUE' THEN 'Heces negras, ' ELSE '' END ||
+		    CASE WHEN ap.chk81 = 'TRUE' THEN 'Orina con dolor o ardor, ' ELSE '' END ||
+		    CASE WHEN ap.chk82 = 'TRUE' THEN 'Orina involuntaria, ' ELSE '' END ||
+		    CASE WHEN ap.chk83 = 'TRUE' THEN 'Dolor de oído, ' ELSE '' END ||
+		    CASE WHEN ap.chk84 = 'TRUE' THEN 'Secreciones por el oído, ' ELSE '' END ||
+		    CASE WHEN ap.chk85 = 'TRUE' THEN 'Palpitaciones, ' ELSE '' END ||
+		    CASE WHEN ap.chk86 = 'TRUE' THEN 'Adormecimientos, ' ELSE '' END ||
+		    CASE WHEN ap.chk87 = 'TRUE' THEN 'Pesadillas frecuentes, ' ELSE '' END ||
+		    CASE WHEN ap.chk88 = 'TRUE' THEN 'Dolores musculares, ' ELSE '' END ||
+		    CASE WHEN ap.chk89 = 'TRUE' THEN 'Tos crónica, ' ELSE '' END ||
+		    CASE WHEN ap.chk90 = 'TRUE' THEN 'Sangrado por encías' ELSE '' END
+		)    
+	    END AS ante_patologicos,
+	    ----
+	    l.chkpositivo,
+	    l.chknegativo,
+	    l.chko, 
+	    l.chka, 
+	    l.chkb, 
+	    l.chkab,
+	    l.rbrhpositivo, 
+	    l.rbrhnegativo,
+	    l.txthemoglobina,
+	    -----
+	    l.txtcoloref, 
+	    l.txtdensidadef, 
+	    l.txtaspectoef, 
+	    l.txtphef, l.txtnitritoseq, 
+	    l.txtproteinaseq, 
+	    l.txtcetonaseq,
+	    l.txtleucocitoseq, 
+	    l.txturobilinogenoeq, 
+	    l.txtbilirubinaeq, 
+	    l.txtglucosaeq, 
+	    l.txtsangreeq, 
+	    l.txtleucocitossu,
+	    l.txtcelepitelialessu, 
+	    l.txtcilindiossu, 
+	    l.txtbacteriassu, 
+	    l.txthematiessu, 
+	    l.txtcristalessu, 
+	    l.txtpussu, 
+	    l.txtotrossu,
+	    ie.hallazgo, ie.recomendaciones,
+	    r.txtvertices,
+	    r.txthilios,
+	    r.txtsenoscostofrenicos,
+	    r.txtmediastinos,
+	    r.txtsiluetacardiovascular,
+	    r.txtosteomuscular,
+	    r.txtconclusionesradiograficas,
+	    r.txtcampospulm,
+	    ab.txtcolesterol, ab.txtldlcolesterol, ab.txthdlcolesterol, ab.txtvldlcolesterol,
+	    ab.txttrigliseridos,
+	    n.n_orden
+	    
 	FROM datos_paciente AS d
 	INNER JOIN n_orden_ocupacional AS n ON (d.cod_pa = n.cod_pa)
 	INNER JOIN antecedentes_patologicos AS ap ON (n.n_orden = ap.n_orden)
@@ -1292,6 +1717,8 @@ BEGIN
 	INNER JOIN anexo7c AS a ON (n.n_orden = a.n_orden)
 	LEFT JOIN audiometria_2021 AS au ON (n.n_orden = au.n_orden)
 	LEFT JOIN oftalmologia2021 AS oft ON (n.n_orden = oft.n_orden)
+	LEFT JOIN informe_electrocardiograma AS ie ON (n.n_orden = ie.n_orden)
+	LEFT JOIN analisis_bioquimicos AS ab ON (n.n_orden = ab.n_orden)
 	WHERE a.n_orden = p_norden;
 
 END;
