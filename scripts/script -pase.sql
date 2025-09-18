@@ -4117,3 +4117,36 @@ CREATE TRIGGER trigger_set_orden_protocolo_examenes
 BEFORE INSERT ON protocolo_examenes
 FOR EACH ROW
 EXECUTE FUNCTION set_orden_protocolo_examenes();
+
+-- LISTADO DE PROTOCOLO POR FILTROS, V01
+
+
+
+CREATE OR REPLACE FUNCTION listado_protocolo_busqueda_filtros(
+	user_name_param text,razon_empre_param text, razon_emp_cont text)
+    RETURNS TABLE(id_resp bigint, mensaje text) 
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+    ROWS 1000
+
+AS $BODY$
+	
+
+BEGIN
+
+	    RETURN QUERY 
+SELECT DISTINCT 
+       CAST(prot.id_protocolo AS bigint) AS id_resp,
+       prot.nombre as mensaje
+FROM protocolo AS prot
+INNER JOIN protocolo_empresa AS prot_emp 
+    ON prot.id_protocolo = prot_emp.id_protocolo
+INNER JOIN usuario_empresa_contrada AS user_prot_empcont  -- corregí el nombre
+    ON prot_emp.ruc_empresa = user_prot_empcont.ruc
+INNER JOIN usuario AS us 
+    ON user_prot_empcont.id_user = us.id_user
+WHERE us.username = user_name_param;
+
+END; 
+$BODY$;
