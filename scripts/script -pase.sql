@@ -1114,7 +1114,8 @@ ldlcolesterolAnalisisBioquimico_txtldlcolesterol text,
 hdlcolesterolAnalisisBioquimico_txthdlcolesterol text, 
 vldlcolesterolAnalisisBioquimico_txtvldlcolesterol text,
 trigliseridosAnalisisBioquimico_txttrigliseridos text,
-norden_n_orden integer
+norden_n_orden integer,
+codigoExamenRadiograficoSanguineo_cod_exra integer
   ) AS
 $BODY$
 BEGIN
@@ -1528,7 +1529,8 @@ BEGIN
 	    r.txtcampospulm,
 	    ab.txtcolesterol, ab.txtldlcolesterol, ab.txthdlcolesterol, ab.txtvldlcolesterol,
 	    ab.txttrigliseridos,
-	    n.n_orden
+	    n.n_orden,
+	    e.cod_exra
 	    
 	FROM datos_paciente AS d
 	INNER JOIN n_orden_ocupacional AS n ON (d.cod_pa = n.cod_pa)
