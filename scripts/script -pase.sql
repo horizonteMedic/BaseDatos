@@ -1,4 +1,94 @@
+CREATE OR REPLACE FUNCTION backend_registro_historiaclinica_ocupacional(
+    IN tipo_operacion_exp bigint,
+    IN n_orden_exp bigint,
+    IN cod_pa_exp bigint,
+    IN razon_empresa_exp character varying,
+    IN razon_contrata_exp character varying,
+    IN nom_ex_exp character varying,
+    IN altura_po_exp character varying,
+    IN mineral_po_exp character varying,
+    IN fecha_apertura_po_exp character varying,
+    IN precio_po_exp character varying,
+    IN estado_ex_exp character varying,
+    IN nom_examen_exp character varying,
+    IN cargo_de_exp character varying,
+    IN area_o_exp character varying,
+    IN n_medico_exp character varying,
+    IN n_hora_exp character varying,
+    IN tipo_pago_exp character varying,
+    IN n_fisttest_exp boolean,
+    IN n_psicosen_exp boolean,
+    IN n_testaltura_exp boolean,
+    IN grupo_san_exp character varying,
+    IN grupo_factor_san_exp character varying,
+    IN cod_clinica_exp character varying,
+    IN visual_compl_exp boolean,
+    IN trab_calientes_exp boolean,
+    IN chk_covid1_exp boolean,
+    IN chk_covid2_exp boolean,
+    IN manip_alimentos_exp boolean,
+    IN txtobserv1_exp character varying,
+    IN txtobserv2_exp character varying,
+    IN cod_sede_exp character varying,
+    IN tipo_prueba_covid_exp character varying,
+    IN tipo_prueba_exp character varying,
+    IN nombre_hotel_exp character varying,
+    IN protocolo_exp character varying,
+    IN precio_adic_exp character varying,
+    IN autoriza_exp character varying,
+    IN n_operacion_exp character varying,
+    IN herra_manuales_exp boolean,
+    IN rxc_dorso_lumbar_exp boolean,
+    IN rxc_lumbar_exp boolean,
+    IN rxc_lumbosacra_exp boolean,
+    IN rxc_plomos_exp boolean,
+    IN mercurioo_exp boolean,
+    IN user_registro_exp text,
+    IN espacios_confinados_exp boolean,
+    IN t_marihuana_exp boolean,
+    IN t_cocaina_exp boolean)
+  RETURNS TABLE(id_resp bigint, mensaje text) AS
+$BODY$
+	DECLARE codigo_sede_param integer;
+	DECLARE n_orden_hm integer;
+	Declare color_varia integer;
 
+BEGIN
+			Select id into codigo_sede_param from sede_multisucursal where codigo_sucursal=cod_sede_exp;
+			SELECT (CASE WHEN max(color)>0 THEN max(color)+1 ELSE 1 END) into color_varia from n_orden_ocupacional where fecha_apertura_po = TO_DATE(fecha_apertura_po_exp, 'YYYY-MM-DD');
+			if(tipo_operacion_exp=2) then
+		update n_orden_ocupacional set cod_pa=cod_pa_exp,razon_empresa=razon_empresa_exp,razon_contrata=razon_contrata_exp,nom_ex=nom_ex_exp,
+		altura_po=altura_po_exp,mineral_po=mineral_po_exp,fecha_apertura_po=TO_DATE(fecha_apertura_po_exp,'YYYY-MM-DD'),precio_po=CAST(precio_po_exp as money),
+		estado_ex=estado_ex_exp,nom_examen=nom_examen_exp,cargo_de=cargo_de_exp,area_o=area_o_exp,n_medico=n_medico_exp,n_hora=CAST (n_hora_exp as time without time zone),
+		tipo_pago=tipo_pago_exp,n_fisttest=n_fisttest_exp,n_psicosen=n_psicosen_exp,n_testaltura=n_testaltura_exp,gruposan=grupo_san_exp,grupofactorsan=grupo_factor_san_exp,
+		cod_clinica=cod_clinica_exp,visual_compl=visual_compl_exp,trab_calientes=trab_calientes_exp,chkcovid1=chk_covid1_exp,chkcovid2=chk_covid2_exp,manip_alimentos=manip_alimentos_exp,
+		txtobserv1=txtobserv1_exp,txtobserv2=txtobserv2_exp,cod_sede=codigo_sede_param,tipo_prueba_covid=tipo_prueba_covid_exp,tipoPrueba=tipo_prueba_exp,nombrehotel=nombre_hotel_exp,
+		protocolo=protocolo_exp,precio_adic=CAST(precio_adic_exp AS money),autoriza=autoriza_exp,n_operacion=n_operacion_exp, herra_manuales=herra_manuales_exp, rxc_dorso_lumbar=rxc_dorso_lumbar_exp,
+		 rxc_lumbar=rxc_lumbar_exp, rxc_lumbosacra=rxc_lumbosacra_exp, rxc_plomos=rxc_plomos_exp, mercurioo=mercurioo_exp, user_registro=user_registro_exp, espacios_confinados=espacios_confinados_exp, t_marihuana=t_marihuana_exp, t_cocaina=t_cocaina_exp where n_orden=n_orden_exp;
+		RETURN QUERY 
+		select CAST(1 AS bigint) as id_resp, CAST('El usuario se actualizo con exito!' AS TEXT) as mensaje;
+
+		else
+		
+		INSERT INTO n_orden_ocupacional(cod_pa, razon_empresa, razon_contrata,
+                        nom_ex, altura_po,mineral_po, fecha_apertura_po,precio_po,estado_ex,nom_examen,cargo_de,area_o,n_medico,n_hora,
+                        tipo_pago,n_fisttest,n_psicosen,n_testaltura,color,gruposan,grupofactorsan,visual_compl,
+                        trab_calientes,chkcovid1,chkcovid2,manip_alimentos, txtobserv1,txtobserv2,cod_sede,tipo_prueba_covid,tipoPrueba,nombrehotel,protocolo,
+                        precio_adic,autoriza,n_operacion, herra_manuales, rxc_dorso_lumbar, rxc_lumbar, rxc_lumbosacra, rxc_plomos,mercurioo,user_registro, espacios_confinados, t_marihuana, t_cocaina)
+		values (cod_pa_exp, razon_empresa_exp, razon_contrata_exp,nom_ex_exp, altura_po_exp, mineral_po_exp, TO_DATE(fecha_apertura_po_exp,'YYYY-MM-DD'), CAST(precio_po_exp as money), estado_ex_exp,
+	nom_examen_exp, cargo_de_exp, area_o_exp,n_medico_exp, CAST (n_hora_exp as time without time zone), tipo_pago_exp,n_fisttest_exp, n_psicosen_exp,n_testaltura_exp, color_varia, grupo_san_exp,grupo_factor_san_exp,
+	visual_compl_exp, trab_calientes_exp,chk_covid1_exp,chk_covid2_exp,manip_alimentos_exp,txtobserv1_exp,txtobserv2_exp,codigo_sede_param,tipo_prueba_covid_exp ,tipo_prueba_exp,nombre_hotel_exp,
+	protocolo_exp,CAST(precio_adic_exp AS money),autoriza_exp,n_operacion_exp,herra_manuales_exp, rxc_dorso_lumbar_exp, rxc_lumbar_exp,rxc_lumbosacra_exp ,rxc_plomos_exp, mercurioo_exp, user_registro_exp, espacios_confinados_exp, t_marihuana_exp, t_cocaina_exp ) RETURNING n_orden into n_orden_hm;
+                        PERFORM  spAgregarPE(n_orden_hm);
+                        PERFORM  spagregarconta(n_orden_hm);
+		RETURN QUERY 
+		select CAST(n_orden_hm as bigint) as id_resp, CAST('El usuario se registro con exito!' AS TEXT) as mensaje;
+		end if;
+
+END; $BODY$
+  LANGUAGE plpgsql
+
+----------------------------------------
 insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
 			values('anexo16a','formulario de anexo 16a',true,true,true,false,false);
 
