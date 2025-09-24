@@ -1,3 +1,8 @@
+ALTER TABLE n_orden_ocupacional
+  ADD COLUMN espacios_confinados BOOLEAN DEFAULT FALSE,
+  ADD COLUMN t_marihuana BOOLEAN DEFAULT FALSE,
+  ADD COLUMN t_cocaina BOOLEAN DEFAULT FALSE;
+
 CREATE OR REPLACE FUNCTION backend_registro_historiaclinica_ocupacional(
     IN tipo_operacion_exp bigint,
     IN n_orden_exp bigint,
