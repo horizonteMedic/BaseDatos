@@ -1,3 +1,91 @@
+CREATE OR REPLACE FUNCTION obtener_reporte_ficha_anexo_2(
+    IN p_norden integer,
+    IN name_service text)
+  RETURNS TABLE(
+dniPaciente integer,
+nombresPaciente text,
+apellidosPaciente text,
+direccionPaciente text,
+sexoPaciente "char",
+fechaNacimientoPaciente date,
+ocupacionPaciente text,
+cargoPaciente text,
+areaPaciente text,
+contrata text,
+norden text,
+empresa text,
+nombreExamen text,
+edadPaciente text,
+observacionesFichaMedica text,
+fechaDesde date,
+restriccionesDescripcion text,
+recomendaciones text,
+conclusiones text,
+fechaHasta date,
+horaSalida time,
+apto boolean,
+aptoConRestriccion boolean,
+noApto boolean,
+nombreMedico text,
+color integer,
+sede text,
+nombreSede text,
+nameJasper text
+  ) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+	    dp.cod_pa,
+	    dp.nombres_pa,
+	    dp.apellidos_pa,
+	    dp.direccion_pa,
+	    dp.sexo_pa,
+	    dp.fecha_nacimiento_pa,
+	    dp.ocupacion_pa,
+	    n.cargo_de,
+	    n.area_o,
+	    n.razon_contrata,
+	    n.n_orden,
+	    n.razon_empresa,
+	    n.nom_examen,
+	    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+	    a.txtobservacionesfm,
+	    a.fechadesde,
+	    b.atxtrestricciones,
+	    b.txtrecomendaciones,
+	    b.txtconclusiones,
+	    b.fecha_hasta,
+	    b.horasalida,
+	    b.chkapto,
+	    b.chkapto_restriccion,
+	    b.chkno_apto,
+	    a.medico,
+	    n.color,
+    CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+    CASE
+        WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A' THEN 'Huamachuco'
+        WHEN n.cod_sede = 1 THEN 'Trujillo'
+        WHEN n.cod_sede = 2 THEN 'Huamachuco'
+        WHEN n.cod_sede = 3 THEN 'Huancayo'
+        WHEN n.cod_sede = 4 THEN 'Trujillo'
+    END AS nom_sede
+    --obtener_name_jasper(p_norden, name_service)
+  FROM datos_paciente AS dp
+	INNER JOIN n_orden_ocupacional AS n 
+	    ON dp.cod_pa = n.cod_pa
+	INNER JOIN sede_multisucursal AS sm ON n.cod_sede = sm.id
+	INNER JOIN anexo_agroindustrial AS a 
+	    ON a.n_orden = n.n_orden
+	INNER JOIN aptitud_medico_ocupacional_agro AS b 
+	    ON b.n_orden = n.n_orden
+	WHERE n.n_orden = p_norden;
+
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+
 ALTER TABLE antecedentes_patologicos
 ADD COLUMN ruido BOOLEAN,
 ADD COLUMN vid_total BOOLEAN,
