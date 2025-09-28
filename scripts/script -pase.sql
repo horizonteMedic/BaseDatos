@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION obtener_reporte_ficha_anexo_2(
+CREATE OR REPLACE FUNCTION obtener_reporte_ficha_anexo_16(
     IN p_norden integer,
     IN name_service text)
   RETURNS TABLE(
@@ -31,7 +31,6 @@ nombreMedico text,
 hemoglobina_txthemoglobina text,
 hematocritoLabClinico_txthematocrito text,
 vsglabclinico_txtvsg text,
-visioncercasincorregirod_v_cerca_s_od text,
 glucosalabclinico_txtglucosabio text,
 creatininalabclinico_txtcreatininabio text,
 visioncercasincorregirod_v_cerca_s_od text,
@@ -191,14 +190,14 @@ BEGIN
 		ELSE CONCAT(n.n_orden, '-H')
 	    END AS numero,
 	    CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
-	    n.color
-	    --obtener_name_jasper(p_norden, name_service)
+	    n.color,
+	    obtener_name_jasper(p_norden, name_service)
 	FROM datos_paciente AS d
 	INNER JOIN n_orden_ocupacional AS n 
 	    ON d.cod_pa = n.cod_pa
 	INNER JOIN sede_multisucursal AS sm 
 	    ON n.cod_sede = sm.id
-	LEFT JOIN anexo7c AS a 
+	INNER JOIN anexo7c AS a 
 	    ON a.n_orden = n.n_orden
 	LEFT JOIN lab_clinico AS l 
 	    ON l.n_orden = n.n_orden
@@ -210,7 +209,7 @@ BEGIN
 	    ON n.n_orden = ol.n_orden
 	LEFT JOIN oftalmologia2021 AS oft 
 	    ON n.n_orden = oft.n_orden
-	WHERE n.n_orden = 148033;
+	WHERE n.n_orden = p_norden;
 
 END;
 $BODY$
