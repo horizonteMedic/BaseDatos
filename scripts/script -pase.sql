@@ -1,3 +1,52 @@
+--HISTORIA Ocupacional
+CREATE OR REPLACE FUNCTION registrar_historia_ocupacional_detalles(
+    p_cod_ho INTEGER,
+    p_fechas TEXT[],
+    p_empresas TEXT[],
+    p_actividades TEXT[],
+    p_areas_empresa TEXT[],
+    p_ocupaciones TEXT[],
+    p_superficies TEXT[],
+    p_socavones TEXT[],
+    p_riesgos TEXT[],
+    p_protecciones TEXT[],
+    p_altitudes TEXT[],
+    p_ordenes INTEGER[]
+) RETURNS VOID AS
+$BODY$
+BEGIN
+    -- Eliminar registros existentes
+    IF EXISTS (SELECT 1 FROM historia_oc_detalle WHERE cod_ho = p_cod_ho) THEN
+		DELETE FROM historia_oc_detalle hod WHERE hod.cod_ho = p_cod_ho;
+    END IF;
+    
+    -- Insertar múltiples registros usando UNNEST
+    INSERT INTO historia_oc_detalle (
+        cod_ho, fecha, empresa, actividad, area_empresa,
+        ocupacion, superficie, socavon, riesgo, proteccion, altitud, orden
+    )
+    SELECT 
+        p_cod_ho,
+        unnest(p_fechas),
+        unnest(p_empresas),
+        unnest(p_actividades),
+        unnest(p_areas_empresa),
+        unnest(p_ocupaciones),
+        unnest(p_superficies),
+        unnest(p_socavones),
+        unnest(p_riesgos),
+        unnest(p_protecciones),
+        unnest(p_altitudes),
+        unnest(p_ordenes);
+    
+END;
+$BODY$
+LANGUAGE plpgsql;
+
+
+
+
+
 CREATE OR REPLACE FUNCTION obtener_reporte_ficha_anexo_16(
     IN p_norden integer,
     IN name_service text)
