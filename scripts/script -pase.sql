@@ -4719,7 +4719,42 @@ END;
 $BODY$;
 
 
+-- BUSQUEDA DE EXAMENES SEGUN PROTOCOLO
+CREATE OR REPLACE FUNCTION listado_examenes_protocolos_paciente(
+	protocolo_param text,historia_clinica_param integer)
+    RETURNS TABLE(id_archivos bigint, nombre text,ruta text,valor boolean) 
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+    ROWS 1000
 
+AS $BODY$
+	
+
+BEGIN
+
+	    RETURN QUERY 
+select tb2.id_archivos,tb1.nombre, cast (tb2.nombre as text)as ruta , true as valor
+FROM (
+    SELECT exam.prefijo, exam.nombre
+    FROM protocolo AS prot
+    INNER JOIN protocolo_examenes AS prot_exam
+        ON prot.id_protocolo = prot_exam.id_protocolo
+    INNER JOIN examen AS exam
+        ON prot_exam.id_examen = exam.id_examen
+    WHERE prot.nombre = protocolo_param
+      AND exam.prefijo IS NOT NULL
+) as tb1
+INNER JOIN (
+	select arch_Serv.id_archivos,arch_Serv.nombre,tip_Arch.nomenclatura 
+	from archivos_servidores as arch_Serv 
+	inner join tipo_archivo as tip_Arch 
+	on arch_Serv.id_tipo_archivo=tip_Arch.id_tipo_archivo
+	WHERE arch_Serv.orden=historia_clinica_param) 
+	AS tb2 on tb1.prefijo =tb2.nomenclatura;
+
+END; 
+$BODY$;
 
 
 -- PG ADMIN 3
