@@ -2747,7 +2747,7 @@ AS $BODY$
 BEGIN
 
 	    RETURN QUERY 
-select tb2.id_archivos,tb1.nombre, cast (tb2.nombre as text)as ruta , true as valor
+select cast (1 as bigint),cast(tb1.nombre as text) as nombre, cast (tb2.ruta_Archivo as text)as ruta , ( case  when tb2.id_archivos is not null then  true else false end )as valor
 FROM (
     SELECT exam.prefijo, exam.nombre
     FROM protocolo AS prot
@@ -2758,8 +2758,8 @@ FROM (
     WHERE prot.nombre = protocolo_param
       AND exam.prefijo IS NOT NULL
 ) as tb1
-INNER JOIN (
-	select arch_Serv.id_archivos,arch_Serv.nombre,tip_Arch.nomenclatura 
+LEFT JOIN (
+	select arch_Serv.id_archivos,arch_Serv.ruta_Archivo ,tip_Arch.nomenclatura 
 	from archivos_servidores as arch_Serv 
 	inner join tipo_archivo as tip_Arch 
 	on arch_Serv.id_tipo_archivo=tip_Arch.id_tipo_archivo
