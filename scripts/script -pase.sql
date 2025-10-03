@@ -1,7 +1,282 @@
+CREATE OR REPLACE FUNCTION obtener_reporte_ficha_sas(
+    IN p_norden integer,
+    IN name_service text)
+  RETURNS TABLE(dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", fechanacimientopaciente date, 
+  ocupacionpaciente text, cargopaciente text, areapaciente text, contrata text, norden integer, empresa text, nombreexamen text, codigoclinica text, edadpaciente text,
+  pesoTriaje text, imcTriaje text, tallaTriaje text, perimetroCuelloTriaje text, sistolicaTriaje text, diastolicaTriaje text, codigoSas_cod_sas integer,
+  tipoLicencia_licencia_sas text,
+trabajaNocheSi_tbtrabajanochesi boolean,
+trabajaNocheNo_tbtrabajanocheno boolean,
+diasTrabajo_txtdiastrabajo text,
+diasDescanso_txtdescanso text,
+anosTrabajo_txtanostrabajo text,
+apneaSi_rbapneasi boolean,
+apneaNo_rbapneano boolean,
+ultimoControl_txtultimocontrol text,
+htaSi_rbhtasi boolean,
+htaNo_rbhtano boolean,
+medicacionRiesgo_txtriesgo text,
+polisomnografiaSi_rbpsgsi boolean,
+polisomnografiaNo_rbpsgno boolean,
+fechaUltimaPolisomnografia_fechapsg date,
+enMinaSi_rbenminasi boolean,
+enMinaNo_rbenminano boolean,
+fueraMinaSi_rbfueraminasi boolean,
+fueraMinaNo_rbfueraminano boolean,
+casoChoquePregunta1Si_chk1_sassi boolean,
+casoChoquePregunta2Si_chk2_sassi boolean,
+casoChoquePregunta3Si_chk3_sassi boolean,
+casoChoquePregunta4Si_chk4_sassi boolean,
+casoChoquePregunta5Si_chk5_sassi boolean,
+casoChoquePregunta6Si_chk6_sassi boolean,
+casoChoquePregunta7Si_chk7_sassi boolean,
+casoChoquePregunta8Si_chk8_sassi boolean,
+casoChoquePregunta9Si_chk9_sassi boolean,
+casoChoquePregunta10Si_chk10_sassi boolean,
+casoChoquePregunta11Si_chk11_sassi boolean,
+casoChoquePregunta12Si_chk12_sassi boolean,
+casoChoquePregunta13Si_chk13_sassi boolean,
+casoChoquePregunta1No_chk1_sasno boolean,
+casoChoquePregunta2No_chk2_sasno boolean,
+casoChoquePregunta3No_chk3_sasno boolean, --
+casoChoquePregunta4No_chk4_sasno boolean,
+casoChoquePregunta5No_chk5_sasno boolean,
+casoChoquePregunta6No_chk6_sasno boolean,
+casoChoquePregunta7No_chk7_sasno boolean,
+casoChoquePregunta8No_chk8_sasno boolean,
+casoChoquePregunta9No_chk9_sasno boolean,
+casoChoquePregunta10No_chk10_sasno boolean,
+casoChoquePregunta11No_chk11_sasno boolean,
+casoChoquePregunta12No_chk12_sasno boolean,
+casoChoquePregunta13No_chk13_sasno boolean,
+entrevistaAnteFamiliarApneaSi_chkantsi boolean,
+entrevistaAnteFamiliarApneaNo_chkantno boolean,
+entrevistaApneaDescripcion_txtantecedentefamiliar text,
+entrevistaPregunta1Si_chk1_esi boolean,
+entrevistaPregunta2Si_chk2_esi boolean,
+entrevistaPregunta3Si_chk3_esi boolean,
+entrevistaPregunta4Si_chk4_esi boolean,
+entrevistaPregunta5Si_chk5_esi boolean,
+entrevistaPregunta6Si_chk6_esi boolean,
+entrevistaPregunta7Si_chk7_esi boolean,
+entrevistaPregunta8Si_chk8_esi boolean,
+entrevistaPregunta1No_chk1_eno boolean,
+entrevistaPregunta2No_chk2_eno boolean,
+entrevistaPregunta3No_chk3_eno boolean,
+entrevistaPregunta4No_chk4_eno boolean,
+entrevistaPregunta5No_chk5_eno boolean,
+entrevistaPregunta6No_chk6_eno boolean,
+entrevistaPregunta7No_chk7_eno boolean,
+entrevistaPregunta8No_chk8_eno boolean,
+entrevistaPuntuacion_txtpuntuacion text,
+generoVaronSi_chkvaronsi boolean,
+generoVaronNo_chkvaronno boolean,
+generoMujerSi_chkmujersi boolean,
+generoMujerNo_chkmujerno boolean,
+htaNuevaSi_chkhtanuevasi boolean,
+htaNuevaNo_chkhtanuevano boolean,
+gradoI_chkgradoi boolean,
+gradoII_chkgradoii boolean,
+gradoIII_chkgradoiii boolean,
+gradoIV_chkgradoiiii boolean,
+aptoBajoRiesgoSi_chkaptobajosi boolean,
+aptoBajoRiesgoNo_chkaptobajono boolean,
+observaciones_txtobservaciones text,
+usuario_dni_user integer,
+fechaRegistro_fecha_sas date,
+psgSi_chk1_psg_si boolean,
+psgNo_chk1_psg_no boolean,
+aptoSi_chk1_apto_si boolean,
+aptoNo_chk1_apto_no boolean,
+fechaPsg_fecha_psg text,
+psgSia_chk1_psg_sia boolean,
+psgNoa_chk1_psg_noa boolean,
+psgSib_chk1_psg_sib boolean,
+psgNob_chk1_psg_nob boolean,
+aptoSid_chk1_apto_sid boolean,
+aptoNod_chk1_apto_nod boolean,
+aptoSid1_chk1_apto_sid1 boolean,
+aptoNod1_chk1_apto_nod1 boolean,
+aptoSid2_chk1_apto_sid2 boolean,
+aptoNod2_chk1_apto_nod2 boolean,
+aptoSid3_chk1_apto_sid3 boolean,
+aptoNod3_chk1_apto_nod3 boolean,
+aptoSid4_chk1_apto_sid4 boolean,
+aptoNod4_chk1_apto_nod4 boolean,
+aptoSid5_chk1_apto_sid5 boolean,
+aptoNod5_chk1_apto_nod5 boolean,
+aptoSid6_chk1_apto_sid6 boolean,
+aptoNod6_chk1_apto_nod6 boolean,
+aptoSie_chk1_apto_sie boolean,
+aptoNoe_chk1_apto_noe boolean,
+aptoSic_chk1_apto_sic boolean,
+aptoNoc_chk1_apto_noc boolean,
+ nombresede text, sede text, color integer, namejasper text) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+	    d.cod_pa,
+	    d.nombres_pa,
+	    d.apellidos_pa,
+	    d.direccion_pa,
+	    d.sexo_pa,
+	    d.fecha_nacimiento_pa,
+	    d.ocupacion_pa,
+	    n.cargo_de,
+	    n.area_o,
+	    n.razon_contrata,
+	    n.n_orden,
+	    n.razon_empresa,
+	    n.nom_examen,
+	    n.cod_clinica,
+	    CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
+	    t.peso,
+	    t.imc,
+	    t.talla,
+	    t.perimetro_cuello,
+	    t.sistolica,
+	    t.diastolica,
+	    f.cod_sas,
+	    f.licencia_sas,
+	    f.tbtrabajanochesi,
+	    f.tbtrabajanocheno,
+	    f.txtdiastrabajo,
+	    f.txtdescanso,
+	    f.txtanostrabajo,
+	    f.rbapneasi,
+	    f.rbapneano,
+	    f.txtultimocontrol,
+	    f.rbhtasi,
+	    f.rbhtano,
+	    f.txtriesgo,
+	    f.rbpsgsi,
+	    f.rbpsgno,
+	    f.fechapsg,
+	    f.rbenminasi,
+	    f.rbenminano,
+	    f.rbfueraminasi,
+	    f.rbfueraminano,
+	    f.chk1_sassi,
+	    f.chk2_sassi,
+	    f.chk3_sassi,
+	    f.chk4_sassi,
+	    f.chk5_sassi,
+	    f.chk6_sassi,
+	    f.chk7_sassi,
+	    f.chk8_sassi,
+	    f.chk9_sassi,
+	    f.chk10_sassi,
+	    f.chk11_sassi,
+	    f.chk12_sassi,
+	    f.chk13_sassi,
+	    f.chk1_sasno,
+	    f.chk2_sasno,
+	    f.chk3_sasno,
+	    f.chk4_sasno,
+	    f.chk5_sasno,
+	    f.chk6_sasno,
+	    f.chk7_sasno,
+	    f.chk8_sasno,
+	    f.chk9_sasno,
+	    f.chk10_sasno,
+	    f.chk11_sasno,
+	    f.chk12_sasno,
+	    f.chk13_sasno,
+	    f.chkantsi,
+	    f.chkantno,
+	    f.txtantecedentefamiliar,
+	    f.chk1_esi,
+	    f.chk2_esi,
+	    f.chk3_esi,
+	    f.chk4_esi,
+	    f.chk5_esi,
+	    f.chk6_esi,
+	    f.chk7_esi,
+	    f.chk8_esi,
+	    f.chk1_eno,
+	    f.chk2_eno,
+	    f.chk3_eno,
+	    f.chk4_eno,
+	    f.chk5_eno,
+	    f.chk6_eno,
+	    f.chk7_eno,
+	    f.chk8_eno,
+	    f.txtpuntuacion,
+	    f.chkvaronsi,
+	    f.chkvaronno,
+	    f.chkmujersi,
+	    f.chkmujerno,
+	    f.chkhtanuevasi,
+	    f.chkhtanuevano,
+	    f.chkgradoi,
+	    f.chkgradoii,
+	    f.chkgradoiii,
+	    f.chkgradoiiii,
+	    f.chkaptobajosi,
+	    f.chkaptobajono,
+	    f.txtobservaciones,
+	    f.dni_user,
+	    f.fecha_sas,
+	    f.chk1_psg_si,
+	    f.chk1_psg_no,
+	    f.chk1_apto_si,
+	    f.chk1_apto_no,
+	    f.fecha_psg,
+	    f.chk1_psg_sia,
+	    f.chk1_psg_noa,
+	    f.chk1_psg_sib,
+	    f.chk1_psg_nob,
+	    f.chk1_apto_sid,
+	    f.chk1_apto_nod,
+	    f.chk1_apto_sid1,
+	    f.chk1_apto_nod1,
+	    f.chk1_apto_sid2,
+	    f.chk1_apto_nod2,
+	    f.chk1_apto_sid3,
+	    f.chk1_apto_nod3,
+	    f.chk1_apto_sid4,
+	    f.chk1_apto_nod4,
+	    f.chk1_apto_sid5,
+	    f.chk1_apto_nod5,
+	    f.chk1_apto_sid6,
+	    f.chk1_apto_nod6,
+	    f.chk1_apto_sie,
+	    f.chk1_apto_noe,
+	    f.chk1_apto_sic,
+	    f.chk1_apto_noc,
+	    
+	    CASE 
+		WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A' 
+		    THEN 'Huamachuco'
+		ELSE (
+		    SELECT nombre_sede 
+		    FROM sede 
+		    WHERE cod_sede = n.cod_sede
+		)
+	    END AS nombre_sede,
+	    CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+	    n.color,
+	    obtener_name_jasper(p_norden, name_service)
+	FROM datos_paciente AS d
+	INNER JOIN n_orden_ocupacional AS n 
+	    ON d.cod_pa = n.cod_pa
+	INNER JOIN sede_multisucursal AS sm 
+	    ON n.cod_sede = sm.id
+	INNER JOIN triaje AS t 
+	    ON n.n_orden = t.n_orden
+	LEFT JOIN ficha_sas AS f 
+	    ON n.n_orden = f.n_orden
+	WHERE n.n_orden = p_norden;
+
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
+			values('ficha_sas','formulario de ficha sas',true,true,true,false,false);
 
 alter table certificado_aptitud_medico_ocupacional add column conObservacion boolean, add column evaluado boolean
-
-
 
 
 --HISTORIA Ocupacional
@@ -476,6 +751,13 @@ BEGIN
 		resultado := 'Aptitud_medico_ocupacional_11';
 	ELSE
 		resultado := 'Aptitud_medico_ocupacional_F';
+	END IF;
+     ELSIF name_service_param = 'ficha_sas' THEN
+	IF name_empresa_busqueda_var LIKE '%MINERA BOROO MISQUICHILCA S.A.%' OR name_empresa_busqueda_var ILIKE '%EMPRESA DE TRANSPORTES N & V S.A.C.%'
+		OR name_empresa_busqueda_var ILIKE '%DEYFOR EIRL%' THEN
+		resultado := 'FichaDetencionSAS_boro_Digitalizado';
+	ELSE
+		resultado := 'B_FichaDetencionSAS_Digitalizado';
 	END IF;
   END IF; 
     RETURN resultado;
@@ -1736,13 +2018,12 @@ IF name_servicio_param = 'test_fatiga_somnolencia' THEN
 
     IF name_servicio_param = 'aptitud_medico_ocupacional_agro' THEN
         IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
-            SELECT user_registro INTO user_registro_var 
-            FROM aptitud_medico_ocupacional_agro WHERE n_orden = norden_param;
-            select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
+            -- SELECT user_registro INTO user_registro_var 
+--             FROM aptitud_medico_ocupacional_agro WHERE n_orden = norden_param;
+	    dni_user_registro_var = 66666666;
+            -- select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
 		IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
 		    dni_user_registro_var := 42664426;
-		ELSIF empresa_var = 'MONARCA GOLD S.A.C.' THEN
-		    dni_user_registro_var := 66666666;
 		END IF;
             descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
             name_digitalizacion := 'SELLOFIRMA';
@@ -1753,8 +2034,38 @@ IF name_servicio_param = 'test_fatiga_somnolencia' THEN
 
     IF name_servicio_param = 'certificado_aptitud_medico_ocupacional' THEN
         IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            -- SELECT user_registro INTO user_registro_var 
+--             FROM certificado_aptitud_medico_ocupacional WHERE n_orden = norden_param;
+--             select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
+		dni_user_registro_var = 66666666;
+		IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
+		    dni_user_registro_var := 42664426;
+		END IF;
+            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
+            name_digitalizacion := 'SELLOFIRMA';
+            dni := dni_user_registro_var;
+            RETURN NEXT;
+        END IF;
+    END IF;
+
+    IF name_servicio_param = 'ficha_sas' THEN
+        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            descripcion := 'FIRMA DEL PACIENTE';
+            name_digitalizacion := 'FIRMAP';
+            dni := dni_paciente_var;
+            RETURN NEXT;
+        END IF;
+
+        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            descripcion := 'HUELLA DEL PACIENTE';
+            name_digitalizacion := 'HUELLA';
+            dni := dni_paciente_var;
+            RETURN NEXT;
+        END IF;
+
+        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
             SELECT user_registro INTO user_registro_var 
-            FROM certificado_aptitud_medico_ocupacional WHERE n_orden = norden_param;
+            FROM ficha_sas WHERE n_orden = norden_param;
             select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
 		IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
 		    dni_user_registro_var := 42664426;
@@ -1770,7 +2081,7 @@ IF name_servicio_param = 'test_fatiga_somnolencia' THEN
                  
 END;
 $BODY$
-  LANGUAGE plpgsql;
+  LANGUAGE plpgsql
 
 
 
@@ -2524,6 +2835,24 @@ begin
 			end if;
 		else 
 			v_mensaje:='DEBE PASAR POR ANEXO 16 PRIMERO (OBLIGATORIO)';
+			v_id_existencia:=2;
+		end if;
+		
+        end if;
+
+        if(p_examen_med='ficha_sas') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from ficha_sas where n_orden=p_historia_clinica limit 1;
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_tabla_necesaria_existencia  from triaje where n_orden=p_historia_clinica limit 1;
+	   
+		if(v_tabla_necesaria_existencia=1) THEN
+			if(v_id_existencia=0) THEN
+				v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+			else
+				v_mensaje:='YA FUE REGISTRADO';
+					
+			end if;
+		else 
+			v_mensaje:='DEBE PASAR POR TRIAJE PRIMERO (OBLIGATORIO)';
 			v_id_existencia:=2;
 		end if;
 		
