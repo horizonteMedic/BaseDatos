@@ -756,12 +756,7 @@ BEGIN
 		resultado := 'Aptitud_medico_ocupacional_F';
 	END IF;
      ELSIF name_service_param = 'ficha_sas' THEN
-	IF name_empresa_busqueda_var LIKE '%MINERA BOROO MISQUICHILCA S.A.%' OR name_empresa_busqueda_var ILIKE '%EMPRESA DE TRANSPORTES N & V S.A.C.%'
-		OR name_empresa_busqueda_var ILIKE '%DEYFOR EIRL%' THEN
-		resultado := 'FichaDetencionSAS_boro_Digitalizado';
-	ELSE
-		resultado := 'B_FichaDetencionSAS_Digitalizado';
-	END IF;
+	resultado := 'FichaDetencionSAS_boro_Digitalizado';
   END IF; 
     RETURN resultado;
 END;
