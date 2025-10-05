@@ -1,3 +1,339 @@
+select n_orden from n_orden_ocupacional limit 1
+
+
+CREATE OR REPLACE FUNCTION obtener_reporte_certificado_conduccion(
+    IN p_norden integer,
+    IN name_service text)
+  RETURNS TABLE(
+dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", fechanacimientopaciente date, ocupacionpaciente text, cargopaciente text, 
+areapaciente text, contrata text, norden integer, empresa text, nombreexamen text, codigoclinica text, edadpaciente text,
+codigoCertificado_cod_certificado integer,
+tiempoExperiencia_t_experiencia text,
+primeraAptitud_chk_primera boolean,
+revalidacion_chk_revalidacion boolean,
+fechaExamen_f_examen date,
+antecedentesTodasEnfermedadesSi_chk_1_si boolean,
+antecedentesTodasEnfermedadesNo_chk_1_no boolean,
+antecedentesAlcoholismoCronicoSi_chk_2_si boolean,
+antecedentesAlcoholismoCronicoNo_chk_2_no boolean,
+antecedentesEnfermedadesInvoluntariosSi_chk_3_si boolean,
+antecedentesEnfermedadesInvoluntariosNo_chk_3_no boolean,
+antecedentesPerdidaConcienciaSi_chk_4_si boolean,
+antecedentesPerdidaConcienciaNo_chk_4_no boolean,
+antecedentesAnemiaGradoSi_chk_5_si boolean,
+antecedentesAnemiaGradoNo_chk_5_no boolean,
+chk6Si_chk_6_si boolean,
+chk6No_chk_6_no boolean,
+antecedentesVariosEfectosSi_chk_7_si boolean,
+antecedentesVariosEfectosNo_chk_7_no boolean,
+antecedentesConsumeSustanciasNoAltereSi_chk_8_si boolean,
+antecedentesConsumeSustanciasNoAltereNo_chk_8_no boolean,
+antecedentesConsumeSustanciasSiAltereSi_chk_9_si boolean,
+antecedentesConsumeSustanciasSiAltereNo_chk_9_no boolean,
+antecedentesApneaSi_chk_10_si boolean,
+antecedentesApneaNo_chk_10_no boolean,
+antecedentesObesidadSi_chk_11_si boolean,
+antecedentesObesidadNo_chk_11_no boolean,
+chk12Si_chk_12_si boolean,
+chk12No_chk_12_no boolean,
+pcomplementariasHipoacusiaSi_chk_13_si boolean,
+pcomplementariasHipoacusiaNo_chk_13_no boolean,
+pcomplementariasAlteracionAgudezaVisualSi_chk_14_si boolean,
+pcomplementariasAlteracionAgudezaVisualNo_chk_14_no boolean,
+pcomplementariasAmpliometriaAnormalSi_chk_15_si boolean,
+pcomplementariasAmpliometriaAnormalNo_chk_15_no boolean,
+chk16Si_chk_16_si boolean,
+chk16No_chk_16_no boolean,
+pcomplementariasNoColorSi_chk_17_si boolean,
+pcomplementariasNoColorNo_chk_17_no boolean,
+pcomplementariasPruebaVisionSi_chk_18_si boolean,
+pcomplementariasPruebaVisionNo_chk_18_no boolean,
+pcomplementariasPsicosensometricaAlteradaSi_chk_19_si boolean,
+pcomplementariasPsicosensometricaAlteradaNo_chk_19_no boolean,
+chk20Si_chk_20_si boolean,
+chk20No_chk_20_no boolean,
+examenFisicoLimitacionSi_chk_21_si boolean,
+examenFisicoLimitacionNo_chk_21_no boolean,
+examenFisicoAleracionPresenteSi_chk_22_si boolean,
+examenFisicoAleracionPresenteNo_chk_22_no boolean,
+examenFisicoAnormalidadMarchaSi_chk_23_si boolean,
+examenFisicoAnormalidadMarchaNo_chk_23_no boolean,
+examenFisicoAlteracionCoordinacionSi_chk_24_si boolean,
+examenFisicoAlteracionCoordinacionNo_chk_24_no boolean,
+exameFisicoNistagmusSi_chk_25_si boolean,
+exameFisicoNistagmusNo_chk_25_no boolean,
+examenFisicoAnormalidadMovimientoSi_chk_26_si boolean,
+examenFisicoAnormalidadMovimientoNo_chk_26_no boolean,
+examenFisicoCirlaSi_chk_27_si boolean,
+examenFisicoCirlaNo_chk_27_no boolean,
+examenFisicoAnormalidadLenguajeSi_chk_28_si boolean,
+examenFisicoAnormalidadLenguajeNo_chk_28_no boolean,
+examenFisicoMovimientoInvoluntarioSi_chk_29_si boolean,
+examenFisicoMovimientoInvoluntarioNo_chk_29_no boolean,
+examenFisicoAsimetriaFacialSi_chk_30_si boolean,
+examenFisicoAsimetriaFacialNo_chk_30_no boolean,
+fechaDesde_f_desde date,
+fechaHasta_f_hasta date,
+apto_chk_si boolean,
+noApto_chk_no boolean,
+observado_chk_observado boolean,
+observacionesRecomendaciones_b_c_observaciones text,
+detalleMedicinas_d_medicina text,
+detalleInformacion_d_informacion text,
+aptoConRestriccion_chk_apto_r boolean,
+otrosDescripcion_txtotros text,
+antecedentesDiabetesMellitus_diabete_mellitus boolean,
+antecedentesInsuficienciaRenal_insuficiencia_renalIV boolean,
+pcomplementariasTestSas_testSAS boolean,
+examenFisicoSustentacionPie_sustentacionpie boolean,
+antecedentesComentariosDetalles_comenDetalleAntecedentes text,
+tallaTriaje text, pesoTriaje text, imcTriaje text, cinturaTriaje text,
+iccTriaje text, caderaTriaje text, temperatura text,frecuenciaCardiaca text,
+saturacionOxigenoTriaje_sat_02 text, perimetroCuelloTriaje text,
+sistolica text, diastolica text,
+fvcFuncionRespiratoria_fvc text, fev1FuncionRespiratoria_fev1 text, fev1FvcFuncionRespiratoria_fev1fvc text, 
+fef2575FuncionRespiratoria_fef25_75 text, conclusionTriaje text,
+frecuenciaRespiratoriaTriaje_f_respiratoria text,
+grado3FichaSas_chkgradoiii boolean, grado4FichaSas_chkgradoiiii boolean, AptoCriterioESiFichaSas_chk1_apto_sie boolean,
+tiempoLicenciaBsas_t_licencia text,maximaInspiracionPtoracico_p_max_inspiracion text,
+forazadaPtoracico_p_ex_forzada text,
+visioncercasincorregirod_v_cerca_s_od text, visioncercasincorregiroi_v_cerca_s_oi text,
+oftalodccmologia_odcc text, oiccoftalmologia_oicc text, visionlejossincorregirod_v_lejos_s_od text,
+visionlejossincorregiroi_v_lejos_s_oi text, odlcoftalmologia_odlc text, oilcoftalmologia_oilc text, 
+vcoftalmologia_vc text, vboftalmologia_vb text, rpoftalmologia_rp text, enfermedadesocularesoftalmo_e_oculares text,
+oidoDerecho500Audiometria_o_d_500 text, oidoDerecho1000Audiometria_o_d_1000 text, oidoDerecho2000Audiometria_o_d_2000 text,
+oidoIzquierdo500Audiometria_o_i_500 text, oidoIzquierdo1000Audiometria_o_i_1000 text, 
+oidoIzquierdo2000Audiometria_o_i_2000 text,
+nombresede text, sede text, color integer, namejasper text
+) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+	    d.cod_pa,
+	    d.nombres_pa,
+	    d.apellidos_pa,
+	    d.direccion_pa,
+	    d.sexo_pa,
+	    d.fecha_nacimiento_pa,
+	    d.ocupacion_pa,
+	    n.cargo_de,
+	    n.area_o,
+	    n.razon_contrata,
+	    n.n_orden,
+	    n.razon_empresa,
+	    n.nom_examen,
+	    n.cod_clinica,
+	    CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
+	    t.cod_certificado,
+	    t.t_experiencia,
+	    t.chk_primera,
+	    t.chk_revalidacion,
+	    t.f_examen,
+	    t.chk_1_si, t.chk_1_no,
+	    t.chk_2_si, t.chk_2_no,
+	    t.chk_3_si, t.chk_3_no,
+	    t.chk_4_si, t.chk_4_no,
+	    t.chk_5_si, t.chk_5_no,
+	    t.chk_6_si, t.chk_6_no,
+	    t.chk_7_si, t.chk_7_no,
+	    t.chk_8_si, t.chk_8_no,
+	    t.chk_9_si, t.chk_9_no,
+	    t.chk_10_si, t.chk_10_no,
+	    t.chk_11_si, t.chk_11_no,
+	    t.chk_12_si, t.chk_12_no,
+	    t.chk_13_si, t.chk_13_no,
+	    t.chk_14_si, t.chk_14_no,
+	    t.chk_15_si, t.chk_15_no,
+	    t.chk_16_si, t.chk_16_no,
+	    t.chk_17_si, t.chk_17_no,
+	    t.chk_18_si, t.chk_18_no,
+	    t.chk_19_si, t.chk_19_no,
+	    t.chk_20_si, t.chk_20_no,
+	    t.chk_21_si, t.chk_21_no,
+	    t.chk_22_si, t.chk_22_no,
+	    t.chk_23_si, t.chk_23_no,
+	    t.chk_24_si, t.chk_24_no,
+	    t.chk_25_si, t.chk_25_no,
+	    t.chk_26_si, t.chk_26_no,
+	    t.chk_27_si, t.chk_27_no,
+	    t.chk_28_si, t.chk_28_no,
+	    t.chk_29_si, t.chk_29_no,
+	    t.chk_30_si, t.chk_30_no,
+	    t.f_desde,
+	    t.f_hasta,
+	    t.chk_si,
+	    t.chk_no,
+	    t.chk_observado,
+	    t.b_c_observaciones,
+	    t.d_medicina,
+	    t.d_informacion,
+	    t.chk_apto_r,
+	    t.txtotros,
+	    t.diabete_mellitus,
+	    t.insuficiencia_renalIV,
+	    t.testSAS,
+	    t.sustentacionpie,
+	    t.comenDetalleAntecedentes,
+	    c.talla,
+	    c.peso,
+	    c.imc,
+	    c.cintura,
+	    c.icc,
+	    c.cadera,
+	    c.temperatura,
+	    c.f_cardiaca,
+	    c.sat_02,
+	    c.perimetro_cuello,
+	    c.sistolica,
+	    c.diastolica,
+	    c.fvc, c.fev_1, c.fev1_fvc, c.fef25_75, c.conclusion,
+	    c.f_respiratoria,
+	    fsa.chkgradoiii, 
+	    fsa.chkgradoiiii, 
+	    fsa.chk1_apto_sie,
+	    s.t_licencia,
+	    p.p_max_inspiracion,
+	    p.p_ex_forzada,
+	    CASE 
+		WHEN oft.txtcercasincorregirod IS NOT NULL THEN oft.txtcercasincorregirod 
+		ELSE o.v_cerca_s_od 
+	    END AS v_cerca_s_od,
+	    
+	    CASE 
+		WHEN oft.txtcercasincorregiroi IS NOT NULL THEN oft.txtcercasincorregiroi 
+		ELSE o.v_cerca_s_oi 
+	    END AS v_cerca_s_oi,
+	    
+	    CASE 
+		WHEN oft.txtcercacorregidaod IS NOT NULL THEN oft.txtcercacorregidaod
+		WHEN ol.v_cerca_c_od IS NULL THEN o.v_cerca_c_od
+		ELSE ol.v_cerca_c_od 
+	    END AS ODCC,
+	    
+	    CASE 
+		WHEN oft.txtcercacorregidaoi IS NOT NULL THEN oft.txtcercacorregidaoi
+		WHEN ol.v_cerca_c_oi IS NULL THEN o.v_cerca_c_oi
+		ELSE ol.v_cerca_c_oi 
+	    END AS OICC,
+	    
+	    CASE 
+		WHEN oft.txtlejossincorregirod IS NOT NULL THEN oft.txtlejossincorregirod 
+		ELSE o.v_lejos_s_od 
+	    END AS v_lejos_s_od,
+	    
+	    CASE 
+		WHEN oft.txtlejossincorregiroi IS NOT NULL THEN oft.txtlejossincorregiroi 
+		ELSE o.v_lejos_s_oi 
+	    END AS v_lejos_s_oi,
+	    
+	    CASE 
+		WHEN oft.txtlejoscorregidaod IS NOT NULL THEN oft.txtlejoscorregidaod 
+		WHEN ol.v_lejos_c_od IS NULL THEN o.v_lejos_c_od  
+		ELSE ol.v_lejos_c_od  
+	    END AS ODLC, 
+	    
+	    CASE 
+		WHEN oft.txtlejoscorregidaoi IS NOT NULL THEN oft.txtlejoscorregidaoi 
+		WHEN ol.v_lejos_c_oi IS NULL THEN o.v_lejos_c_oi  
+		ELSE ol.v_lejos_c_oi  
+	    END AS OILC,
+	    
+	    CASE  
+		WHEN oft.rbtecishihara_normal = 'TRUE' THEN 'NORMAL'
+		WHEN oft.rbtecishihara_anormal = 'TRUE' THEN 'ANORMAL'
+		WHEN ol.v_colores IS NULL THEN o.v_colores  
+		ELSE ol.v_colores  
+	    END AS VC,
+	    
+	    CASE  
+		WHEN oft.txtbinocularsincorregir IS NOT NULL THEN oft.txtbinocularsincorregir  
+		WHEN ol.v_binocular IS NULL THEN o.v_binocular  
+		ELSE ol.v_binocular  
+	    END AS VB,
+	    
+	    CASE  
+		WHEN oft.txtrp IS NOT NULL THEN oft.txtrp
+		WHEN ol.r_pupilares IS NULL THEN o.r_pupilares
+		ELSE ol.r_pupilares  
+	    END AS RP,
+	    
+	    CASE  
+		WHEN oft.txtdiagnostico IS NOT NULL THEN oft.txtdiagnostico  
+		ELSE o.e_oculares 
+	    END AS e_oculares,
+	    CASE 
+		WHEN au.o_d_500 IS NOT NULL THEN au.o_d_500 
+		ELSE m.o_d_500 
+	    END AS o_d_500,
+	    
+	    CASE 
+		WHEN au.o_d_1000 IS NOT NULL THEN au.o_d_1000 
+		ELSE m.o_d_1000 
+	    END AS o_d_1000,
+	    
+	    CASE 
+		WHEN au.o_d_2000 IS NOT NULL THEN au.o_d_2000 
+		ELSE m.o_d_2000 
+	    END AS o_d_2000,
+	    
+	    CASE 
+		WHEN au.o_i_500 IS NOT NULL THEN au.o_i_500 
+		ELSE m.o_i_500 
+	    END AS o_i_500,
+	    
+	    CASE 
+		WHEN au.o_i_1000 IS NOT NULL THEN au.o_i_1000 
+		ELSE m.o_i_1000 
+	    END AS o_i_1000,
+	    
+	    CASE 
+		WHEN au.o_i_2000 IS NOT NULL THEN au.o_i_2000 
+		ELSE m.o_i_2000 
+	    END AS o_i_2000,
+
+	    CASE 
+		WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A' 
+		    THEN 'Huamachuco'
+		ELSE (
+		    SELECT nombre_sede 
+		    FROM sede 
+		    WHERE cod_sede = n.cod_sede
+		)
+	    END AS nombre_sede,
+	    CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+	    n.color,
+	    obtener_name_jasper(p_norden, name_service)
+	FROM datos_paciente AS d
+	INNER JOIN n_orden_ocupacional AS n 
+	    ON d.cod_pa = n.cod_pa
+	INNER JOIN sede_multisucursal AS sm 
+	    ON n.cod_sede = sm.id
+	INNER JOIN 
+	    triaje AS c ON n.n_orden = c.n_orden
+	LEFT JOIN 
+	    b_certificado_conduccion AS t ON n.n_orden = t.n_orden
+	LEFT JOIN 
+	    audiometria_po AS m ON n.n_orden = m.n_orden
+	LEFT JOIN 
+	    audiometria_2021 AS au ON n.n_orden = au.n_orden
+	LEFT JOIN oftalmologia AS o ON n.n_orden = o.n_orden
+	LEFT JOIN oftalmologia_lo AS ol ON n.n_orden = ol.n_orden
+	LEFT JOIN oftalmologia2021 AS oft ON n.n_orden = oft.n_orden
+	LEFT JOIN ficha_sas AS fsa ON n.n_orden = fsa.n_orden
+	LEFT JOIN b_sas AS s ON s.n_orden = n.n_orden
+	LEFT JOIN perimetro_toracico AS p ON p.n_orden=n.n_orden
+	WHERE n.n_orden = p_norden;
+
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
+			values('b_certificado_conduccion','formulario de certificado de conduccion',true,true,true,false,false);
+
+
+
 CREATE OR REPLACE FUNCTION obtener_reporte_constancia_certificado_medico_ocupacional(
     IN p_norden integer,
     IN name_service text)
@@ -987,11 +1323,15 @@ BEGIN
 	resultado := 'FichaDetencionSAS_boro_Digitalizado';
      ELSIF name_service_param = 'certificado_aptitud_medico_resumen' THEN
 	resultado := 'Aptitud_medico_resumen_Digitalizado';
+     ELSIF name_service_param = 'b_certificado_conduccion' THEN
+	resultado := 'certificaciondeconduccion_Digitalizado_boro';
   END IF; 
     RETURN resultado;
 END;
 $BODY$
   LANGUAGE plpgsql;
+
+
 
 
 
@@ -2337,10 +2677,41 @@ IF name_servicio_param = 'test_fatiga_somnolencia' THEN
             RETURN NEXT;
         END IF;
     END IF;
+
+    IF name_servicio_param = 'b_certificado_conduccion' THEN
+        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            descripcion := 'FIRMA DEL PACIENTE';
+            name_digitalizacion := 'FIRMAP';
+            dni := dni_paciente_var;
+            RETURN NEXT;
+        END IF;
+
+        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            descripcion := 'HUELLA DEL PACIENTE';
+            name_digitalizacion := 'HUELLA';
+            dni := dni_paciente_var;
+            RETURN NEXT;
+        END IF;
+
+        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            SELECT user_registro INTO user_registro_var 
+            FROM certificado_aptitud_medico_resumen WHERE n_orden = norden_param;
+            select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
+		IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
+		    dni_user_registro_var := 42664426;
+		ELSIF empresa_var = 'MONARCA GOLD S.A.C.' THEN
+		    dni_user_registro_var := 66666666;
+		END IF;
+            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
+            name_digitalizacion := 'SELLOFIRMA';
+            dni := dni_user_registro_var;
+            RETURN NEXT;
+        END IF;
+    END IF;
                  
 END;
 $BODY$
-  LANGUAGE plpgsql;
+  LANGUAGE plpgsql
 
 
 
@@ -3124,6 +3495,24 @@ begin
 		else
 			v_mensaje:='YA FUE REGISTRADO';
 				
+		end if;
+		
+        end if;
+
+        if(p_examen_med='b_certificado_conduccion') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from b_certificado_conduccion where n_orden=p_historia_clinica limit 1;
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_tabla_necesaria_existencia  from triaje where n_orden=p_historia_clinica limit 1;
+	   
+		if(v_tabla_necesaria_existencia=1) THEN
+			if(v_id_existencia=0) THEN
+				v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+			else
+				v_mensaje:='YA FUE REGISTRADO';
+					
+			end if;
+		else 
+			v_mensaje:='DEBE PASAR POR TRIAJE PRIMERO (OBLIGATORIO)';
+			v_id_existencia:=2;
 		end if;
 		
         end if;
