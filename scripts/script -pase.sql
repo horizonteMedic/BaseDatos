@@ -1,5 +1,457 @@
 select n_orden from n_orden_ocupacional limit 1
 
+CREATE OR REPLACE FUNCTION obtener_reporte_respiradores(
+    IN p_norden integer,
+    IN name_service text)
+  RETURNS TABLE(
+dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, 
+sexopaciente "char", fechanacimientopaciente date, ocupacionpaciente text, cargopaciente text, 
+areapaciente text, contrata text, norden integer, empresa text, nombreexamen text, codigoclinica text, 
+edadpaciente text, 
+codigoRespiradores_cod_respiradores integer,
+fechaExamen_fecha_examen date,
+tiempoPromedioHoras_t_prom_horas text,
+mascaraPolvo_chk_1 boolean,
+mediaCara_chk_2 boolean,
+caraCompleta_chk_3 boolean,
+purificadorAireSinEnergia_chk_4 boolean,
+purificadorAireConEnergia_chk_5 boolean,
+respiradorSuministradorAtmosfera_chk_6 boolean,
+combinacionScba_chk_7 boolean,
+respiradorFlujoContinuo_chk_8 boolean,
+respiradorSuministradorAire_chk_9 boolean,
+scbaCircuitoAbierto_chk_10 boolean,
+scbaCircuitoCerrado_chk_11 boolean,
+filtroHepa_chk_12 boolean,
+cartuchosGasAcido_chk_13 boolean,
+cartuchosVaporOrganico_chk_14 boolean,
+cartuchosAmoniaco_chk_15 boolean,
+cartuchosMercurio_chk_16 boolean,
+esfuerzoFisicoLigero_chk_17 boolean,
+esfuerzoFisicoModerado_chk_18 boolean,
+esfuerzoFisicoPesado_chk_19 boolean,
+maneraDia_chk_20 boolean,
+ocasional_chk_21 boolean,
+raraVez_chk_22 boolean,
+humoMetal_chk_23 boolean,
+arsenico_chk_24 boolean,
+plomo_chk_25 boolean,
+asbesto_chk_26 boolean,
+dpm_chk_27 boolean,
+monoxidoCarbono_chk_28 boolean,
+dioxidoCarbono_chk_29 boolean,
+vaporOrganico_chk_30 boolean,
+amoniaco_chk_31 boolean,
+polvoRespirable_chk_32 boolean,
+silice_chk_33 boolean,
+mercurio_chk_34 boolean,
+otros_chk_35 boolean,
+elevacionesAltas_chk_36 boolean,
+temperaturaExtrema_chk_37 boolean,
+atmosferaHumeda_chk_38 boolean,
+espaciosConfinados_chk_39 boolean,
+atmosferasIdlh_chk_40 boolean,
+hazmatFuegoRescateMina_chk_41 boolean,
+eppAdicional_chk_42 boolean,
+otrosCondicionesEspeciales_chk_43 boolean,
+fumaSi_chk_1_si boolean,
+fumaNo_chk_1_no boolean,
+palpitacionesSi_chk_2_si boolean,
+palpitacionesNo_chk_2_no boolean,
+convulsionSi_chk_3_si boolean,
+convulsionNo_chk_3_no boolean,
+diabetesSi_chk_4_si boolean,
+diabetesNo_chk_4_no boolean,
+reaccionesAlergicasSi_chk_5_si boolean,
+reaccionesAlergicasNo_chk_5_no boolean,
+claustrofobiaSi_chk_6_si boolean,
+claustrofobiaNo_chk_6_no boolean,
+asbestosisSi_chk_7_si boolean,
+asbestosisNo_chk_7_no boolean,
+asmaSi_chk_8_si boolean,
+asmaNo_chk_8_no boolean,
+bronquitisCronicaSi_chk_9_si boolean,
+bronquitisCronicaNo_chk_9_no boolean,
+enfisemaSi_chk_10_si boolean,
+enfisemaNo_chk_10_no boolean,
+neumoniaSi_chk_11_si boolean,
+neumoniaNo_chk_11_no boolean,
+tuberculosisSi_chk_12_si boolean,
+tuberculosisNo_chk_12_no boolean,
+silicosisSi_chk_13_si boolean,
+silicosisNo_chk_13_no boolean,
+neumotoraxSi_chk_14_si boolean,
+neumotoraxNo_chk_14_no boolean,
+cancerPulmonSi_chk_15_si boolean,
+cancerPulmonNo_chk_15_no boolean,
+costillasFracturadasSi_chk_16_si boolean,
+costillasFracturadasNo_chk_16_no boolean,
+cualquierLesionPulmonSi_chk_17_si boolean,
+cualquierLesionPulmonNo_chk_17_no boolean,
+personalEmpleado1Otros3Si_chk_18_si boolean,
+personalEmpleado1Otros3No_chk_18_no boolean,
+dificultadRespirarReposoSi_chk_19_si boolean,
+dificultadRespirarReposoNo_chk_19_no boolean,
+dificultadRespirarCaminaNivelSueloSi_chk_20_si boolean,
+dificultadRespirarCaminaNivelSueloNo_chk_20_no boolean,
+dificultadRespirarCaminaInclinadoSi_chk_21_si boolean,
+dificultadRespirarCaminaInclinadoNo_chk_21_no boolean,
+dificultadRespiraAlgunaTareaSi_chk_22_si boolean,
+dificultadRespiraAlgunaTareaNo_chk_22_no boolean,
+tosProduceExpectoracionSi_chk_23_si boolean,
+tosProduceExpectoracionNo_chk_23_no boolean,
+tosDespiertaTempranoSi_chk_24_si boolean,
+tosDespiertaTempranoNo_chk_24_no boolean,
+tosEchadoSi_chk_25_si boolean,
+tosEchadoNo_chk_25_no boolean,
+tosSangreSi_chk_26_si boolean,
+tosSangreNo_chk_26_no boolean,
+silbidoPechoRespiraSi_chk_27_si boolean,
+silbidoPechoRespiraNo_chk_27_no boolean,
+dolorPechoRespiraProfundamenteSi_chk_28_si boolean,
+dolorPechoRespiraProfundamenteNo_chk_28_no boolean,
+personalEmpleado1Otros4Si_chk_29_si boolean,
+personalEmpleado1Otros4No_chk_29_no boolean,
+infartoSi_chk_30_si boolean,
+infartoNo_chk_30_no boolean,
+anginaSi_chk_31_si boolean,
+anginaNo_chk_31_no boolean,
+insuficienciaCardiacaSi_chk_32_si boolean,
+insuficienciaCardiacaNo_chk_32_no boolean,
+hinchazonPiernasSi_chk_33_si boolean,
+hinchazonPiernasNo_chk_33_no boolean,
+arritmiaCorazonSi_chk_34_si boolean,
+arritmiaCorazonNo_chk_34_no boolean,
+reflujoGastroesofaticoSi_chk_35_si boolean,
+reflujoGastroesofaticoNo_chk_35_no boolean,
+personalEmpleado2Otros5Si_chk_36_si boolean,
+personalEmpleado2Otros5No_chk_36_no boolean,
+dolorPresionPechoSi_chk_37_si boolean,
+dolorPresionPechoNo_chk_37_no boolean,
+dolorPresionPechoActividadFisicaSi_chk_38_si boolean,
+dolorPresionPechoActividadFisicaNo_chk_38_no boolean,
+dolorPresionPechoActividadTrabajoSi_chk_39_si boolean,
+dolorPresionPechoActividadTrabajoNo_chk_39_no boolean,
+palpitacionesSintomasCardiovascularesSi_chk_40_si boolean,
+palpitacionesSintomasCardiovascularesNo_chk_40_no boolean,
+acidesEstomacalSi_chk_41_si boolean,
+acidesEstomacalNo_chk_41_no boolean,
+personalEmpleado2Otros6Si_chk_42_si boolean,
+personalEmpleado2Otros6No_chk_42_no boolean,
+problemaRespiratorioSi_chk_43_si boolean,
+problemaRespiratorioNo_chk_43_no boolean,
+problemasCorazonSi_chk_44_si boolean,
+problemasCorazonNo_chk_44_no boolean,
+presionSanguineaSi_chk_45_si boolean,
+presionSanguineaNo_chk_45_no boolean,
+convulsionesSi_chk_46_si boolean,
+convulsionesNo_chk_46_no boolean,
+irritacionOjosSi_chk_47_si boolean,
+irritacionOjosNo_chk_47_no boolean,
+alergiasPielSi_chk_48_si boolean,
+alergiasPielNo_chk_48_no boolean,
+ansiedadSi_chk_49_si boolean,
+ansiedadNo_chk_49_no boolean,
+fatigaDebilidadSi_chk_50_si boolean,
+fatigaDebilidadNo_chk_50_no boolean,
+personalEmpleado2Otros8Si_chk_51_si boolean,
+personalEmpleado2Otros8No_chk_51_no boolean,
+perdidaVisionCualquierOjoSi_chk_52_si boolean,
+perdidaVisionCualquierOjoNo_chk_52_no boolean,
+lentesContactoSi_chk_53_si boolean,
+lentesContactoNo_chk_53_no boolean,
+lentesSi_chk_54_si boolean,
+lentesNo_chk_54_no boolean,
+daltonismoSi_chk_55_si boolean,
+daltonismoNo_chk_55_no boolean,
+personalEmpleado3Otros10Si_chk_56_si boolean,
+personalEmpleado3Otros10No_chk_56_no boolean,
+lesionOidosSi_chk_57_si boolean,
+lesionOidosNo_chk_57_no boolean,
+dificultadEscucharSi_chk_58_si boolean,
+dificultadEscucharNo_chk_58_no boolean,
+usaAudifonoSi_chk_59_si boolean,
+usaAudifonoNo_chk_59_no boolean,
+personalEmpleado3Otros12Si_chk_60_si boolean,
+personalEmpleado3Otros12No_chk_60_no boolean,
+lesionEspaldaSi_chk_61_si boolean,
+lesionEspaldaNo_chk_61_no boolean,
+debelidadBrazosManosPiernasSi_chk_62_si boolean,
+debelidadBrazosManosPiernasNo_chk_62_no boolean,
+dolorEspaldaSi_chk_63_si boolean,
+dolorEspaldaNo_chk_63_no boolean,
+dificultadMoverBrazosPiernasSi_chk_64_si boolean,
+dificultadMoverBrazosPiernasNo_chk_64_no boolean,
+dolorCinturaInclinaAdelanteAtrasSi_chk_65_si boolean,
+dolorCinturaInclinaAdelanteAtrasNo_chk_65_no boolean,
+dificultadMoverCabezaArribaAbajoSi_chk_66_si boolean,
+dificultadMoverCabezaArribaAbajoNo_chk_66_no boolean,
+dificultadMoverCabezaLadoSi_chk_67_si boolean,
+dificultadMoverCabezaLadoNo_chk_67_no boolean,
+dificultadDoblarRodillasSi_chk_68_si boolean,
+dificultadDoblarRodillasNo_chk_68_no boolean,
+dificultadPonerCunclillasSi_chk_69_si boolean,
+dificultadPonerCunclillasNo_chk_69_no boolean,
+subirEscalerasSi_chk_70_si boolean,
+subirEscalerasNo_chk_70_no boolean,
+personalEmpleado3Otros14Si_chk_71_si boolean,
+personalEmpleado3Otros14No_chk_71_no boolean,
+mareosSi_chk_72_si boolean,
+mareosNo_chk_72_no boolean,
+dificultadRespiratoriaSi_chk_73_si boolean,
+dificultadRespiratoriaNo_chk_73_no boolean,
+palpitacionesTrabajosAlturaSi_chk_74_si boolean,
+palpitacionesTrabajosAlturaNo_chk_74_no boolean,
+personalEmpleado4Otros1Si_chk_75_si boolean,
+personalEmpleado4Otros1No_chk_75_no boolean,
+asbestosSi_chk_76_si boolean,
+asbestosNo_chk_76_no boolean,
+siliceSi_chk_77_si boolean,
+siliceNo_chk_77_no boolean,
+tungstenoSi_chk_78_si boolean,
+tungstenoNo_chk_78_no boolean,
+berilioSi_chk_79_si boolean,
+berilioNo_chk_79_no boolean,
+aluminoSi_chk_80_si boolean,
+aluminoNo_chk_80_no boolean,
+carbonSi_chk_81_si boolean,
+carbonNo_chk_81_no boolean,
+hierroSi_chk_82_si boolean,
+hierroNo_chk_82_no boolean,
+latonSi_chk_83_si boolean,
+latonNo_chk_83_no boolean,
+ambientesExcesoPolvoSi_chk_84_si boolean,
+ambientesExcesoPolvoNo_chk_84_no boolean,
+personalEmpleado4Otros2Si_chk_85_si boolean,
+personalEmpleado4Otros2No_chk_85_no boolean,
+servicioMilitarSi_chk_86_si boolean,
+servicioMilitarNo_chk_86_no boolean,
+equipoMatpelSi_chk_87_si boolean,
+equipoMatpelNo_chk_87_no boolean,
+otrosCondicionesEspecialesDescripcion_t_otros0 text,
+personalEmpleado1Otros3Descripcion_t_otros1 text,
+personalEmpleado1Otros4Descripcion_t_otros2 text,
+personalEmpleado2Otros5Descripcion_t_otros3 text,
+personalEmpleado2Otros6Descripcion_t_otros4 text,
+personalEmpleado2Otros8Descripcion_t_otros5 text,
+personalEmpleado3Otros10Descripcion_t_otros6 text,
+personalEmpleado3Otros12Descripcion_t_otros7 text,
+personalEmpleado3Otros14Descripcion_t_otros8 text,
+personalEmpleado4Otros1Descripcion_t_otros9 text,
+personalEmpleado4Otros2Descripcion_t_otros10 text,
+trabajoPrevio_t_trabajo_promedio text,
+idEmpleado_id_empleado text,
+cargo_f_cargo text,
+mineraBarrick_m_barrick text,
+supervisor_m_supervisor text,
+autorizacionClase1_chk_f_1 boolean,
+autorizacionClase2_chk_f_2 boolean,
+utilizadosRespuestaEmergencia_chk_f_3 boolean,
+soloPapr_chk_f_4 boolean,
+noSbca_chk_f_5 boolean,
+autorizacionOtros_chk_f_6 boolean,
+autorizacionClase3_chk_f_7 boolean,
+autorizacionClase4_chk_f_8 boolean,
+autorizacionClase5_chk_f_9 boolean,
+fechaExpira_fecha_expira date,
+nombreMedico text, cmpUsuario text,
+visioncercasincorregirod_v_cerca_s_od text, visioncercasincorregiroi_v_cerca_s_oi text, oftalodccmologia_odcc text, 
+oiccoftalmologia_oicc text,  visionlejossincorregirod_v_lejos_s_od text, visionlejossincorregiroi_v_lejos_s_oi text, 
+odlcoftalmologia_odlc text, oilcoftalmologia_oilc text, vcoftalmologia_vc text, vboftalmologia_vb text, 
+rpoftalmologia_rp text, enfermedadesocularesoftalmo_e_oculares text, nombresede text, 
+sede text, color integer, namejasper text) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+	    d.cod_pa,
+	    d.nombres_pa,
+	    d.apellidos_pa,
+	    d.direccion_pa,
+	    d.sexo_pa,
+	    d.fecha_nacimiento_pa,
+	    d.ocupacion_pa,
+	    n.cargo_de,
+	    n.area_o,
+	    n.razon_contrata,
+	    n.n_orden,
+	    n.razon_empresa,
+	    n.nom_examen,
+	    n.cod_clinica,
+	    CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
+	    
+	    b.cod_respiradores,
+	    b.fecha_examen,
+	    b.t_prom_horas,
+	    b.chk_1, b.chk_2, b.chk_3, b.chk_4, b.chk_5, b.chk_6, b.chk_7, b.chk_8, b.chk_9,
+	    b.chk_10, b.chk_11, b.chk_12, b.chk_13, b.chk_14, b.chk_15, b.chk_16, b.chk_17,
+	    b.chk_18, b.chk_19, b.chk_20, b.chk_21, b.chk_22, b.chk_23, b.chk_24, b.chk_25,
+	    b.chk_26, b.chk_27, b.chk_28, b.chk_29, b.chk_30, b.chk_31, b.chk_32, b.chk_33,
+	    b.chk_34, b.chk_35, b.chk_36, b.chk_37, b.chk_38, b.chk_39, b.chk_40, b.chk_41,
+	    b.chk_42, b.chk_43,
+	    b.chk_1_si, b.chk_1_no, b.chk_2_si, b.chk_2_no, b.chk_3_si, b.chk_3_no,
+	    b.chk_4_si, b.chk_4_no, b.chk_5_si, b.chk_5_no, b.chk_6_si, b.chk_6_no,
+	    b.chk_7_si, b.chk_7_no, b.chk_8_si, b.chk_8_no, b.chk_9_si, b.chk_9_no,
+	    b.chk_10_si, b.chk_10_no, b.chk_11_si, b.chk_11_no, b.chk_12_si, b.chk_12_no,
+	    b.chk_13_si, b.chk_13_no, b.chk_14_si, b.chk_14_no, b.chk_15_si, b.chk_15_no,
+	    b.chk_16_si, b.chk_16_no, b.chk_17_si, b.chk_17_no, b.chk_18_si, b.chk_18_no,
+	    b.chk_19_si, b.chk_19_no, b.chk_20_si, b.chk_20_no, b.chk_21_si, b.chk_21_no,
+	    b.chk_22_si, b.chk_22_no, b.chk_23_si, b.chk_23_no, b.chk_24_si, b.chk_24_no,
+	    b.chk_25_si, b.chk_25_no, b.chk_26_si, b.chk_26_no, b.chk_27_si, b.chk_27_no,
+	    b.chk_28_si, b.chk_28_no, b.chk_29_si, b.chk_29_no, b.chk_30_si, b.chk_30_no,
+	    b.chk_31_si, b.chk_31_no, b.chk_32_si, b.chk_32_no, b.chk_33_si, b.chk_33_no,
+	    b.chk_34_si, b.chk_34_no, b.chk_35_si, b.chk_35_no, b.chk_36_si, b.chk_36_no,
+	    b.chk_37_si, b.chk_37_no, b.chk_38_si, b.chk_38_no, b.chk_39_si, b.chk_39_no,
+	    b.chk_40_si, b.chk_40_no, b.chk_41_si, b.chk_41_no, b.chk_42_si, b.chk_42_no,
+	    b.chk_43_si, b.chk_43_no, b.chk_44_si, b.chk_44_no, b.chk_45_si, b.chk_45_no,
+	    b.chk_46_si, b.chk_46_no, b.chk_47_si, b.chk_47_no, b.chk_48_si, b.chk_48_no,
+	    b.chk_49_si, b.chk_49_no, b.chk_50_si, b.chk_50_no, b.chk_51_si, b.chk_51_no,
+	    b.chk_52_si, b.chk_52_no, b.chk_53_si, b.chk_53_no, b.chk_54_si, b.chk_54_no,
+	    b.chk_55_si, b.chk_55_no, b.chk_56_si, b.chk_56_no, b.chk_57_si, b.chk_57_no,
+	    b.chk_58_si, b.chk_58_no, b.chk_59_si, b.chk_59_no, b.chk_60_si, b.chk_60_no,
+	    b.chk_61_si, b.chk_61_no, b.chk_62_si, b.chk_62_no, b.chk_63_si, b.chk_63_no,
+	    b.chk_64_si, b.chk_64_no, b.chk_65_si, b.chk_65_no, b.chk_66_si, b.chk_66_no,
+	    b.chk_67_si, b.chk_67_no, b.chk_68_si, b.chk_68_no, b.chk_69_si, b.chk_69_no,
+	    b.chk_70_si, b.chk_70_no, b.chk_71_si, b.chk_71_no, b.chk_72_si, b.chk_72_no,
+	    b.chk_73_si, b.chk_73_no, b.chk_74_si, b.chk_74_no, b.chk_75_si, b.chk_75_no,
+	    b.chk_76_si, b.chk_76_no, b.chk_77_si, b.chk_77_no, b.chk_78_si, b.chk_78_no,
+	    b.chk_79_si, b.chk_79_no, b.chk_80_si, b.chk_80_no, b.chk_81_si, b.chk_81_no,
+	    b.chk_82_si, b.chk_82_no, b.chk_83_si, b.chk_83_no, b.chk_84_si, b.chk_84_no,
+	    b.chk_85_si, b.chk_85_no, b.chk_86_si, b.chk_86_no, b.chk_87_si, b.chk_87_no,--
+	    b.t_otros0, b.t_otros1, b.t_otros2, b.t_otros3, b.t_otros4,
+	    b.t_otros5, b.t_otros6, b.t_otros7, b.t_otros8, b.t_otros9,
+	    b.t_otros10, b.t_trabajo_promedio,
+	    b.id_empleado,
+	    b.f_cargo,
+	    b.m_barrick,
+	    b.m_supervisor,
+	    b.chk_f_1, b.chk_f_2, b.chk_f_3, b.chk_f_4, b.chk_f_5,
+	    b.chk_f_6, b.chk_f_7, b.chk_f_8, b.chk_f_9,
+	    b.fecha_expira,
+	    u.nombre_user||' '||u.apellido_user AS nom_medico, u.cmp_user,
+	    CASE 
+		WHEN oft.txtcercasincorregirod IS NOT NULL 
+		    THEN oft.txtcercasincorregirod 
+		ELSE o.v_cerca_s_od 
+	    END AS v_cerca_s_od,
+	    
+	    CASE 
+		WHEN oft.txtcercasincorregiroi IS NOT NULL 
+		    THEN oft.txtcercasincorregiroi 
+		ELSE o.v_cerca_s_oi 
+	    END AS v_cerca_s_oi,
+	    
+	    CASE 
+		WHEN oft.txtcercacorregidaod IS NOT NULL 
+		    THEN oft.txtcercacorregidaod 
+		WHEN ol.v_cerca_c_od IS NULL 
+		    THEN o.v_cerca_c_od
+		ELSE ol.v_cerca_c_od 
+	    END AS ODCC,
+	    
+	    CASE 
+		WHEN oft.txtcercacorregidaoi IS NOT NULL 
+		    THEN oft.txtcercacorregidaoi 
+		WHEN ol.v_cerca_c_oi IS NULL 
+		    THEN o.v_cerca_c_oi
+		ELSE ol.v_cerca_c_oi 
+	    END AS OICC,
+	    
+	    CASE 
+		WHEN oft.txtlejossincorregirod IS NOT NULL 
+		    THEN oft.txtlejossincorregirod 
+		ELSE o.v_lejos_s_od 
+	    END AS v_lejos_s_od,
+	    
+	    CASE 
+		WHEN oft.txtlejossincorregiroi IS NOT NULL 
+		    THEN oft.txtlejossincorregiroi 
+		ELSE o.v_lejos_s_oi 
+	    END AS v_lejos_s_oi,
+	    
+	    CASE 
+		WHEN oft.txtlejoscorregidaod IS NOT NULL 
+		    THEN oft.txtlejoscorregidaod 
+		WHEN ol.v_lejos_c_od IS NULL 
+		    THEN o.v_lejos_c_od  
+		ELSE ol.v_lejos_c_od  
+	    END AS ODLC, 
+	    
+	    CASE 
+		WHEN oft.txtlejoscorregidaoi IS NOT NULL 
+		    THEN oft.txtlejoscorregidaoi 
+		WHEN ol.v_lejos_c_oi IS NULL 
+		    THEN o.v_lejos_c_oi  
+		ELSE ol.v_lejos_c_oi  
+	    END AS OILC,
+	    
+	    CASE  
+		WHEN oft.rbtecishihara_normal = 'TRUE' 
+		    THEN 'NORMAL'
+		WHEN oft.rbtecishihara_anormal = 'TRUE' 
+		    THEN 'ANORMAL'
+		WHEN ol.v_colores IS NULL 
+		    THEN o.v_colores  
+		ELSE ol.v_colores  
+	    END AS VC,
+	    
+	    CASE  
+		WHEN oft.txtbinocularsincorregir IS NOT NULL 
+		    THEN oft.txtbinocularsincorregir  
+		WHEN ol.v_binocular IS NULL 
+		    THEN o.v_binocular  
+		ELSE ol.v_binocular  
+	    END AS VB,
+	    
+	    CASE  
+		WHEN oft.txtrp IS NOT NULL 
+		    THEN oft.txtrp
+		WHEN ol.r_pupilares IS NULL 
+		    THEN o.r_pupilares
+		ELSE ol.r_pupilares  
+	    END AS RP,
+	    
+	    CASE  
+		WHEN oft.txtdiagnostico IS NOT NULL 
+		    THEN oft.txtdiagnostico  
+		ELSE o.e_oculares 
+	    END AS e_oculares,
+	    CASE 
+		WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A' 
+		    THEN 'Huamachuco'
+		ELSE (
+		    SELECT nombre_sede 
+		    FROM sede 
+		    WHERE cod_sede = n.cod_sede
+		)
+	    END AS nombre_sede,
+	    CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+	    n.color,
+	    obtener_name_jasper(p_norden, name_service)
+	FROM datos_paciente AS d
+	INNER JOIN n_orden_ocupacional AS n 
+	    ON d.cod_pa = n.cod_pa
+	INNER JOIN sede_multisucursal AS sm 
+	    ON n.cod_sede = sm.id
+	LEFT JOIN b_uso_respiradores AS b 
+	    ON b.n_orden = n.n_orden
+	LEFT JOIN oftalmologia AS o 
+	    ON n.n_orden = o.n_orden
+	LEFT JOIN oftalmologia_lo AS ol 
+	    ON n.n_orden = ol.n_orden
+	LEFT JOIN oftalmologia2021 AS oft 
+	    ON n.n_orden = oft.n_orden
+	LEFT JOIN usuarios AS u 
+	    ON (u.dni_user = b.dni_user)
+	WHERE n.n_orden = p_norden;
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+
+  insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
+			values('b_uso_respiradores','formulario de respiradores',false,false,true,false,false);
+
 CREATE OR REPLACE FUNCTION obtener_reporte_informe_psicologico(
     IN p_norden integer,
     IN name_service text)
@@ -557,11 +1009,13 @@ BEGIN
 	resultado := 'Certificacion_suficiencia_trabajos_en_altura_boro_Digitalizado';
      ELSIF name_service_param = 'informe_psicologico' THEN
 	resultado := 'InformePsicologico_Digitalizado';
+     ELSIF name_service_param = 'b_uso_respiradores' THEN
+	resultado := 'UsoRespiradores';
   END IF; 
     RETURN resultado;
 END;
 $BODY$
-  LANGUAGE plpgsql;
+  LANGUAGE plpgsql
 
 CREATE OR REPLACE FUNCTION obtener_parametros_digitalizados(
     IN norden_param bigint,
@@ -575,6 +1029,7 @@ DECLARE
     dni_user_doc_adic_var INTEGER;
     empresa_var TEXT;
     user_registro_var TEXT;
+    sede_var INTEGER;
 BEGIN
     -- Obtener DNI del paciente
     SELECT cod_pa INTO dni_paciente_var FROM n_orden_ocupacional WHERE n_orden = norden_param;
@@ -1816,11 +2271,18 @@ IF name_servicio_param = 'test_fatiga_somnolencia' THEN
         IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
             -- SELECT user_registro INTO user_registro_var 
 --             FROM aptitud_medico_ocupacional_agro WHERE n_orden = norden_param;
-	    dni_user_registro_var = 66666666;
-            -- select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
+	    SELECT cod_sede INTO sede_var FROM n_orden_ocupacional WHERE n_orden = norden_param;
+	    IF sede_var = 3 THEN
+		dni_user_registro_var = 88888888;
+	    ELSE
 		IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
 		    dni_user_registro_var := 42664426;
+		ELSE
+	            dni_user_registro_var = 66666666;
 		END IF;
+	    END IF;
+            -- select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
+		
             descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
             name_digitalizacion := 'SELLOFIRMA';
             dni := dni_user_registro_var;
@@ -1833,10 +2295,16 @@ IF name_servicio_param = 'test_fatiga_somnolencia' THEN
             -- SELECT user_registro INTO user_registro_var 
 --             FROM certificado_aptitud_medico_ocupacional WHERE n_orden = norden_param;
 --             select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
-		dni_user_registro_var = 66666666;
-		IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
-		    dni_user_registro_var := 42664426;
-		END IF;
+		SELECT cod_sede INTO sede_var FROM n_orden_ocupacional WHERE n_orden = norden_param;
+		    IF sede_var = 3 THEN
+			dni_user_registro_var = 88888888;
+		    ELSE
+			IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
+			    dni_user_registro_var := 42664426;
+			ELSE
+			    dni_user_registro_var = 66666666;
+			END IF;
+		 END IF;
             descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
             name_digitalizacion := 'SELLOFIRMA';
             dni := dni_user_registro_var;
@@ -1891,14 +2359,16 @@ IF name_servicio_param = 'test_fatiga_somnolencia' THEN
         END IF;
 
         IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
-            SELECT user_registro INTO user_registro_var 
-            FROM certificado_aptitud_medico_resumen WHERE n_orden = norden_param;
-            select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
+            SELECT cod_sede INTO sede_var FROM n_orden_ocupacional WHERE n_orden = norden_param;
+	    IF sede_var = 3 THEN
+		dni_user_registro_var = 88888888;
+	    ELSE
 		IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
 		    dni_user_registro_var := 42664426;
-		ELSIF empresa_var = 'MONARCA GOLD S.A.C.' THEN
-		    dni_user_registro_var := 66666666;
+		ELSE
+	            dni_user_registro_var = 66666666;
 		END IF;
+	    END IF;
             descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
             name_digitalizacion := 'SELLOFIRMA';
             dni := dni_user_registro_var;
@@ -2003,6 +2473,24 @@ IF name_servicio_param = 'test_fatiga_somnolencia' THEN
         IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
             SELECT user_registro INTO user_registro_var 
             FROM informe_psicologico WHERE n_orden = norden_param;
+            select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
+		IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
+		    dni_user_registro_var := 42664426;
+		ELSIF empresa_var = 'MONARCA GOLD S.A.C.' THEN
+		    dni_user_registro_var := 66666666;
+		END IF;
+            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
+            name_digitalizacion := 'SELLOFIRMA';
+            dni := dni_user_registro_var;
+            RETURN NEXT;
+        END IF;
+    END IF;
+
+    IF name_servicio_param = 'b_uso_respiradores' THEN
+
+        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            SELECT user_registro INTO user_registro_var 
+            FROM b_uso_respiradores WHERE n_orden = norden_param;
             select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
 		IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
 		    dni_user_registro_var := 42664426;
@@ -2861,6 +3349,17 @@ begin
 
         if(p_examen_med='informe_psicologico') THEN
 	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from informe_psicologico where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+        if(p_examen_med='b_uso_respiradores') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from b_uso_respiradores where n_orden=p_historia_clinica limit 1;
 		if(v_id_existencia=0) THEN
 			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
 		else
