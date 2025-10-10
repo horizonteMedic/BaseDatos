@@ -1,5 +1,41 @@
 select n_orden from n_orden_ocupacional limit 1
 
+CREATE OR REPLACE FUNCTION registrar_empresas_anexo03(
+    p_cod_anexo integer,
+    p_fechas text[],
+    p_empresas text[],
+    p_actividades text[],
+    p_puestos text[],
+    p_sup text[],
+    p_sub text[],
+    p_causa_retiro text[])
+  RETURNS void AS
+$BODY$
+BEGIN
+    -- Eliminar registros existentes
+    IF EXISTS (SELECT 1 FROM empresas_anexo_03 WHERE cod_anexo = p_cod_anexo) THEN
+		DELETE FROM empresas_anexo_03 ea3 WHERE ea3.cod_anexo = p_cod_anexo;
+    END IF;
+    
+    -- Insertar múltiples registros usando UNNEST
+    INSERT INTO empresas_anexo_03 (
+        cod_anexo, fecha, nom_empresa, act_empresa, puesto,
+        sup, sub, causa_retiro
+    )
+    SELECT 
+        p_cod_anexo,
+        unnest(p_fechas),
+        unnest(p_empresas),
+        unnest(p_actividades),
+        unnest(p_puestos),
+        unnest(p_sup),
+        unnest(p_sub),
+        unnest(p_causa_retiro);
+    
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
 drop 
 FUNCTION obtener_reporte_ficha_interconsulta(
     IN p_norden integer,
