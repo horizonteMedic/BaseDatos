@@ -1,5 +1,155 @@
 select n_orden from n_orden_ocupacional limit 1
 
+drop FUNCTION registrar_historia_ocupacional_detalles(
+    p_cod_ho integer,
+    p_fechas text[],
+    p_empresas text[],
+    p_actividades text[],
+    p_areas_empresa text[],
+    p_ocupaciones text[],
+    p_superficies text[],
+    p_socavones text[],
+    p_riesgos text[],
+    p_protecciones text[],
+    p_altitudes text[],
+    p_ordenes integer[])
+
+
+
+CREATE OR REPLACE FUNCTION registrar_historia_ocupacional_detalles(
+    p_cod_ho integer,
+    p_fechas text[],
+    p_empresas text[],
+    p_actividades text[],
+    p_areas_empresa text[],
+    p_ocupaciones text[],
+    p_superficies text[],
+    p_socavones text[],
+    p_riesgos text[],
+    p_protecciones text[],
+    p_altitudes text[],
+    p_ordenes integer[],
+    p_retiros text[])
+  RETURNS void AS
+$BODY$
+BEGIN
+    -- Eliminar registros existentes
+    IF EXISTS (SELECT 1 FROM historia_oc_detalle WHERE cod_ho = p_cod_ho) THEN
+		DELETE FROM historia_oc_detalle hod WHERE hod.cod_ho = p_cod_ho;
+    END IF;
+    
+    -- Insertar múltiples registros usando UNNEST
+    INSERT INTO historia_oc_detalle (
+        cod_ho, fecha, empresa, actividad, area_empresa,
+        ocupacion, superficie, socavon, riesgo, proteccion, altitud, orden, causa_retiro
+    )
+    SELECT 
+        p_cod_ho,
+        unnest(p_fechas),
+        unnest(p_empresas),
+        unnest(p_actividades),
+        unnest(p_areas_empresa),
+        unnest(p_ocupaciones),
+        unnest(p_superficies),
+        unnest(p_socavones),
+        unnest(p_riesgos),
+        unnest(p_protecciones),
+        unnest(p_altitudes),
+        unnest(p_ordenes),
+        unnest(p_retiros);
+    
+END;
+$BODY$
+  LANGUAGE plpgsql
+
+drop FUNCTION obtener_reporte_historiaocupacional(IN p_norden integer)
+
+CREATE OR REPLACE FUNCTION obtener_reporte_historiaocupacional(IN p_norden integer)
+  RETURNS TABLE(nombres text, edad text, n_orden integer, dni integer, fecha_nac date, lugar_nacimiento text, cel_pa text, sexo "char", 
+  lugar_procedencia text, medico_asignado text, cod_ho integer, area_o text, fecha_ho date, na text, fecha text, empresa text, actividad text, 
+  area_empresa text, ocupacion text, superficie text, socavon text, riesgo text, proteccion text, altitud text, color integer, sede_descripcion text, 
+  dir_sede4 text, email_sede4 text, tel_sede4 text, cel_sede4 text, dir_sede3 text, email_sede3 text, tel_sede3 text, dir_sede2 text, email_sede2 text, 
+  tel_sede2 text, cel_sede2 text, dir_sede1 text, email_sede1 text, tel_sede1 text, orden integer, profesion text, causaRetiro text) AS
+$BODY$
+DECLARE 
+    empresa_var TEXT;
+BEGIN
+
+
+    SELECT trim(razon_empresa) INTO empresa_var FROM n_orden_ocupacional as n WHERE n.n_orden = p_norden;
+
+		IF(empresa_var='OBRASCÓN HUARTE LAIN S.A') THEN
+			UPDATE historia_oc_info SET dni_user=42664426, user_registro='AGARCIA' where historia_oc_info.n_orden=p_norden;
+		ELSIF(empresa_var='MONARCA GOLD S.A.C.') THEN
+			UPDATE historia_oc_info SET dni_user=66666666, user_registro='SHNEIDER' where historia_oc_info.n_orden=p_norden;
+		END IF;
+
+  RETURN QUERY
+  SELECT 
+    dp.nombres_pa || ' ' || dp.apellidos_pa,
+    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+
+    hoi.n_orden,
+    noo.cod_pa,
+    dp.fecha_nacimiento_pa,
+    dp.lugar_nac_pa,
+    dp.cel_pa,
+    dp.sexo_pa,
+    dp.direccion_pa ||'-'|| dp.distrito_pa ||'-'|| dp.provincia_pa ||'-'|| dp.departamento_pa,
+    CAST(' ' as text),
+
+    hoi.cod_ho,
+    hoi.area_o,
+    hoi.fecha_ho,
+    hoi.na,
+
+    hod.fecha,
+    hod.empresa,
+    hod.actividad,
+    hod.area_empresa,
+    hod.ocupacion,
+    hod.superficie,
+    hod.socavon,
+    hod.riesgo,
+    hod.proteccion,
+    hod.altitud,
+
+
+    noo.color,
+    CAST(sm.descripcion AS TEXT),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 4),
+    (SELECT email FROM sede WHERE cod_sede = 4),
+    (SELECT telefono FROM sede WHERE cod_sede = 4),
+    (SELECT celular FROM sede WHERE cod_sede = 4),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 3),
+    (SELECT email FROM sede WHERE cod_sede = 3),
+    (SELECT telefono FROM sede WHERE cod_sede = 3),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 2),
+    (SELECT email FROM sede WHERE cod_sede = 2),
+    (SELECT telefono FROM sede WHERE cod_sede = 2),
+    (SELECT celular FROM sede WHERE cod_sede = 2),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 1),
+    (SELECT email FROM sede WHERE cod_sede = 1),
+    (SELECT telefono FROM sede WHERE cod_sede = 1),
+    hod.cod_ho,
+    dp.ocupacion_pa,
+    hod.causa_retiro
+
+  FROM datos_paciente dp
+  INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+  INNER JOIN historia_oc_info hoi ON hoi.n_orden = noo.n_orden
+  LEFT JOIN historia_oc_detalle hod ON hod.cod_ho = hoi.cod_ho
+  INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+  LEFT JOIN usuarios u ON LOWER(u.usuario_user) = LOWER(hoi.user_registro)
+  WHERE noo.n_orden = p_norden;
+END;
+$BODY$
+  LANGUAGE plpgsql
+
 drop FUNCTION obtener_reporte_ficha_psicologica_anexo2(
     IN p_norden integer,
     IN name_service text)
@@ -91,6 +241,7 @@ CREATE OR REPLACE FUNCTION obtener_reporte_ficha_psicologica_anexo3(
   RETURNS TABLE(dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", fechanacimientopaciente date, 
   ocupacionpaciente text, lugarnacimientopaciente text, nivelestudiopaciente text, cargopaciente text, areapaciente text, contrata text, norden integer, 
   empresa text, nombreexamen text, codigoclinica text, edadpaciente text, estadoCivilPaciente text,
+  mineralExp text, explotacionEn text, alturaLabor text,
 codigoAnexo_cod_anexo03 Integer, 
 fechaExamen_fecha date, 
 motivoEvaluacion_motivo_eval text, 
@@ -179,6 +330,9 @@ BEGIN
 	    n.cod_clinica,
 	    CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
 	    d.estado_civil_pa,
+	    n.mineral_po,
+	    n.nom_ex,
+	    n.altura_po,
 	    fi.cod_anexo03,  
 		fi.fecha,  
 		fi.motivo_eval,  
