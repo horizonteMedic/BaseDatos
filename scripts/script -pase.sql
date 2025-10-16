@@ -1,5 +1,63 @@
 select n_orden from n_orden_ocupacional limit 1
 
+CREATE OR REPLACE FUNCTION obtener_reporte_hoja_consulta_externa(
+    IN p_norden integer,
+    IN name_service text)
+  RETURNS TABLE(dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", fechanacimientopaciente date, 
+  ocupacionpaciente text, cargopaciente text, areapaciente text, contrata text, norden integer, empresa text, nombreexamen text, edadpaciente text,
+  fechaExamen date, horaSalida time without time zone, nombreMedico text, postaVijus boolean, cedro boolean, paraiso boolean, otros boolean,
+  otrosDescripcion text, observaciones text,
+  color integer, sede text, nombresede text, namejasper text) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+	    dp.cod_pa,
+	    dp.nombres_pa,
+	    dp.apellidos_pa,
+	    dp.direccion_pa,
+	    dp.sexo_pa,
+	    dp.fecha_nacimiento_pa,
+	    dp.ocupacion_pa,
+	    n.cargo_de,
+	    n.area_o,
+	    n.razon_contrata,
+	    n.n_orden,
+	    n.razon_empresa,
+	    n.nom_examen,
+	    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+	    ca.fecha_examen,
+	    ca.horasalida,
+	    ca.nom_medico,
+	    ca.rbposta_vijus,
+	    ca.rbcedro,
+	    ca.rbparaiso,
+	    ca.rbotros,
+	    ca.txtotros,
+	    ca.txtobservaciones,
+	    n.color,
+	    CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+	    CASE
+		WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A' THEN 'Huamachuco'
+		WHEN n.cod_sede = 1 THEN 'Trujillo'
+		WHEN n.cod_sede = 2 THEN 'Huamachuco'
+		WHEN n.cod_sede = 3 THEN 'Huancayo'
+		WHEN n.cod_sede = 4 THEN 'Trujillo'
+	    END AS nom_sede,
+	    obtener_name_jasper(p_norden, name_service)
+	  FROM datos_paciente AS dp
+	INNER JOIN n_orden_ocupacional AS n 
+	    ON dp.cod_pa = n.cod_pa
+	INNER JOIN sede_multisucursal AS sm 
+	    ON n.cod_sede = sm.id
+	INNER JOIN hoja_consulta_externa AS ca 
+	    ON ca.n_orden = n.n_orden
+	WHERE n.n_orden = p_norden;
+
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION obtener_reporte_certificado_trabajo_altura_poderosa(
     IN p_norden integer,
     IN name_service text)
@@ -814,6 +872,8 @@ BEGIN
 	resultado := 'FichaPsicologicaOcupacional_Digitalizado';
      ELSIF name_service_param = 'certificado_altura_poderosa' THEN
 	resultado := 'CertificadoAlturaPoderosa_Digitalizado';
+     ELSIF name_service_param = 'hoja_consulta_externa' THEN
+	resultado := ' Hoja_Consulta_Externa';
   END IF; 
     RETURN resultado;
 END;
@@ -3274,6 +3334,17 @@ begin
 		else 
 			v_mensaje:='DEBE PASAR POR TRIAJE PRIMERO (OBLIGATORIO)';
 			v_id_existencia:=2;
+		end if;
+		
+        end if;
+
+        if(p_examen_med='hoja_consulta_externa') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from hoja_consulta_externa where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
 		end if;
 		
         end if;
