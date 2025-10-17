@@ -1191,13 +1191,13 @@ BEGIN
      ELSIF name_service_param = 'certificado_altura_poderosa' THEN
 	resultado := 'CertificadoAlturaPoderosa_Digitalizado';
      ELSIF name_service_param = 'hoja_consulta_externa' THEN
-	resultado := ' Hoja_Consulta_Externa';
+	resultado := 'Hoja_Consulta_Externa';
      ELSIF name_service_param = 'aptitud_altura_poderosa' THEN
-	resultado := ' Aptitud_Poderosa_Digitalizado';
+	resultado := 'Aptitud_Poderosa_Digitalizado';
      ELSIF name_service_param = 'aptitud_trabajos_encaliente' THEN
-	resultado := ' Aptitud_Trabajos_EnCaliente_Digitalizado';
+	resultado := 'Aptitud_Trabajos_EnCaliente_Digitalizado';
      ELSIF name_service_param = 'aptitud_licencia_conduciri' THEN
-	resultado := ' Aptitud_Licencia_Conducir_Interna_Digitalizado';
+	resultado := 'Aptitud_Licencia_Conducir_Interna_Digitalizado';
   END IF; 
     RETURN resultado;
 END;
