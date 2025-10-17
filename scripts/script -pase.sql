@@ -1,4 +1,77 @@
 select n_orden from n_orden_ocupacional limit 1
+
+CREATE OR REPLACE FUNCTION obtener_reporte_aptitud_licencia_conducir(
+    IN p_norden integer,
+    IN name_service text)
+  RETURNS TABLE(
+  dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", fechanacimientopaciente date, 
+  ocupacionpaciente text, cargopaciente text, areapaciente text, contrata text, norden integer, empresa text, nombreexamen text, codigoclinica text, 
+  edadpaciente text, fechaexamen date, fechahasta date, nombremedico text, apto boolean, aptorestriccion boolean, aptotemporal boolean, noapto boolean, 
+  observaciones text, horasalida time without time zone, nombresede text, numerosede text, sede text, color integer, namejasper text) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+	    d.cod_pa,
+	    d.nombres_pa,
+	    d.apellidos_pa,
+	    d.direccion_pa,
+	    d.sexo_pa,
+	    d.fecha_nacimiento_pa,
+	    d.ocupacion_pa,
+	    n.cargo_de,
+	    n.area_o,
+	    n.razon_contrata,
+	    n.n_orden,
+	    n.razon_empresa,
+	    n.nom_examen,
+	    n.cod_clinica,
+	    CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
+	    ca.fecha_examen,
+	    ca.fecha_hasta,
+	    ca.nom_medico,
+	    ca.chkapto,
+	    ca.chkapto_restriccion,
+	    ca.chkno_apto_temporal,
+	    ca.chkno_apto,
+	    ca.txtobservaciones,
+	    ca.horasalida,
+	    CASE 
+		WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A' 
+		    THEN 'Huamachuco'
+		ELSE (
+		    SELECT nombre_sede 
+		    FROM sede 
+		    WHERE cod_sede = n.cod_sede
+		)
+	    END AS nombre_sede,
+	    CASE 
+		WHEN n.cod_sede = 1 
+		    THEN CONCAT(n.n_orden, '-T')
+		WHEN n.cod_sede = 4 
+		    THEN CONCAT(n.n_orden, '-TP')
+		ELSE CONCAT(n.n_orden, '-H')
+	    END AS numero,
+	    CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+	    n.color,
+	    obtener_name_jasper(p_norden, name_service)
+	FROM datos_paciente AS d
+	INNER JOIN n_orden_ocupacional AS n 
+	    ON d.cod_pa = n.cod_pa
+	INNER JOIN sede_multisucursal AS sm 
+	    ON n.cod_sede = sm.id
+	INNER JOIN aptitud_licencia_conduciri AS ca 
+	    ON ca.n_orden = n.n_orden
+	WHERE n.n_orden = p_norden;
+
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
+			values('aptitud_licencia_conduciri','formulario de aptitud licencia de conducir',false,false,true,false,false);
+
+
 CREATE OR REPLACE FUNCTION obtener_reporte_aptitud_certificado_caliente(
     IN p_norden integer,
     IN name_service text)
@@ -1123,6 +1196,8 @@ BEGIN
 	resultado := ' Aptitud_Poderosa_Digitalizado';
      ELSIF name_service_param = 'aptitud_trabajos_encaliente' THEN
 	resultado := ' Aptitud_Trabajos_EnCaliente_Digitalizado';
+     ELSIF name_service_param = 'aptitud_licencia_conduciri' THEN
+	resultado := ' Aptitud_Licencia_Conducir_Interna_Digitalizado';
   END IF; 
     RETURN resultado;
 END;
@@ -2731,6 +2806,24 @@ IF name_servicio_param = 'test_fatiga_somnolencia' THEN
             RETURN NEXT;
         END IF;
     END IF;
+
+    IF name_servicio_param = 'aptitud_licencia_conduciri' THEN
+
+        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            SELECT user_registro INTO user_registro_var 
+            FROM  aptitud_licencia_conduciri WHERE n_orden = norden_param;
+            select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
+		IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
+		    dni_user_registro_var := 42664426;
+		ELSIF empresa_var = 'MONARCA GOLD S.A.C.' THEN
+		    dni_user_registro_var := 66666666;
+		END IF;
+            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
+            name_digitalizacion := 'SELLOFIRMA';
+            dni := dni_user_registro_var;
+            RETURN NEXT;
+        END IF;
+    END IF;
                  
 END;
 $BODY$
@@ -3660,6 +3753,17 @@ begin
 
         if(p_examen_med='aptitud_trabajos_encaliente') THEN
 	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from aptitud_trabajos_encaliente where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+        if(p_examen_med='aptitud_licencia_conduciri') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from aptitud_licencia_conduciri where n_orden=p_historia_clinica limit 1;
 		if(v_id_existencia=0) THEN
 			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
 		else
