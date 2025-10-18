@@ -1,5 +1,282 @@
 select n_orden from n_orden_ocupacional limit 1
 
+CREATE OR REPLACE FUNCTION obtener_resumen_medico(
+    IN p_norden integer)
+  RETURNS TABLE(
+ dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", fechanacimientopaciente date, ocupacionpaciente text, cargopaciente text, areapaciente text, contrata text, 
+ norden integer, empresa text, nombreexamen text, codigoclinica text, edadpaciente text,
+ frecuenciacardiacatriaje_f_cardiaca text, frecuenciarespiratoriatriaje_f_respiratoria text, sistolicatriaje_sistolica text,
+ diastolicatriaje_diastolica text, tallatriaje_talla text, pesotriaje_peso text, imctriaje_imc text, cinturatriaje_cintura text,
+ caderatriaje_cadera text, saturacionoxigenotriaje_sat_02 text, iccTriaje_icc text, enfermedadesocularesoftalmo_e_oculares text,
+ enfermedadesOcularesOtrosOftalmo_e_oculares1 text, diagnosticoAudiometria_diagnostico text, conclusionesRadiograficas text,
+ conclusionAnexo7c_txtconclusion text, antecedentesFamiliaresAnexo7c_txtantecedentesfamiliares text, antecedentesPersonales2Anexo7c_txtantecedentespersonales2 text,
+ hallazgosInformeElectroCardiograma_hallazgo text, aproboPsicologico_aprobo_inf boolean, observacionesOdontograma_txtobservaciones text,
+ aptoEvaluacionPsicoPoderosa_rbapto boolean, conclusionImc text, GrupoFactorSanguineo_grupofactor text, hemoglobinaLaboratorioClinico_txthemoglobina text,
+ hematiesematologiaLabClinico_txthematiesematologia text, glucosaLaboratorioClinico_txtglucosabio text, cocainaLaboratorioClinico_txtcocaina text,
+ marihuanaLaboratorioClinico_txtmarihuana text, positivoLaboratorioClinico_chkpositivo boolean, vsgLaboratorioClinico_txtvsg text,
+ observacionesFichaMedicaAnexo7c_txtobservacionesfm text, aptitud text, 
+ restriccionesDescripcionFichaAnexo16_atxtrestricciones text, fechaFichaAnexo16_fecha date, fechaHastaFichaAnexo16_fecha_hasta date,
+ observacionTrabajosAltura_obsvaltura text, observacionAptitudCaliente_obsvtencaliente text, observacionAptitudConducir_obsvlicencia text,
+ antecedentesPatologicos_ante_patologicos text, colesterolAnalisisBioquimico_txtcolesterol text, trigliseridosAnalisisBioquimico_txttrigliseridos text,
+ recomendacionesAnalisisBioquimico_txtrecomendaciones text, restriccionesAnalisisBioquimico_atxtrestricciones text,
+ nombresede text, numerosede text, sede text, color integer, namejasper text
+ ) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+	    d.cod_pa,
+	    d.nombres_pa,
+	    d.apellidos_pa,
+	    d.direccion_pa,
+	    d.sexo_pa,
+	    d.fecha_nacimiento_pa,
+	    d.ocupacion_pa,
+	    n.cargo_de,
+	    n.area_o,
+	    n.razon_contrata,
+	    n.n_orden,
+	    n.razon_empresa,
+	    n.nom_examen,
+	    n.cod_clinica,
+	    CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
+	    t.f_cardiaca,
+	    t.f_respiratoria,
+	    t.sistolica,
+	    t.diastolica,
+	    t.talla,
+	    t.peso,
+	    t.imc,
+	    t.cintura,
+	    t.cadera,
+	    t.sat_02,
+	    t.icc,
+	    o.e_oculares,
+	    o.e_oculares1,
+	    m.diagnostico,
+	    txtconclusionesradiograficas,
+	    a.txtconclusion,
+	    a.txtantecedentesfamiliares,
+	    a.txtantecedentespersonales2,
+	    ie.hallazgo,
+	    CASE 
+		WHEN TRIM(n.razon_empresa) = 'OBRASCÓN HUARTE LAIN S.A' AND a2.n_orden IS NOT NULL 
+		    THEN a2.apto
+		ELSE ipsi.aprobo_inf
+	    END AS aprobo_inf,
+	    odo.txtobservaciones,
+	    epp.rbapto,
+	    CASE 
+		WHEN t.imc < '18.5' THEN 'PESO BAJO'
+		WHEN t.imc > '18.4' AND t.imc < '25' THEN 'NORMAL'
+		WHEN t.imc > '24.9' AND t.imc < '30' THEN 'SOBREPESO'
+		WHEN t.imc > '29.9' AND t.imc < '35' THEN 'OBESIDAD I'
+		WHEN t.imc > '34.9' AND t.imc < '40' THEN 'OBESIDAD II'
+		WHEN t.imc > '39.9' THEN 'OBESIDAD'
+	    END AS CONCLUSION_IMC,
+	    CASE 
+		WHEN l.chko = 'TRUE' THEN 'O'
+		WHEN l.chka = 'TRUE' THEN 'A'
+		WHEN l.chkb = 'TRUE' THEN 'B'
+		WHEN l.chkab = 'TRUE' THEN 'AB'
+		ELSE '.'
+	    END || '' ||
+	    CASE 
+		WHEN l.rbrhpositivo = 'TRUE' THEN ' - POSITIVO'
+		WHEN l.rbrhnegativo = 'TRUE' THEN ' - NEGATIVO'
+	    END AS Grupofactor,
+	    l.txthemoglobina,
+	    l.txthematiesematologia,
+	    l.txtglucosabio,
+	    l.txtcocaina,
+	    l.txtmarihuana,
+	    l.chkpositivo,
+	    l.txtvsg,
+	    a.txtobservacionesfm,
+	    CASE 
+		WHEN ap.chkapto = 'TRUE' THEN 'APTO'
+		WHEN ap.chkapto_restriccion = 'TRUE' THEN 'APTO CON RESTRICCIÓN'
+		WHEN ap.chkno_apto = 'TRUE' THEN 'NO APTO'
+		WHEN ap.conobservacion = 'TRUE' THEN 'CON OBSERVACIÓN'
+		WHEN ap.evaluado = 'TRUE' THEN 'EVALUADO'
+	    END AS aptitud,
+	    ap.atxtrestricciones,
+	    ap.fecha,
+	    ap.fecha_hasta,
+	    CASE 
+		WHEN aa.chkapto = 'TRUE' THEN 'APTO PARA TRABAJOS EN ALTURA'
+		WHEN aa.chkno_apto = 'TRUE' THEN 'NO APTO PARA TRABAJOS EN ALTURA'
+		ELSE 'N/A'
+	    END AS obsvaltura,
+	    CASE 
+		WHEN at.chkapto = 'TRUE' THEN 'APTO PARA TRABAJOS EN CALIENTE'
+		WHEN at.chkno_apto = 'TRUE' THEN 'NO APTO PARA TRABAJOS EN CALIENTE'
+		ELSE 'N/A'
+	    END AS obsvtencaliente,
+	    CASE 
+		WHEN al.chkapto = 'TRUE' THEN 'APTO PARA CONDUCCIÓN DE VEHICULOS Y OPERAR EQUIPOS'
+		WHEN al.chkno_apto = 'TRUE' THEN 'NO APTO PARA CONDUCCIÓN DE VEHICULOS Y OPERAR EQUIPOS'
+		ELSE 'N/A'
+	    END AS obsvlicencia,
+	    CASE WHEN ant.chk1 = 'TRUE' THEN 'Alergias, ' ELSE '' END ||
+	    CASE WHEN ant.chk2 = 'TRUE' THEN 'Amigdalitis crónica, ' ELSE '' END ||
+	    CASE WHEN ant.chk3 = 'TRUE' THEN 'Arritmias cardíacas, ' ELSE '' END ||
+	    CASE WHEN ant.chk4 = 'TRUE' THEN 'Asma, ' ELSE '' END ||
+	    CASE WHEN ant.chk5 = 'TRUE' THEN 'Bocio, ' ELSE '' END ||
+	    CASE WHEN ant.chk6 = 'TRUE' THEN 'Bronconeumonía, ' ELSE '' END ||
+	    CASE WHEN ant.chk7 = 'TRUE' THEN 'Bronquitis a repetición, ' ELSE '' END ||
+	    CASE WHEN ant.chk8 = 'TRUE' THEN 'Caries o gingivitis, ' ELSE '' END ||
+	    CASE WHEN ant.chk9 = 'TRUE' THEN 'Colecistitis, ' ELSE '' END ||
+	    CASE WHEN ant.chk10 = 'TRUE' THEN 'Dermatitis, ' ELSE '' END ||
+	    CASE WHEN ant.chk11 = 'TRUE' THEN 'Diabetes, ' ELSE '' END ||
+	    CASE WHEN ant.chk12 = 'TRUE' THEN 'Disentería, ' ELSE '' END ||
+	    CASE WHEN ant.chk13 = 'TRUE' THEN 'Enfermedades del corazón, ' ELSE '' END ||
+	    CASE WHEN ant.chk14 = 'TRUE' THEN 'Enfermedades oculares, ' ELSE '' END ||
+	    CASE WHEN ant.chk15 = 'TRUE' THEN 'Epilepsia o convulsiones, ' ELSE '' END ||
+	    CASE WHEN ant.chk16 = 'TRUE' THEN 'Faringitis crónica, ' ELSE '' END ||
+	    CASE WHEN ant.chk17 = 'TRUE' THEN 'Fiebre malta, ' ELSE '' END ||
+	    CASE WHEN ant.chk18 = 'TRUE' THEN 'Fiebre tifoidea, ' ELSE '' END ||
+	    CASE WHEN ant.chk19 = 'TRUE' THEN 'Fiebre reumática, ' ELSE '' END ||
+	    CASE WHEN ant.chk20 = 'TRUE' THEN 'Forunculosis, ' ELSE '' END ||
+	    CASE WHEN ant.chk21 = 'TRUE' THEN 'Gastritis crónica, ' ELSE '' END ||
+	    CASE WHEN ant.chk22 = 'TRUE' THEN 'Gonorrea, ' ELSE '' END ||
+	    CASE WHEN ant.chk23 = 'TRUE' THEN 'Gota, ' ELSE '' END ||
+	    CASE WHEN ant.chk24 = 'TRUE' THEN 'Hemorroides, ' ELSE '' END ||
+	    CASE WHEN ant.chk25 = 'TRUE' THEN 'Hepatitis, ' ELSE '' END ||
+	    CASE WHEN ant.chk26 = 'TRUE' THEN 'Hernias, ' ELSE '' END ||
+	    CASE WHEN ant.chk27 = 'TRUE' THEN 'Hipertensión arterial, ' ELSE '' END ||
+	    CASE WHEN ant.chk28 = 'TRUE' THEN 'Infecciones urinarias repetidas, ' ELSE '' END ||
+	    CASE WHEN ant.chk29 = 'TRUE' THEN 'Intoxicaciones, ' ELSE '' END ||
+	    CASE WHEN ant.chk30 = 'TRUE' THEN 'Insuficiencia cardíaca, ' ELSE '' END ||
+	    CASE WHEN ant.chk31 = 'TRUE' THEN 'Insuficiencia coronaria crónica, ' ELSE '' END ||
+	    CASE WHEN ant.chk32 = 'TRUE' THEN 'Insuficiencia renal crónica, ' ELSE '' END ||
+	    CASE WHEN ant.chk33 = 'TRUE' THEN 'Litiasis urinaria, ' ELSE '' END ||
+	    CASE WHEN ant.chk34 = 'TRUE' THEN 'Meningitis, ' ELSE '' END ||
+	    CASE WHEN ant.chk35 = 'TRUE' THEN 'Neuritis a repetición, ' ELSE '' END ||
+	    CASE WHEN ant.chk36 = 'TRUE' THEN 'Otitis media, ' ELSE '' END ||
+	    CASE WHEN ant.chk37 = 'TRUE' THEN 'Presión alta o baja, ' ELSE '' END ||
+	    CASE WHEN ant.chk38 = 'TRUE' THEN 'Paludismo o malaria, ' ELSE '' END ||
+	    CASE WHEN ant.chk39 = 'TRUE' THEN 'Parasitosis intestinal, ' ELSE '' END ||
+	    CASE WHEN ant.chk40 = 'TRUE' THEN 'Parotiditis, ' ELSE '' END ||
+	    CASE WHEN ant.chk41 = 'TRUE' THEN 'Pleuresia, ' ELSE '' END ||
+	    CASE WHEN ant.chk42 = 'TRUE' THEN 'Plumbismo, ' ELSE '' END ||
+	    CASE WHEN ant.chk43 = 'TRUE' THEN 'Poliomielitis, ' ELSE '' END ||
+	    CASE WHEN ant.chk44 = 'TRUE' THEN 'Portador de marcapasos, ' ELSE '' END ||
+	    CASE WHEN ant.chk45 = 'TRUE' THEN 'Prótesis cardíacas valvulares, ' ELSE '' END ||
+	    CASE WHEN ant.chk46 = 'TRUE' THEN 'Resfriados frecuentes, ' ELSE '' END ||
+	    CASE WHEN ant.chk47 = 'TRUE' THEN 'Reumatismo a repetición, ' ELSE '' END ||
+	    CASE WHEN ant.chk48 = 'TRUE' THEN 'Sarampión, ' ELSE '' END ||
+	    CASE WHEN ant.chk49 = 'TRUE' THEN 'Sífilis, ' ELSE '' END ||
+	    CASE WHEN ant.chk50 = 'TRUE' THEN 'Silicosis, ' ELSE '' END ||
+	    CASE WHEN ant.chk51 = 'TRUE' THEN 'Sinusitis crónica, ' ELSE '' END ||
+	    CASE WHEN ant.chk52 = 'TRUE' THEN 'Tos convulsiva, ' ELSE '' END ||
+	    CASE WHEN ant.chk53 = 'TRUE' THEN 'Trastornos nerviosos, ' ELSE '' END ||
+	    CASE WHEN ant.chk54 = 'TRUE' THEN 'Traumatismo encefalocraneano, ' ELSE '' END ||
+	    CASE WHEN ant.chk55 = 'TRUE' THEN 'Tuberculosis, ' ELSE '' END ||
+	    CASE WHEN ant.chk56 = 'TRUE' THEN 'Tumores - quistes, ' ELSE '' END ||
+	    CASE WHEN ant.chk57 = 'TRUE' THEN 'Úlcera péptica, ' ELSE '' END ||
+	    CASE WHEN ant.chk58 = 'TRUE' THEN 'Varicela, ' ELSE '' END ||
+	    CASE WHEN ant.chk59 = 'TRUE' THEN 'Várices, ' ELSE '' END ||
+	    CASE WHEN ant.chk60 = 'TRUE' THEN 'Varicocele, ' ELSE '' END ||
+	    CASE WHEN ant.chk61 = 'TRUE' THEN 'Pérdida de memoria, ' ELSE '' END ||
+	    CASE WHEN ant.chk62 = 'TRUE' THEN 'Preocupaciones o angustia, ' ELSE '' END ||
+	    CASE WHEN ant.chk63 = 'TRUE' THEN 'Dolores articulares y/o huesos, ' ELSE '' END ||
+	    CASE WHEN ant.chk64 = 'TRUE' THEN 'Aumento o disminución de peso, ' ELSE '' END ||
+	    CASE WHEN ant.chk65 = 'TRUE' THEN 'Dolor de cabeza, ' ELSE '' END ||
+	    CASE WHEN ant.chk66 = 'TRUE' THEN 'Diarrea, ' ELSE '' END ||
+	    CASE WHEN ant.chk67 = 'TRUE' THEN 'Aguitación al hacer ejercicios, ' ELSE '' END ||
+	    CASE WHEN ant.chk68 = 'TRUE' THEN 'Dolor ocular, ' ELSE '' END ||
+	    CASE WHEN ant.chk69 = 'TRUE' THEN 'Dolor Opresivo Torax, ' ELSE '' END ||
+	    CASE WHEN ant.chk70 = 'TRUE' THEN 'Hinchazón de pies o manos, ' ELSE '' END ||
+	    CASE WHEN ant.chk71 = 'TRUE' THEN 'Estreñimiento, ' ELSE '' END ||
+	    CASE WHEN ant.chk72 = 'TRUE' THEN 'Vómitos con sangre, ' ELSE '' END ||
+	    CASE WHEN ant.chk73 = 'TRUE' THEN 'Sangrado por orina, ' ELSE '' END ||
+	    CASE WHEN ant.chk74 = 'TRUE' THEN 'Tos con sangre, ' ELSE '' END ||
+	    CASE WHEN ant.chk75 = 'TRUE' THEN 'Coloración amarilla de la piel, ' ELSE '' END ||
+	    CASE WHEN ant.chk76 = 'TRUE' THEN 'Indigestión frecuente, ' ELSE '' END ||
+	    CASE WHEN ant.chk77 = 'TRUE' THEN 'Insomnio, ' ELSE '' END ||
+	    CASE WHEN ant.chk78 = 'TRUE' THEN 'Lumbalgias o dolor de cintura, ' ELSE '' END ||
+	    CASE WHEN ant.chk79 = 'TRUE' THEN 'Mareos- Desmayos- Vertigos, ' ELSE '' END ||
+	    CASE WHEN ant.chk80 = 'TRUE' THEN 'Heces negras, ' ELSE '' END ||
+	    CASE WHEN ant.chk81 = 'TRUE' THEN 'Orina con dolor o ardor, ' ELSE '' END ||
+	    CASE WHEN ant.chk82 = 'TRUE' THEN 'Orina involuntaria, ' ELSE '' END ||
+	    CASE WHEN ant.chk83 = 'TRUE' THEN 'Dolor de oído, ' ELSE '' END ||
+	    CASE WHEN ant.chk84 = 'TRUE' THEN 'Secreciones por el oído, ' ELSE '' END ||
+	    CASE WHEN ant.chk85 = 'TRUE' THEN 'Palpitaciones, ' ELSE '' END ||
+	    CASE WHEN ant.chk86 = 'TRUE' THEN 'Adormecimientos, ' ELSE '' END ||
+	    CASE WHEN ant.chk87 = 'TRUE' THEN 'Pesadillas frecuentes, ' ELSE '' END ||
+	    CASE WHEN ant.chk88 = 'TRUE' THEN 'Dolores musculares, ' ELSE '' END ||
+	    CASE WHEN ant.chk89 = 'TRUE' THEN 'Tos crónica, ' ELSE '' END ||
+	    CASE WHEN ant.chk90 = 'TRUE' THEN 'Sangrado por encias' ELSE '' END AS ante_patologicos,
+	    ab.txtcolesterol,
+	    ab.txttrigliseridos,
+	    ap.txtrecomendaciones,
+	    ap.atxtrestricciones,
+	    CASE 
+		WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A' 
+		    THEN 'Huamachuco'
+		ELSE (
+		    SELECT nombre_sede 
+		    FROM sede 
+		    WHERE cod_sede = n.cod_sede
+		)
+	    END AS nombre_sede,
+	    CASE 
+		WHEN n.cod_sede = 1 
+		    THEN CONCAT(n.n_orden, '-T')
+		WHEN n.cod_sede = 4 
+		    THEN CONCAT(n.n_orden, '-TP')
+		ELSE CONCAT(n.n_orden, '-H')
+	    END AS numero,
+	    CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+	    n.color,
+	    CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'ResumenAnexo7CP_Digitalizado' ELSE 'ResumenAnexo7C_OHLA_Digitalizado' END
+	    --obtener_name_jasper(p_norden, name_service)
+	FROM datos_paciente AS d
+	INNER JOIN n_orden_ocupacional AS n 
+	    ON d.cod_pa = n.cod_pa
+	INNER JOIN sede_multisucursal AS sm 
+	    ON n.cod_sede = sm.id
+	INNER JOIN triaje AS t 
+	    ON n.n_orden = t.n_orden
+	INNER JOIN oftalmologia AS o 
+	    ON n.n_orden = o.n_orden
+	INNER JOIN certificado_aptitud_medico_ocupacional AS ap 
+	    ON n.n_orden = ap.n_orden
+	INNER JOIN radiografia_torax AS r 
+	    ON n.n_orden = r.n_orden
+	INNER JOIN lab_clinico AS l 
+	    ON n.n_orden = l.n_orden
+	INNER JOIN odontograma odo
+	    ON n.n_orden = odo.n_orden
+	INNER JOIN antecedentes_patologicos AS ant 
+	    ON n.n_orden = ant.n_orden
+	LEFT JOIN informe_electrocardiograma AS ie 
+	    ON n.n_orden = ie.n_orden
+	LEFT JOIN aptitud_altura_poderosa AS aa 
+	    ON n.n_orden = aa.n_orden
+	LEFT JOIN aptitud_licencia_conduciri AS al 
+	    ON n.n_orden = al.n_orden
+	LEFT JOIN aptitud_trabajos_encaliente AS at 
+	    ON n.n_orden = at.n_orden
+	INNER JOIN evaluacion_psicologica_poderosa epp
+	    ON n.n_orden = epp.n_orden
+	INNER JOIN audiometria_po AS m 
+	    ON n.n_orden = m.n_orden
+	INNER JOIN anexo7c AS a 
+	    ON n.n_orden = a.n_orden
+	LEFT JOIN analisis_bioquimicos AS ab 
+	    ON n.n_orden = ab.n_orden
+	LEFT JOIN ficha_psicologica_anexo02 AS a2 
+	    ON n.n_orden = a2.n_orden
+	LEFT JOIN informe_psicologico ipsi
+	    ON n.n_orden = ipsi.n_orden
+	WHERE n.n_orden = p_norden;
+
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION obtener_reporte_aptitud_licencia_conducir(
     IN p_norden integer,
     IN name_service text)
