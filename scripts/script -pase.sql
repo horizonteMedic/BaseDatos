@@ -1,5 +1,79 @@
 select n_orden from n_orden_ocupacional limit 1
 
+drop FUNCTION obtener_reporte_hoja_consulta_externa(
+    IN p_norden integer,
+    IN name_service text)
+
+CREATE OR REPLACE FUNCTION obtener_reporte_hoja_consulta_externa(
+    IN p_norden integer,
+    IN name_service text)
+  RETURNS TABLE(dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", fechanacimientopaciente date, ocupacionpaciente text, 
+  cargopaciente text, areapaciente text, contrata text, norden integer, empresa text, nombreexamen text, edadpaciente text, fechaexamen date, horasalida time without time zone, 
+  nombremedico text, postavijus boolean, cedro boolean, paraiso boolean, otros boolean, otrosdescripcion text, observaciones text, color integer, sede text, nombresede text, 
+  namejasper text, anexo16AntecedentesPersonales text, anexo16AntecedentesPersonales2 text, anexo16AntecedentesFamiliares text, anexo16OtrosExamenes text, anexo16ObservacionesGenerales text
+  ) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+	    dp.cod_pa,
+	    dp.nombres_pa,
+	    dp.apellidos_pa,
+	    dp.direccion_pa,
+	    dp.sexo_pa,
+	    dp.fecha_nacimiento_pa,
+	    dp.ocupacion_pa,
+	    n.cargo_de,
+	    n.area_o,
+	    n.razon_contrata,
+	    n.n_orden,
+	    n.razon_empresa,
+	    n.nom_examen,
+	    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+	    ca.fecha_examen,
+	    ca.horasalida,
+	    ca.nom_medico,
+	    ca.rbposta_vijus,
+	    ca.rbcedro,
+	    ca.rbparaiso,
+	    ca.rbotros,
+	    ca.txtotros,
+	    ca.txtobservaciones,
+	    n.color,
+	    CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+	    CASE
+		WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A' THEN 'Huamachuco'
+		WHEN n.cod_sede = 1 THEN 'Trujillo'
+		WHEN n.cod_sede = 2 THEN 'Huamachuco'
+		WHEN n.cod_sede = 3 THEN 'Huancayo'
+		WHEN n.cod_sede = 4 THEN 'Trujillo'
+	    END AS nom_sede,
+	    obtener_name_jasper(p_norden, name_service),
+	    a7.txtantecedentespersonales,
+	    a7.txtantecedentespersonales2,
+	    a7.txtantecedentesfamiliares,
+	    e2.txtotrosex,
+	    a7.txtobservacionesfm
+	  FROM datos_paciente AS dp
+	INNER JOIN n_orden_ocupacional AS n 
+	    ON dp.cod_pa = n.cod_pa
+	INNER JOIN sede_multisucursal AS sm 
+	    ON n.cod_sede = sm.id
+	INNER JOIN hoja_consulta_externa AS ca 
+	    ON ca.n_orden = n.n_orden
+	LEFT JOIN anexo7c AS a7
+	    ON a7.n_orden = n.n_orden
+	LEFT JOIN ex_radiograficos_sanguineos AS e2 
+	    ON (e2.n_orden = n.n_orden)
+	WHERE n.n_orden = p_norden;
+
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+
+
+
 drop FUNCTION obtener_reporte_aptitud_certificado_caliente(
     IN p_norden integer,
     IN name_service text)
