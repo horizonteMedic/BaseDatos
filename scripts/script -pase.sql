@@ -1,5 +1,21 @@
 select n_orden from n_orden_ocupacional limit 1
 
+
+CREATE TABLE certificado_aptitud_herramientas_manuales (
+    id_certificado SERIAL PRIMARY KEY,
+	n_orden INTEGER NOT NULL,
+    apto BOOLEAN,
+    apto_restriccion BOOLEAN,
+    apto_temporal BOOLEAN,
+    observacion TEXT,
+    fecha_certificado DATE,
+    fecha_caducidad DATE,
+    user_registro TEXT
+);
+
+
+
+
 update config_general_service_digital set firma_p = true, huella_p = true where name_service = 'b_uso_respiradores'
 
 
@@ -281,26 +297,7 @@ drop FUNCTION obtener_reporte_hoja_consulta_externa(
 CREATE OR REPLACE FUNCTION obtener_reporte_hoja_consulta_externa(
     IN p_norden integer,
     IN name_service text)
-  RETURNS TABLE(dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", fechanacimientopaciente date, ocupacionpaciente text, 
-  cargopaciente text, areapaciente text, contrata text, norden integer, empresa text, nombreexamen text, edadpaciente text, fechaexamen date, horasalida time without time zone, 
-  nombremedico text, postavijus boolean, cedro boolean, paraiso boolean, otros boolean, otrosdescripcion text, observaciones text, color integer, sede text, nombresede text, 
-  namejasper text, anexo16AntecedentesPersonales text, anexo16AntecedentesPersonales2 text, anexo16AntecedentesFamiliares text, anexo16OtrosExamenes text, anexo16ObservacionesGenerales text,
-  examenQuimicoNitritos_txtnitritoseq text, examenQuimicoProteinas_txtproteinaseq text, examenQuimicoCetonas_txtcetonaseq text,
-  examenQuimicoLeucocitos_txtleucocitoseq text, examenQuimicoUrobilinogeno_txturobilinogenoeq text,
-  examenQuimicoBilirubina_txtbilirubinaeq text, examenQuimicoGlucosa_txtglucosaeq text, examenQuimicoSangre_txtsangreeq text,
-  sedimientoUrinarioLeucocitos_txtleucocitossu text, sedimientoUrinarioEpiteliales_txtcelepitelialessu text,
-  sedimientoUrinarioCilindios_txtcilindiossu text, sedimientoUrinarioBacterias_txtbacteriassu text,
-  sedimientoUrinarioHematies_txthematiessu text, sedimientoUrinarioCristales_txtcristalessu text,
-  sedimientoUrinarioPus_txtpussu text, sedimientoUrinarioOtros_txtotrossu text, examenFisicoColor_txtcoloref text,
-  examenFisicoDensidad_txtdensidadef text, examenFisicoAspecto_txtaspectoef text, examenFisicoPh_txtphef text,
-  grupoSanguineoO_chko boolean, grupoSanguineoA_chka boolean, grupoSanguineoB_chkb boolean, grupoSanguineoAB_chkab boolean,
-  grupoSanguineoRhPositivo_rbrhpositivo boolean, grupoSanguineoRhNegativo_rbrhnegativo boolean,
-  glucosaLaboratorioClinico_txtglucosabio text, vsgLaboratorioClinico_txtvsg text, cocainaLaboratorioClinico_txtcocaina text,
-  marihuanaLaboratorioClinico_txtmarihuana text, creatininaLaboratorioClinico_txtcreatininabio text,
-  hemoglobina_txthemoglobina text, colesterolAnalisisBioquimico_txtcolesterol text, ldlcolesterolAnalisisBioquimico_txtldlcolesterol text,
-  hdlcolesterolAnalisisBioquimico_txthdlcolesterol text, vldlcolesterolAnalisisBioquimico_txtvldlcolesterol text,
-  trigliseridosAnalisisBioquimico_txttrigliseridos text
-  ) AS
+  RETURNS TABLE(dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", fechanacimientopaciente date, ocupacionpaciente text, cargopaciente text, areapaciente text, contrata text, norden integer, empresa text, nombreexamen text, edadpaciente text, fechaexamen date, horasalida time without time zone, nombremedico text, postavijus boolean, cedro boolean, paraiso boolean, otros boolean, otrosdescripcion text, observaciones text, color integer, sede text, nombresede text, namejasper text, anexo16antecedentespersonales text, anexo16antecedentespersonales2 text, anexo16antecedentesfamiliares text, anexo16otrosexamenes text, anexo16observacionesgenerales text, examenquimiconitritos_txtnitritoseq text, examenquimicoproteinas_txtproteinaseq text, examenquimicocetonas_txtcetonaseq text, examenquimicoleucocitos_txtleucocitoseq text, examenquimicourobilinogeno_txturobilinogenoeq text, examenquimicobilirubina_txtbilirubinaeq text, examenquimicoglucosa_txtglucosaeq text, examenquimicosangre_txtsangreeq text, sedimientourinarioleucocitos_txtleucocitossu text, sedimientourinarioepiteliales_txtcelepitelialessu text, sedimientourinariocilindios_txtcilindiossu text, sedimientourinariobacterias_txtbacteriassu text, sedimientourinariohematies_txthematiessu text, sedimientourinariocristales_txtcristalessu text, sedimientourinariopus_txtpussu text, sedimientourinariootros_txtotrossu text, examenfisicocolor_txtcoloref text, examenfisicodensidad_txtdensidadef text, examenfisicoaspecto_txtaspectoef text, examenfisicoph_txtphef text, gruposanguineoo_chko boolean, gruposanguineoa_chka boolean, gruposanguineob_chkb boolean, gruposanguineoab_chkab boolean, gruposanguineorhpositivo_rbrhpositivo boolean, gruposanguineorhnegativo_rbrhnegativo boolean, glucosalaboratorioclinico_txtglucosabio text, vsglaboratorioclinico_txtvsg text, cocainalaboratorioclinico_txtcocaina text, marihuanalaboratorioclinico_txtmarihuana text, creatininalaboratorioclinico_txtcreatininabio text, hemoglobina_txthemoglobina text, colesterolanalisisbioquimico_txtcolesterol text, ldlcolesterolanalisisbioquimico_txtldlcolesterol text, hdlcolesterolanalisisbioquimico_txthdlcolesterol text, vldlcolesterolanalisisbioquimico_txtvldlcolesterol text, trigliseridosanalisisbioquimico_txttrigliseridos text) AS
 $BODY$
 BEGIN
     RETURN QUERY
@@ -385,11 +382,11 @@ BEGIN
 	    ON dp.cod_pa = n.cod_pa
 	INNER JOIN sede_multisucursal AS sm 
 	    ON n.cod_sede = sm.id
-	INNER JOIN hoja_consulta_externa AS ca 
+	LEFT JOIN hoja_consulta_externa AS ca 
 	    ON ca.n_orden = n.n_orden
 	INNER JOIN anexo7c AS a7
 	    ON a7.n_orden = n.n_orden
-	INNER JOIN lab_clinico AS l 
+	LEFT JOIN lab_clinico AS l 
 	    ON n.n_orden = l.n_orden
 	LEFT JOIN ex_radiograficos_sanguineos AS e2 
 	    ON (e2.n_orden = n.n_orden)
