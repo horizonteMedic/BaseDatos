@@ -1,5 +1,233 @@
 select n_orden from n_orden_ocupacional limit 1
 
+drop FUNCTION obtener_reporte_aptitud_certificado_caliente(
+    IN p_norden integer,
+    IN name_service text)
+
+CREATE OR REPLACE FUNCTION obtener_reporte_aptitud_certificado_caliente(
+    IN p_norden integer,
+    IN name_service text)
+  RETURNS TABLE(dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", fechanacimientopaciente date, ocupacionpaciente text, cargopaciente text, areapaciente text, contrata text, norden integer, empresa text, nombreexamen text, codigoclinica text, edadpaciente text, fechaexamen date, fechahasta date, nombremedico text, apto boolean, aptorestriccion boolean, aptotemporal boolean, noapto boolean, observaciones text, horasalida time without time zone, nombresede text, numerosede text, sede text, color integer, namejasper text, explotacion text) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+	    d.cod_pa,
+	    d.nombres_pa,
+	    d.apellidos_pa,
+	    d.direccion_pa,
+	    d.sexo_pa,
+	    d.fecha_nacimiento_pa,
+	    d.ocupacion_pa,
+	    n.cargo_de,
+	    n.area_o,
+	    n.razon_contrata,
+	    n.n_orden,
+	    n.razon_empresa,
+	    n.nom_examen,
+	    n.cod_clinica,
+	    CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
+	    ca.fecha_examen,
+	    ca.fecha_hasta,
+	    ca.nom_medico,
+	    ca.chkapto,
+	    ca.chkapto_restriccion,
+	    ca.chkno_apto_temporal,
+	    ca.chkno_apto,
+	    ca.txtobservaciones,
+	    ca.horasalida,
+	    CASE 
+		WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A' 
+		    THEN 'Huamachuco'
+		ELSE (
+		    SELECT nombre_sede 
+		    FROM sede 
+		    WHERE cod_sede = n.cod_sede
+		)
+	    END AS nombre_sede,
+	    CASE 
+		WHEN n.cod_sede = 1 
+		    THEN CONCAT(n.n_orden, '-T')
+		WHEN n.cod_sede = 4 
+		    THEN CONCAT(n.n_orden, '-TP')
+		ELSE CONCAT(n.n_orden, '-H')
+	    END AS numero,
+	    CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+	    n.color,
+	    obtener_name_jasper(p_norden, name_service),
+	    n.nom_ex
+	FROM datos_paciente AS d
+	INNER JOIN n_orden_ocupacional AS n 
+	    ON d.cod_pa = n.cod_pa
+	INNER JOIN sede_multisucursal AS sm 
+	    ON n.cod_sede = sm.id
+	INNER JOIN aptitud_trabajos_encaliente AS ca 
+	    ON ca.n_orden = n.n_orden
+	WHERE n.n_orden = p_norden;
+
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+drop FUNCTION obtener_reporte_ficha_interconsulta(
+    IN p_norden integer,
+    IN p_especialidad text,
+    IN name_service text)
+
+CREATE OR REPLACE FUNCTION obtener_reporte_ficha_interconsulta(
+    IN p_norden integer,
+    IN p_especialidad text,
+    IN name_service text)
+  RETURNS TABLE(dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", fechanacimientopaciente date, ocupacionpaciente text, cargopaciente text, areapaciente text, contrata text, norden integer, empresa text, nombreexamen text, codigoclinica text, fecha_apertura date, edadpaciente text, celularpaciente text, frecuenciacardiaca text, sistolica text, diastolica text, frecuenciarespiratoriatriaje_f_respiratoria text, imctriaje text, saturacionoxigenotriaje_sat_02 text, temperatura text, peso text, tallatriaje text, codigofichainterconsulta integer, fechaexamen date, horasalida time without time zone, dniusuario integer, especialidad text, motivo text, hallazgo text, diagnostico text, tratamiento text, apto boolean, noapto boolean, nombreusuario text, apellidousuario text, cmpusuario text, visioncercasincorregirod_v_cerca_s_od text, visioncercasincorregiroi_v_cerca_s_oi text, oftalodccmologia_odcc text, oiccoftalmologia_oicc text, visionlejossincorregirod_v_lejos_s_od text, visionlejossincorregiroi_v_lejos_s_oi text, odlcoftalmologia_odlc text, oilcoftalmologia_oilc text, vcoftalmologia_vc text, vboftalmologia_vb text, rpoftalmologia_rp text, enfermedadesocularesoftalmo_e_oculares text, nombresede text, sede text, color integer, namejasper text, orden integer) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+	    d.cod_pa,
+	    d.nombres_pa,
+	    d.apellidos_pa,
+	    d.direccion_pa,
+	    d.sexo_pa,
+	    d.fecha_nacimiento_pa,
+	    d.ocupacion_pa,
+	    n.cargo_de,
+	    n.area_o,
+	    n.razon_contrata,
+	    n.n_orden,
+	    n.razon_empresa,
+	    n.nom_examen,
+	    n.cod_clinica,
+	    n.fecha_apertura_po,
+	    CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
+	    d.cel_pa,
+	    t.f_cardiaca,
+	    t.sistolica,
+	    t.diastolica,
+	    t.f_respiratoria,
+	    t.imc,
+	    t.sat_02,
+	    t.temperatura,
+	    t.peso,
+	    t.talla,
+	    f.cod_fichaint,
+	    f.fecha_exa,
+	    f.horasalida,
+	    f.dni_user,
+	    f.especialidad,
+	    f.motivo,
+	    f.hallazgo,
+	    f.diagnostico,
+	    f.tratamiento,
+	    f.apto,
+	    f.no_apto,
+	    u.nombre_user,
+	    u.apellido_user,
+	    u.cmp_user,
+	    CASE 
+		WHEN oft.txtcercasincorregirod IS NOT NULL THEN oft.txtcercasincorregirod 
+		ELSE o.v_cerca_s_od 
+	    END AS v_cerca_s_od,
+	    
+	    CASE 
+		WHEN oft.txtcercasincorregiroi IS NOT NULL THEN oft.txtcercasincorregiroi 
+		ELSE o.v_cerca_s_oi 
+	    END AS v_cerca_s_oi,
+	    
+	    CASE 
+		WHEN oft.txtcercacorregidaod IS NOT NULL THEN oft.txtcercacorregidaod
+		WHEN ol.v_cerca_c_od IS NULL THEN o.v_cerca_c_od
+		ELSE ol.v_cerca_c_od 
+	    END AS ODCC,
+	    
+	    CASE 
+		WHEN oft.txtcercacorregidaoi IS NOT NULL THEN oft.txtcercacorregidaoi
+		WHEN ol.v_cerca_c_oi IS NULL THEN o.v_cerca_c_oi
+		ELSE ol.v_cerca_c_oi 
+	    END AS OICC,
+	    
+	    CASE 
+		WHEN oft.txtlejossincorregirod IS NOT NULL THEN oft.txtlejossincorregirod 
+		ELSE o.v_lejos_s_od 
+	    END AS v_lejos_s_od,
+	    
+	    CASE 
+		WHEN oft.txtlejossincorregiroi IS NOT NULL THEN oft.txtlejossincorregiroi 
+		ELSE o.v_lejos_s_oi 
+	    END AS v_lejos_s_oi,
+	    
+	    CASE 
+		WHEN oft.txtlejoscorregidaod IS NOT NULL THEN oft.txtlejoscorregidaod
+		WHEN ol.v_lejos_c_od IS NULL THEN o.v_lejos_c_od  
+		ELSE ol.v_lejos_c_od  
+	    END AS ODLC,
+	    
+	    CASE 
+		WHEN oft.txtlejoscorregidaoi IS NOT NULL THEN oft.txtlejoscorregidaoi
+		WHEN ol.v_lejos_c_oi IS NULL THEN o.v_lejos_c_oi  
+		ELSE ol.v_lejos_c_oi  
+	    END AS OILC,
+	    
+	    CASE  
+		WHEN oft.rbtecishihara_normal = 'TRUE' THEN 'NORMAL'
+		WHEN oft.rbtecishihara_anormal = 'TRUE' THEN 'ANORMAL'
+		WHEN ol.v_colores IS NULL THEN o.v_colores
+		ELSE ol.v_colores  
+	    END AS VC,
+	    
+	    CASE  
+		WHEN oft.txtbinocularsincorregir IS NOT NULL THEN oft.txtbinocularsincorregir
+		WHEN ol.v_binocular IS NULL THEN o.v_binocular
+		ELSE ol.v_binocular  
+	    END AS VB,
+	    
+	    CASE  
+		WHEN oft.txtrp IS NOT NULL THEN oft.txtrp
+		WHEN ol.r_pupilares IS NULL THEN o.r_pupilares
+		ELSE ol.r_pupilares  
+	    END AS RP,
+	    
+	    CASE  
+		WHEN oft.txtdiagnostico IS NOT NULL THEN oft.txtdiagnostico  
+		ELSE o.e_oculares 
+	    END AS e_oculares,
+	    CASE 
+		WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A' 
+		    THEN 'Huamachuco'
+		ELSE (
+		    SELECT nombre_sede 
+		    FROM sede 
+		    WHERE cod_sede = n.cod_sede
+		)
+	    END AS nombre_sede,
+	    CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+	    n.color,
+	    obtener_name_jasper(p_norden, name_service),
+	    f.orden
+	FROM datos_paciente AS d
+	INNER JOIN n_orden_ocupacional AS n 
+	    ON d.cod_pa = n.cod_pa
+	INNER JOIN sede_multisucursal AS sm 
+	    ON n.cod_sede = sm.id
+	INNER JOIN 
+	    triaje AS t ON n.n_orden = t.n_orden
+	LEFT JOIN 
+	    ficha_interconsulta AS f ON n.n_orden = f.n_orden
+	LEFT JOIN 
+	    usuarios AS u ON f.dni_user = u.dni_user
+	LEFT JOIN 
+	    oftalmologia AS o ON n.n_orden = o.n_orden
+	LEFT JOIN 
+	    oftalmologia_lo AS ol ON n.n_orden = ol.n_orden
+	LEFT JOIN 
+	    oftalmologia2021 AS oft ON n.n_orden = oft.n_orden
+	WHERE 
+	    n.n_orden = p_norden
+	    AND (f.cod_fichaint IS NULL OR UPPER(f.especialidad) = UPPER(p_especialidad));
+
+END;
+$BODY$
+  LANGUAGE plpgsql
+
 CREATE OR REPLACE FUNCTION obtener_resumen_medico(
     IN p_norden integer)
   RETURNS TABLE(
@@ -280,11 +508,7 @@ $BODY$
 CREATE OR REPLACE FUNCTION obtener_reporte_aptitud_licencia_conducir(
     IN p_norden integer,
     IN name_service text)
-  RETURNS TABLE(
-  dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", fechanacimientopaciente date, 
-  ocupacionpaciente text, cargopaciente text, areapaciente text, contrata text, norden integer, empresa text, nombreexamen text, codigoclinica text, 
-  edadpaciente text, fechaexamen date, fechahasta date, nombremedico text, apto boolean, aptorestriccion boolean, aptotemporal boolean, noapto boolean, 
-  observaciones text, horasalida time without time zone, nombresede text, numerosede text, sede text, color integer, namejasper text) AS
+  RETURNS TABLE(dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", fechanacimientopaciente date, ocupacionpaciente text, cargopaciente text, areapaciente text, contrata text, norden integer, empresa text, nombreexamen text, codigoclinica text, edadpaciente text, fechaexamen date, fechahasta date, nombremedico text, apto boolean, aptorestriccion boolean, aptotemporal boolean, noapto boolean, observaciones text, horasalida time without time zone, nombresede text, numerosede text, sede text, color integer, namejasper text, explotacion text) AS
 $BODY$
 BEGIN
     RETURN QUERY
@@ -331,7 +555,8 @@ BEGIN
 	    END AS numero,
 	    CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
 	    n.color,
-	    obtener_name_jasper(p_norden, name_service)
+	    obtener_name_jasper(p_norden, name_service),
+	    n.nom_ex
 	FROM datos_paciente AS d
 	INNER JOIN n_orden_ocupacional AS n 
 	    ON d.cod_pa = n.cod_pa
@@ -346,7 +571,7 @@ $BODY$
   LANGUAGE plpgsql;
 
 insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
-			values('aptitud_licencia_conduciri','formulario de aptitud licencia de conducir',false,false,true,false,false);
+			values('aptitud_licencia_conduciri','formulario de aptitud licencia de conducir',true,true,true,false,false);
 
 
 CREATE OR REPLACE FUNCTION obtener_reporte_aptitud_certificado_caliente(
@@ -417,7 +642,7 @@ $BODY$
   LANGUAGE plpgsql;
 
 insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
-			values('aptitud_trabajos_encaliente','formulario de aptitud certificado caliente',false,false,true,false,false);
+			values('aptitud_trabajos_encaliente','formulario de aptitud certificado caliente',true,true,true,false,false);
 
 CREATE OR REPLACE FUNCTION obtener_reporte_aptitud_altura_poderosa(
     IN p_norden integer,
@@ -652,6 +877,9 @@ BEGIN
 END;
 $BODY$
   LANGUAGE plpgsql;
+
+insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
+			values('hoja_consulta_externa','formulario de hoja consulta externa',true,true,true,false,false);
 
 CREATE OR REPLACE FUNCTION obtener_reporte_certificado_trabajo_altura_poderosa(
     IN p_norden integer,
@@ -3067,7 +3295,20 @@ IF name_servicio_param = 'test_fatiga_somnolencia' THEN
     END IF;
 
     IF name_servicio_param = 'aptitud_trabajos_encaliente' THEN
+        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            descripcion := 'FIRMA DEL PACIENTE';
+            name_digitalizacion := 'FIRMAP';
+            dni := dni_paciente_var;
+            RETURN NEXT;
+        END IF;
 
+        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            descripcion := 'HUELLA DEL PACIENTE';
+            name_digitalizacion := 'HUELLA';
+            dni := dni_paciente_var;
+            RETURN NEXT;
+        END IF;
+        
         IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
             SELECT user_registro INTO user_registro_var 
             FROM  aptitud_trabajos_encaliente WHERE n_orden = norden_param;
@@ -3086,9 +3327,55 @@ IF name_servicio_param = 'test_fatiga_somnolencia' THEN
 
     IF name_servicio_param = 'aptitud_licencia_conduciri' THEN
 
+        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            descripcion := 'FIRMA DEL PACIENTE';
+            name_digitalizacion := 'FIRMAP';
+            dni := dni_paciente_var;
+            RETURN NEXT;
+        END IF;
+
+        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            descripcion := 'HUELLA DEL PACIENTE';
+            name_digitalizacion := 'HUELLA';
+            dni := dni_paciente_var;
+            RETURN NEXT;
+        END IF;
+        
         IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
             SELECT user_registro INTO user_registro_var 
             FROM  aptitud_licencia_conduciri WHERE n_orden = norden_param;
+            select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
+		IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
+		    dni_user_registro_var := 42664426;
+		ELSIF empresa_var = 'MONARCA GOLD S.A.C.' THEN
+		    dni_user_registro_var := 66666666;
+		END IF;
+            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
+            name_digitalizacion := 'SELLOFIRMA';
+            dni := dni_user_registro_var;
+            RETURN NEXT;
+        END IF;
+    END IF;
+
+    IF name_servicio_param = 'hoja_consulta_externa' THEN
+
+        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            descripcion := 'FIRMA DEL PACIENTE';
+            name_digitalizacion := 'FIRMAP';
+            dni := dni_paciente_var;
+            RETURN NEXT;
+        END IF;
+
+        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            descripcion := 'HUELLA DEL PACIENTE';
+            name_digitalizacion := 'HUELLA';
+            dni := dni_paciente_var;
+            RETURN NEXT;
+        END IF;
+        
+        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            SELECT user_registro INTO user_registro_var 
+            FROM  hoja_consulta_externa WHERE n_orden = norden_param;
             select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
 		IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
 		    dni_user_registro_var := 42664426;
