@@ -1,5 +1,279 @@
 select n_orden from n_orden_ocupacional limit 1
 
+update config_general_service_digital set firma_p = true, huella_p = true where name_service = 'b_uso_respiradores'
+
+
+drop FUNCTION obtener_reporte_certificado_trabajo_altura_poderosa(
+    IN p_norden integer,
+    IN name_service text)
+
+CREATE OR REPLACE FUNCTION obtener_reporte_certificado_trabajo_altura_poderosa(
+    IN p_norden integer,
+    IN name_service text)
+  RETURNS TABLE(dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", fechanacimientopaciente date, 
+  ocupacionpaciente text, cargopaciente text, areapaciente text, contrata text, norden integer, empresa text, nombreexamen text, codigoclinica text, edadpaciente text, 
+  codigocertificado_cod_certificado integer, fechaexamen_f_examen date, fechacaducidad_f_caducidad date, procedencia_procedencia text, tiempoexperiencia_t_experiencia text, 
+  lugarexperiencia_lugar_expe text, accidentestrabajo_txtaccidentes_trab text, antecedentesfamiliares_txtantecedente_familiares text, tecmoderadosi_chk_psico_si1 boolean, 
+  tecmoderadono_chk_psico_no1 boolean, convulsionessi_chk_psico_si2 boolean, convulsionesno_chk_psico_no2 boolean, mareossi_chk_psico_si3 boolean, mareosno_chk_psico_no3 boolean, 
+  problemasauditivossi_chk_psico_si4 boolean, problemasauditivosno_chk_psico_no4 boolean, problemasequilibriosi_chk_psico_si5 boolean, problemasequilibriono_chk_psico_no5 boolean, 
+  acrofobiasi_chk_psico_si6 boolean, acrofobiano_chk_psico_no6 boolean, agarofobiasi_chk_psico_si7 boolean, agarofobiano_chk_psico_no7 boolean, 
+  tecmoderadodescripcion_txt_antecpsico_1 text, convulsionesdescripcion_txt_antecpsico_2 text, mareosdescripcion_txt_antecpsico_3 text, 
+  problemasauditivosdescripcion_txt_antecpsico_4 text, problemasequilibriodescripcion_txt_antecpsico_5 text, acrofobiadescripcion_txt_antecpsico_6 text, 
+  agarofobiadescripcion_txt_antecpsico_7 text, tabacocantidad_txt_tabaco_cantiad text, tabacofrecuencia_txt_tabaco_frecuencia text, alcoholcantidad_txt_alcohol_cantiad text, 
+  alcoholfrecuencia_txt_alcohol_frecuencia text, drogascantidad_txt_drogas_cantiad text, drogasfrecuencia_txt_drogas_frecuencia text, hojacocacantidad_txt_hojacoca_cantiad text, 
+  hojacocafrecuencia_txt_hojacoca_frecuencia text, cafecantidad_txt_cafe_cantiad text, cafefrecuencia_txt_cafe_frecuencia text, gustadivertirsesi_chktest_si1 boolean, 
+  gustadivertirseno_chktest_no1 boolean, gustadivertirsepuntaje_txttest_p1 text, tardecompromisosi_chktest_si2 boolean, tardecompromisono_chktest_no2 boolean, 
+  tardecompromisopuntaje_txttest_p2 text, criticaformabebersi_chktest_si3 boolean, criticaformabeberno_chktest_no3 boolean, criticaformabeberpuntaje_txttest_p3 text, reuniondivertirsereanimasi_chktest_si4 boolean, reuniondivertirsereanimano_chktest_no4 boolean, reuniondivertirsereanimapuntaje_txttest_p4 text, impresionbebermenossi_chktest_si5 boolean, impresionbebermenosno_chktest_no5 boolean, impresionbebermenospuntaje_txttest_p5 text, duermebiensi_chktest_si6 boolean, duermebienno_chktest_no6 boolean, duermebienpuntaje_txttest_p6 text, costumbrebebersi_chktest_si7 boolean, costumbrebeberno_chktest_no7 boolean, costumbrebeberpuntaje_txttest_p7 text, nerviosoamenudosi_chktest_si8 boolean, nerviosoamenudono_chktest_no8 boolean, nerviosoamenudopuntaje_txttest_p8 text, bebercalmarnerviossi_chktest_si9 boolean, bebercalmarnerviosno_chktest_no9 boolean, bebercalmarnerviospuntaje_txttest_p9 text, doloresespaldasi_chktest_si10 boolean, doloresespaldano_chktest_no10 boolean, doloresespaldapuntaje_txttest_p10 text, anamnesis_txtanamnesis text, apreciaciongeneral_txtapresiaciongeneral text, cabeza_txtcabeza text, piel_txtpiel text, motilidadocular_txtmotilidadocular text, otoscopiaod_txtotoscopiaod text, otoscopiaoi_txtotoscopiaoi text, nariz_txtnariz text, aprespiratorio_txtaprespiratorio text, apcardiovascular_txtapcardiovascuar text, abdomen_txtabdomen text, musculoesqueletico_txtmusculoesqueletico text, columna_txtcolumna text, tesepworth_txttesepworth text, reflejos_txtreflejos text, dedonariznegativo_chkneuro_neg1 boolean, dedonarizpositivo_chkneuro_pos1 boolean, indicebaranynegativo_chkneuro_neg2 boolean, indicebaranypositivo_chkneuro_pos2 boolean, diadococinesianegativo_chkneuro_neg3 boolean, diadococinesiapositivo_chkneuro_pos3 boolean, rombergsimplenegativo_chkneuro_neg4 boolean, rombergsimplepositivo_chkneuro_pos4 boolean, rombergsensibilizadonegativo_chkneuro_neg5 boolean, rombergsensibilizadopositivo_chkneuro_pos5 boolean, marchatandemnegativo_chkneuro_neg6 boolean, marchatandempositivo_chkneuro_pos6 boolean, unterbergnegativo_chkneuro_neg7 boolean, unterbergpositivo_chkneuro_pos7 boolean, babinskinegativo_chkneuro_neg8 boolean, babinskipositivo_chkneuro_pos8 boolean, dixnegativo_chkneuro_neg9 boolean, dixpositivo_chkneuro_pos9 boolean, marchanegativo_chkneuro_neg10 boolean, marchapositivo_chkneuro_pos10 boolean, diagnostico_txtdiagnostico text, apto_chk_apto boolean, noapto_chk_no_apto boolean, aptorestriccion_chk_apto_r boolean, conclusiones_atxtobservaciones text, dniusuario_dni_user integer, otrosexameneslaboratorio_txtotrosexamlab text, altura_txtaltura text, tallatriaje_talla text, pesotriaje_peso text, imctriaje_imc text, cinturatriaje_cintura text, icctriaje_icc text, caderatriaje_cadera text, temperaturatriaje_temperatura text, frecuenciacardiacatriaje_f_cardiaca text, saturacionoxigenotriaje_sat_02 text, perimetrocuellotriaje_perimetro_cuello text, sistolicatriaje_sistolica text, diastolicatriaje_diastolica text, frecuenciarespiratoriatriaje_f_respiratoria text, visioncercasincorregirod_v_cerca_s_od text, visioncercasincorregiroi_v_cerca_s_oi text, odcc_odcc text, oicc_oicc text, visionlejossincorregirod_v_lejos_s_od text, visionlejossincorregiroi_v_lejos_s_oi text, odlc_odlc text, oilc_oilc text, vc_vc text, vb_vb text, rp_rp text, enfermedadesocularesoftalmo_e_oculares text, maximainspiracionptoracico_p_max_inspiracion text, forazadaptoracico_p_ex_forzada text, hemoglobinalaboratorioclinico_txthemoglobina text, hematocritolaboratorioclinico_txthematocrito text, glucosalaboratorioclinico_txtglucosabio text, creatininalaboratorioclinico_txtcreatininabio text, cocainalaboratorioclinico_txtcocaina text, marihuanalaboratorioclinico_txtmarihuana text, colesterolanalisisbioquimico_txtcolesterol text, ldlcolesterolanalisisbioquimico_txtldlcolesterol text, hdlcolesterolanalisisbioquimico_txthdlcolesterol text, vldlcolesterolanalisisbioquimico_txtvldlcolesterol text, trigliseridosanalisisbioquimico_txttrigliseridos text, nombremedico text, cmpusuario text, 
+  nombresede text, sede text, color integer, namejasper text,
+  oidoDerecho500Audiometria_o_d_500 text, oidoDerecho1000Audiometria_o_d_1000 text,
+  oidoDerecho2000Audiometria_o_d_2000 text, oidoDerecho3000Audiometria_o_d_3000 text,
+  oidoDerecho4000Audiometria_o_d_4000 text, oidoDerecho6000Audiometria_o_d_6000 text,
+  oidoDerecho8000Audiometria_o_d_8000 text, oidoIzquierdo500Audiometria_o_i_500 text, 
+  oidoIzquierdo1000Audiometria_o_i_1000 text, oidoIzquierdo2000Audiometria_o_i_2000 text,
+  oidoIzquierdo3000Audiometria_o_i_3000 text, oidoIzquierdo4000Audiometria_o_i_4000 text,
+  oidoIzquierdo6000Audiometria_o_i_6000 text, oidoIzquierdo8000Audiometria_o_i_8000 text,
+  diagnosticoAudiometricoCompleto_diagnostico text
+  ) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+	    d.cod_pa,
+	    d.nombres_pa,
+	    d.apellidos_pa,
+	    d.direccion_pa,
+	    d.sexo_pa,
+	    d.fecha_nacimiento_pa,
+	    d.ocupacion_pa,
+	    n.cargo_de,
+	    n.area_o,
+	    n.razon_contrata,
+	    n.n_orden,
+	    n.razon_empresa,
+	    n.nom_examen,
+	    n.cod_clinica,
+	    CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
+	    ca.cod_certificado,
+	    ca.f_examen,
+	    ca.f_caducidad,
+	    ca.procedencia,
+	    ca.t_experiencia,
+	    ca.lugar_expe,
+	    ca.txtaccidentes_trab,
+	    ca.txtantecedente_familiares,
+
+	    ca.chk_psico_si1, ca.chk_psico_no1,
+	    ca.chk_psico_si2, ca.chk_psico_no2,
+	    ca.chk_psico_si3, ca.chk_psico_no3,
+	    ca.chk_psico_si4, ca.chk_psico_no4,
+	    ca.chk_psico_si5, ca.chk_psico_no5,
+	    ca.chk_psico_si6, ca.chk_psico_no6,
+	    ca.chk_psico_si7, ca.chk_psico_no7,
+
+	    ca.txt_antecpsico_1,
+	    ca.txt_antecpsico_2,
+	    ca.txt_antecpsico_3,
+	    ca.txt_antecpsico_4,
+	    ca.txt_antecpsico_5,
+	    ca.txt_antecpsico_6,
+	    ca.txt_antecpsico_7,
+
+	    ca.txt_tabaco_cantiad,
+	    ca.txt_tabaco_frecuencia,
+	    ca.txt_alcohol_cantiad,
+	    ca.txt_alcohol_frecuencia,
+	    ca.txt_drogas_cantiad,
+	    ca.txt_drogas_frecuencia,
+	    ca.txt_hojacoca_cantiad,
+	    ca.txt_hojacoca_frecuencia,
+	    ca.txt_cafe_cantiad,
+	    ca.txt_cafe_frecuencia,
+
+	    ca.chktest_si1,  ca.chktest_no1,  ca.txttest_p1,
+	    ca.chktest_si2,  ca.chktest_no2,  ca.txttest_p2,
+	    ca.chktest_si3,  ca.chktest_no3,  ca.txttest_p3,
+	    ca.chktest_si4,  ca.chktest_no4,  ca.txttest_p4,
+	    ca.chktest_si5,  ca.chktest_no5,  ca.txttest_p5,
+	    ca.chktest_si6,  ca.chktest_no6,  ca.txttest_p6,
+	    ca.chktest_si7,  ca.chktest_no7,  ca.txttest_p7,
+	    ca.chktest_si8,  ca.chktest_no8,  ca.txttest_p8,
+	    ca.chktest_si9,  ca.chktest_no9,  ca.txttest_p9,
+	    ca.chktest_si10, ca.chktest_no10, ca.txttest_p10,
+	    --
+	    ca.txtanamnesis,
+	    ca.txtapresiaciongeneral,
+	    ca.txtcabeza,
+	    ca.txtpiel,
+	    ca.txtmotilidadocular,
+	    ca.txtotoscopiaod,
+	    ca.txtotoscopiaoi,
+	    ca.txtnariz,
+	    ca.txtaprespiratorio,
+	    ca.txtapcardiovascuar,
+	    ca.txtabdomen,
+	    ca.txtmusculoesqueletico,
+	    ca.txtcolumna,
+	    ca.txttesepworth,
+	    ca.txtreflejos,
+
+	    ca.chkneuro_neg1,  ca.chkneuro_pos1,
+	    ca.chkneuro_neg2,  ca.chkneuro_pos2,
+	    ca.chkneuro_neg3,  ca.chkneuro_pos3,
+	    ca.chkneuro_neg4,  ca.chkneuro_pos4,
+	    ca.chkneuro_neg5,  ca.chkneuro_pos5,
+	    ca.chkneuro_neg6,  ca.chkneuro_pos6,
+	    ca.chkneuro_neg7,  ca.chkneuro_pos7,
+	    ca.chkneuro_neg8,  ca.chkneuro_pos8,
+	    ca.chkneuro_neg9,  ca.chkneuro_pos9,
+	    ca.chkneuro_neg10, ca.chkneuro_pos10,
+
+	    ca.txtdiagnostico,
+	    ca.chk_apto,
+	    ca.chk_no_apto,
+	    ca.chk_apto_r,
+	    ca.atxtobservaciones,
+	    ca.dni_user,
+	    ca.txtotrosexamlab,
+	    ca.txtaltura,
+
+	    t.talla,
+	    t.peso,
+	    t.imc,
+	    t.cintura,
+	    t.icc,
+	    t.cadera,
+	    t.temperatura,
+	    t.f_cardiaca,
+	    t.sat_02,
+	    t.perimetro_cuello,
+	    t.sistolica,
+	    t.diastolica,
+	    t.f_respiratoria,
+	    CASE 
+		WHEN oft.txtcercasincorregirod IS NOT NULL THEN oft.txtcercasincorregirod
+		ELSE o.v_cerca_s_od
+	    END AS v_cerca_s_od,
+
+	    CASE 
+		WHEN oft.txtcercasincorregiroi IS NOT NULL THEN oft.txtcercasincorregiroi
+		ELSE o.v_cerca_s_oi
+	    END AS v_cerca_s_oi,
+
+	    -- Visión cerca corregida
+	    CASE 
+		WHEN oft.txtcercacorregidaod IS NOT NULL THEN oft.txtcercacorregidaod
+		WHEN ol.v_cerca_c_od IS NULL THEN o.v_cerca_c_od
+		ELSE ol.v_cerca_c_od
+	    END AS ODCC,
+
+	    CASE 
+		WHEN oft.txtcercacorregidaoi IS NOT NULL THEN oft.txtcercacorregidaoi
+		WHEN ol.v_cerca_c_oi IS NULL THEN o.v_cerca_c_oi
+		ELSE ol.v_cerca_c_oi
+	    END AS OICC,
+
+	    -- Visión lejos sin corregir
+	    CASE 
+		WHEN oft.txtlejossincorregirod IS NOT NULL THEN oft.txtlejossincorregirod
+		ELSE o.v_lejos_s_od
+	    END AS v_lejos_s_od,
+
+	    CASE 
+		WHEN oft.txtlejossincorregiroi IS NOT NULL THEN oft.txtlejossincorregiroi
+		ELSE o.v_lejos_s_oi
+	    END AS v_lejos_s_oi,
+
+	    -- Visión lejos corregida
+	    CASE 
+		WHEN oft.txtlejoscorregidaod IS NOT NULL THEN oft.txtlejoscorregidaod
+		WHEN ol.v_lejos_c_od IS NULL THEN o.v_lejos_c_od
+		ELSE ol.v_lejos_c_od
+	    END AS ODLC,
+
+	    CASE 
+		WHEN oft.txtlejoscorregidaoi IS NOT NULL THEN oft.txtlejoscorregidaoi
+		WHEN ol.v_lejos_c_oi IS NULL THEN o.v_lejos_c_oi
+		ELSE ol.v_lejos_c_oi
+	    END AS OILC,
+
+	    -- Colores
+	    CASE  
+		WHEN oft.rbtecishihara_normal = 'TRUE' THEN 'NORMAL'
+		WHEN oft.rbtecishihara_anormal = 'TRUE' THEN 'ANORMAL'
+		WHEN ol.v_colores IS NULL THEN o.v_colores
+		ELSE ol.v_colores
+	    END AS VC,
+
+	    -- Binocular
+	    CASE  
+		WHEN oft.txtbinocularsincorregir IS NOT NULL THEN oft.txtbinocularsincorregir
+		WHEN ol.v_binocular IS NULL THEN o.v_binocular
+		ELSE ol.v_binocular
+	    END AS VB,
+
+	    -- Reflejos Pupilares
+	    CASE  
+		WHEN oft.txtrp IS NOT NULL THEN oft.txtrp
+		WHEN ol.r_pupilares IS NULL THEN o.r_pupilares
+		ELSE ol.r_pupilares
+	    END AS RP,
+
+	    -- Diagnóstico
+	    CASE  
+		WHEN oft.txtdiagnostico IS NOT NULL THEN oft.txtdiagnostico
+		ELSE o.e_oculares
+	    END AS e_oculares,
+	    pt.p_max_inspiracion,
+	    pt.p_ex_forzada,
+	    l.txthemoglobina, l.txthematocrito, l.txtglucosabio, l.txtcreatininabio,
+	    l.txtcocaina,l.txtmarihuana,
+	    a.txtcolesterol, a.txtldlcolesterol, a.txthdlcolesterol, a.txtvldlcolesterol, a.txttrigliseridos,
+	    u.nombre_user||' '||u.apellido_user AS nom_medico, u.cmp_user,
+	    CASE 
+		WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A' 
+		    THEN 'Huamachuco'
+		ELSE (
+		    SELECT nombre_sede 
+		    FROM sede 
+		    WHERE cod_sede = n.cod_sede
+		)
+	    END AS nombre_sede,
+	    CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+	    n.color,
+	    obtener_name_jasper(p_norden, name_service),
+	    au.o_d_500, au.o_d_1000, au.o_d_2000,au.o_d_3000, au.o_d_4000, au.o_d_6000, au.o_d_8000, au.o_i_500, au.o_i_1000, au.o_i_2000, 
+	    au.o_i_3000, au.o_i_4000, au.o_i_6000, au.o_i_8000,au.diagnostico
+	FROM datos_paciente AS d
+	INNER JOIN n_orden_ocupacional AS n 
+	    ON d.cod_pa = n.cod_pa
+	INNER JOIN sede_multisucursal AS sm 
+	    ON n.cod_sede = sm.id
+	INNER JOIN triaje AS t 
+	    ON n.n_orden = t.n_orden
+	LEFT JOIN certificado_altura_poderosa AS ca 
+	    ON n.n_orden = ca.n_orden
+	LEFT JOIN oftalmologia AS o 
+	    ON n.n_orden = o.n_orden
+	LEFT JOIN oftalmologia_lo AS ol 
+	    ON n.n_orden = ol.n_orden
+	LEFT JOIN oftalmologia2021 AS oft 
+	    ON n.n_orden = oft.n_orden
+	LEFT JOIN perimetro_toracico AS pt
+	    ON n.n_orden = pt.n_orden
+	LEFT JOIN lab_clinico AS l 
+	    ON l.n_orden=n.n_orden
+	LEFT JOIN analisis_bioquimicos AS a 
+	    ON (a.n_orden=n.n_orden)
+	LEFT JOIN audiometria_po AS au 
+	    ON (au.n_orden=n.n_orden)
+	LEFT JOIN usuarios AS u 
+	    ON (u.dni_user = ca.dni_user)
+	WHERE n.n_orden = p_norden;
+
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
 drop FUNCTION obtener_reporte_hoja_consulta_externa(
     IN p_norden integer,
     IN name_service text)
@@ -10,7 +284,22 @@ CREATE OR REPLACE FUNCTION obtener_reporte_hoja_consulta_externa(
   RETURNS TABLE(dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", fechanacimientopaciente date, ocupacionpaciente text, 
   cargopaciente text, areapaciente text, contrata text, norden integer, empresa text, nombreexamen text, edadpaciente text, fechaexamen date, horasalida time without time zone, 
   nombremedico text, postavijus boolean, cedro boolean, paraiso boolean, otros boolean, otrosdescripcion text, observaciones text, color integer, sede text, nombresede text, 
-  namejasper text, anexo16AntecedentesPersonales text, anexo16AntecedentesPersonales2 text, anexo16AntecedentesFamiliares text, anexo16OtrosExamenes text, anexo16ObservacionesGenerales text
+  namejasper text, anexo16AntecedentesPersonales text, anexo16AntecedentesPersonales2 text, anexo16AntecedentesFamiliares text, anexo16OtrosExamenes text, anexo16ObservacionesGenerales text,
+  examenQuimicoNitritos_txtnitritoseq text, examenQuimicoProteinas_txtproteinaseq text, examenQuimicoCetonas_txtcetonaseq text,
+  examenQuimicoLeucocitos_txtleucocitoseq text, examenQuimicoUrobilinogeno_txturobilinogenoeq text,
+  examenQuimicoBilirubina_txtbilirubinaeq text, examenQuimicoGlucosa_txtglucosaeq text, examenQuimicoSangre_txtsangreeq text,
+  sedimientoUrinarioLeucocitos_txtleucocitossu text, sedimientoUrinarioEpiteliales_txtcelepitelialessu text,
+  sedimientoUrinarioCilindios_txtcilindiossu text, sedimientoUrinarioBacterias_txtbacteriassu text,
+  sedimientoUrinarioHematies_txthematiessu text, sedimientoUrinarioCristales_txtcristalessu text,
+  sedimientoUrinarioPus_txtpussu text, sedimientoUrinarioOtros_txtotrossu text, examenFisicoColor_txtcoloref text,
+  examenFisicoDensidad_txtdensidadef text, examenFisicoAspecto_txtaspectoef text, examenFisicoPh_txtphef text,
+  grupoSanguineoO_chko boolean, grupoSanguineoA_chka boolean, grupoSanguineoB_chkb boolean, grupoSanguineoAB_chkab boolean,
+  grupoSanguineoRhPositivo_rbrhpositivo boolean, grupoSanguineoRhNegativo_rbrhnegativo boolean,
+  glucosaLaboratorioClinico_txtglucosabio text, vsgLaboratorioClinico_txtvsg text, cocainaLaboratorioClinico_txtcocaina text,
+  marihuanaLaboratorioClinico_txtmarihuana text, creatininaLaboratorioClinico_txtcreatininabio text,
+  hemoglobina_txthemoglobina text, colesterolAnalisisBioquimico_txtcolesterol text, ldlcolesterolAnalisisBioquimico_txtldlcolesterol text,
+  hdlcolesterolAnalisisBioquimico_txthdlcolesterol text, vldlcolesterolAnalisisBioquimico_txtvldlcolesterol text,
+  trigliseridosAnalisisBioquimico_txttrigliseridos text
   ) AS
 $BODY$
 BEGIN
@@ -53,7 +342,44 @@ BEGIN
 	    a7.txtantecedentespersonales2,
 	    a7.txtantecedentesfamiliares,
 	    e2.txtotrosex,
-	    a7.txtobservacionesfm
+	    a7.txtobservacionesfm,
+	    l.txtnitritoseq, 
+	    l.txtproteinaseq, 
+	    l.txtcetonaseq,
+	    l.txtleucocitoseq, 
+	    l.txturobilinogenoeq, 
+	    l.txtbilirubinaeq, 
+	    l.txtglucosaeq, 
+	    l.txtsangreeq,
+	    l.txtleucocitossu,
+	    l.txtcelepitelialessu, 
+	    l.txtcilindiossu, 
+	    l.txtbacteriassu, 
+	    l.txthematiessu, 
+	    l.txtcristalessu, 
+	    l.txtpussu, 
+	    l.txtotrossu,
+	    l.txtcoloref, 
+	    l.txtdensidadef, 
+	    l.txtaspectoef, 
+	    l.txtphef,
+	    l.chko, 
+	    l.chka, 
+	    l.chkb, 
+	    l.chkab,
+	    l.rbrhpositivo, 
+	    l.rbrhnegativo,
+	    l.txtglucosabio,
+	    l.txtvsg,
+	    l.txtcocaina,
+	    l.txtmarihuana,
+	    l.txtcreatininabio,
+	    l.txthemoglobina,
+	    ab.txtcolesterol, 
+	    ab.txtldlcolesterol, 
+	    ab.txthdlcolesterol, 
+	    ab.txtvldlcolesterol,
+	    ab.txttrigliseridos
 	  FROM datos_paciente AS dp
 	INNER JOIN n_orden_ocupacional AS n 
 	    ON dp.cod_pa = n.cod_pa
@@ -61,16 +387,19 @@ BEGIN
 	    ON n.cod_sede = sm.id
 	INNER JOIN hoja_consulta_externa AS ca 
 	    ON ca.n_orden = n.n_orden
-	LEFT JOIN anexo7c AS a7
+	INNER JOIN anexo7c AS a7
 	    ON a7.n_orden = n.n_orden
+	INNER JOIN lab_clinico AS l 
+	    ON n.n_orden = l.n_orden
 	LEFT JOIN ex_radiograficos_sanguineos AS e2 
 	    ON (e2.n_orden = n.n_orden)
+	LEFT JOIN analisis_bioquimicos AS ab 
+	    ON (n.n_orden = ab.n_orden)
 	WHERE n.n_orden = p_norden;
 
 END;
 $BODY$
   LANGUAGE plpgsql;
-
 
 
 
@@ -3254,6 +3583,20 @@ IF name_servicio_param = 'test_fatiga_somnolencia' THEN
 
     IF name_servicio_param = 'b_uso_respiradores' THEN
 
+        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            descripcion := 'FIRMA DEL PACIENTE';
+            name_digitalizacion := 'FIRMAP';
+            dni := dni_paciente_var;
+            RETURN NEXT;
+        END IF;
+
+        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            descripcion := 'HUELLA DEL PACIENTE';
+            name_digitalizacion := 'HUELLA';
+            dni := dni_paciente_var;
+            RETURN NEXT;
+        END IF;
+
         IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
             SELECT user_registro INTO user_registro_var 
             FROM b_uso_respiradores WHERE n_orden = norden_param;
@@ -4368,14 +4711,20 @@ begin
         end if;
 
         if(p_examen_med='hoja_consulta_externa') THEN
-	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from hoja_consulta_externa where n_orden=p_historia_clinica limit 1;
-		if(v_id_existencia=0) THEN
-			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
-		else
-			v_mensaje:='YA FUE REGISTRADO';
-				
+           select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from hoja_consulta_externa where n_orden=p_historia_clinica limit 1;
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_tabla_necesaria_existencia  from anexo7c where n_orden=p_historia_clinica limit 1;
+	   
+		if(v_tabla_necesaria_existencia=1) THEN
+			if(v_id_existencia=0) THEN
+				v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+			else
+				v_mensaje:='YA FUE REGISTRADO';
+					
+			end if;
+		else 
+			v_mensaje:='DEBE PASAR POR ANEXO 16 PRIMERO (OBLIGATORIO)';
+			v_id_existencia:=2;
 		end if;
-		
         end if;
 
         if(p_examen_med='aptitud_altura_poderosa') THEN
