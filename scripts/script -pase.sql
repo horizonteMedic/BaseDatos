@@ -13,7 +13,62 @@ select n_orden from n_orden_ocupacional limit 1
 
 
 
+CREATE OR REPLACE FUNCTION obtener_antecedentes_patologicos_quirurgicos(
+    IN p_norden integer	)
+  RETURNS TABLE(
+  codigoAntecedentesPatologicosQuirurgicos integer,
+  hospitalOperacion text,
+  operacion text,
+  diasHospitalizado text,
+  complicaciones text,
+  fechaAntecedentesPatologicosQuirurgicos text
+  ) AS
+$BODY$
+DECLARE
+	existeAntecedente boolean;
+BEGIN
+    SELECT CASE WHEN  COUNT(*) >0 THEN TRUE ELSE FALSE END INTO existeAntecedente
+    FROM antecedentes_patologicos
+    WHERE n_orden = p_norden;
+    RETURN QUERY
+	SELECT 
+	    apq.cod_ap AS codigoAntecedentesPatologicosQuirurgicos,
+	    apq.hospital_operacion AS hospitalOperacion,
+	    apq.operacion,
+	    apq.dias_hospitalizado AS diasHospitalizado,
+	    apq.complicaciones,
+	    apq.fecha AS fechaAntecedentesPatologicosQuirurgicos
+	FROM datos_paciente AS d
+	INNER JOIN n_orden_ocupacional AS n 
+	    ON n.cod_pa = d.cod_pa
+	INNER JOIN antecedentes_patologicos AS ap
+	    ON ap.n_orden = n.n_orden
+	LEFT JOIN antecedentes_patologicos_quirurgicos AS apq 
+	    ON ap.cod_ap = apq.cod_ap
+	WHERE 
+	    (existeAntecedente = TRUE AND ap.n_orden = p_norden)
+	    OR
+	    (
+	     existeAntecedente = FALSE AND
+	     n.n_orden IN (
+			SELECT DISTINCT nno.n_orden
+			FROM datos_paciente AS dp
+			INNER JOIN n_orden_ocupacional AS nno
+			    ON nno.cod_pa = dp.cod_pa
+			INNER JOIN antecedentes_patologicos AS ap2
+			    ON ap2.n_orden = nno.n_orden
+			INNER JOIN antecedentes_patologicos_quirurgicos AS apq2
+			    ON ap2.cod_ap = apq2.cod_ap
+			WHERE dp.cod_pa = (
+			     SELECT nnno.cod_pa FROM n_orden_ocupacional nnno WHERE nnno.n_orden = p_norden
+			)
+	        )
+	    )
+	    ORDER BY apq.fecha DESC;
 
+END;
+$BODY$
+  LANGUAGE plpgsql;
 
 
 
