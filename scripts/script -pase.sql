@@ -1,5 +1,297 @@
 select n_orden from n_orden_ocupacional limit 1
 
+CREATE OR REPLACE FUNCTION obtener_reporte_certificado_aptitud_herramientas_manuales(
+    IN p_norden integer,
+    IN name_service text)
+  RETURNS TABLE(dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", fechanacimientopaciente date, 
+  ocupacionpaciente text, cargopaciente text, areapaciente text, contrata text, norden integer, empresa text, nombreexamen text, codigoclinica text, 
+  edadpaciente text, explotacion text, idcertificado integer, apto boolean, aptorestriccion boolean, aptotemporal boolean, observacion text, fechacertificado date, fechacaducidad date, 
+  nombremedico text, nombresede text, numerosede text, sede text, color integer, namejasper text) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+	    d.cod_pa,
+	    d.nombres_pa,
+	    d.apellidos_pa,
+	    d.direccion_pa,
+	    d.sexo_pa,
+	    d.fecha_nacimiento_pa,
+	    d.ocupacion_pa,
+	    n.cargo_de,
+	    n.area_o,
+	    n.razon_contrata,
+	    n.n_orden,
+	    n.razon_empresa,
+	    n.nom_examen,
+	    n.cod_clinica,
+	    CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
+	    n.nom_ex,
+	    c.id_certificado,
+	    c.apto,
+	    c.apto_restriccion,
+	    c.apto_temporal,
+	    c.observacion,
+	    c.fecha_certificado,
+	    c.fecha_caducidad,
+	    u.nombre_user||' '||u.apellido_user AS nom_medico,
+	    CASE 
+		WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A' 
+		    THEN 'Huamachuco'
+		ELSE (
+		    SELECT nombre_sede 
+		    FROM sede 
+		    WHERE cod_sede = n.cod_sede
+		)
+	    END AS nombre_sede,
+	    CASE 
+		WHEN n.cod_sede = 1 
+		    THEN CONCAT(n.n_orden, '-T')
+		WHEN n.cod_sede = 4 
+		    THEN CONCAT(n.n_orden, '-TP')
+		ELSE CONCAT(n.n_orden, '-H')
+	    END AS numero,
+	    CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+	    n.color,
+	    obtener_name_jasper(p_norden, name_service)
+	FROM datos_paciente AS d
+	INNER JOIN n_orden_ocupacional AS n 
+	    ON d.cod_pa = n.cod_pa
+	INNER JOIN sede_multisucursal AS sm 
+	    ON n.cod_sede = sm.id
+	INNER JOIN certificado_aptitud_herramientas_manuales AS c
+	    ON c.n_orden = n.n_orden
+	INNER JOIN usuarios AS u 
+	    ON LOWER(u.usuario_user) = LOWER(c.user_registro)
+	WHERE n.n_orden = p_norden;
+
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION obtener_reporte_evaluacion_psicologica_poderosa(
+    IN p_norden integer,
+    IN name_service text)
+  RETURNS TABLE(
+  dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", fechanacimientopaciente date, 
+  ocupacionpaciente text, lugarnacimientopaciente text, nivelestudiopaciente text, estadocivilpaciente text, cargopaciente text, areapaciente text, 
+  contrata text, norden integer, empresa text, nombreexamen text, codigoclinica text, edadpaciente text, 
+  codigoEvaluacionPsicologicaPoderosa integer, fecha date, coeficienteIntelectualS boolean,
+  coeficienteIntelectualNPS boolean,
+coeficienteIntelectualNP boolean,
+coeficienteIntelectualNPI boolean,
+coeficienteIntelectualI boolean,
+compresionS boolean,
+compresionNPS boolean,
+compresionNP boolean,
+compresionNPI boolean,
+compresionI boolean,
+nivelAtencionS boolean,
+nivelAtencionNPS boolean,
+nivelAtencionNP boolean,
+nivelAtencionNPI boolean,
+nivelAtencionI boolean,
+memoriaS boolean,
+memoriaNPS boolean,
+memoriaNP boolean,
+memoriaNPI boolean,
+memoriaI boolean,
+coordinacionVisoS boolean,
+coordinacionVisoNPS boolean,
+coordinacionVisoNP boolean,
+coordinacionVisoNPI boolean,
+coordinacionVisoI boolean,
+orientacionEspacialS boolean,
+orientacionEspacialNPS boolean,
+orientacionEspacialNP boolean,
+orientacionEspacialNPI boolean,
+orientacionEspacialI boolean,
+capacidadDetallesS boolean,
+capacidadDetallesNPS boolean,
+capacidadDetallesNP boolean,
+capacidadDetallesNPI boolean,
+capacidadDetallesI boolean,
+capacidadAprendizajeS boolean,
+capacidadAprendizajeNPS boolean,
+capacidadAprendizajeNP boolean,
+capacidadAprendizajeNPI boolean,
+capacidadAprendizajeI boolean,
+capacidadAnalisisS boolean,
+capacidadAnalisisNPS boolean,
+capacidadAnalisisNP boolean,
+capacidadAnalisisNPI boolean,
+capacidadAnalisisI boolean,
+estabilidadEmocionalS boolean,
+estabilidadEmocionalNPS boolean,
+estabilidadEmocionalNP boolean,
+estabilidadEmocionalNPI boolean,
+estabilidadEmocionalI boolean,
+afrontamientoEstresS boolean,
+afrontamientoEstresNPS boolean,
+afrontamientoEstresNP boolean,
+afrontamientoEstresNPI boolean,
+afrontamientoEstresI boolean,
+afrontamientoRiesgoS boolean,
+afrontamientoRiesgoNPS boolean,
+afrontamientoRiesgoNP boolean,
+afrontamientoRiesgoNPI boolean,
+afrontamientoRiesgoI boolean,
+relacionesInterpersonalesS boolean,
+relacionesInterpersonalesNPS boolean,
+relacionesInterpersonalesNP boolean,
+relacionesInterpersonalesNPI boolean,
+relacionesInterpersonalesI boolean,
+disposicionNormasS boolean,
+disposicionNormasNPS boolean,
+disposicionNormasNP boolean,
+disposicionNormasNPI boolean,
+disposicionNormasI boolean,
+fortalezasOportunidades text,
+amenazasDebilidades text,
+observaciones text,
+recomendaciones text,
+apto boolean,
+noApto boolean,
+excelente boolean,
+aptoObservacion boolean,
+licencia boolean,
+trabajosCaliente boolean,
+  nombresede text, sede text, color integer, namejasper text, numero text) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+	    d.cod_pa,
+	    d.nombres_pa,
+	    d.apellidos_pa,
+	    d.direccion_pa,
+	    d.sexo_pa,
+	    d.fecha_nacimiento_pa,
+	    d.ocupacion_pa,
+	    d.lugar_nac_pa,
+	    d.nivel_est_pa,
+	    d.estado_civil_pa,
+	    n.cargo_de,
+	    n.area_o,
+	    n.razon_contrata,
+	    n.n_orden,
+	    n.razon_empresa,
+	    n.nom_examen,
+	    n.cod_clinica,
+	    CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
+	    ip.cod_ep,
+	    ip.fecha_ep,
+	    ip.rbi1,
+	    ip.rbi2,
+	    ip.rbi3,
+	    ip.rbi4,
+	    ip.rbi5,
+	    ip.rbi6,
+	    ip.rbi7,
+	    ip.rbi8,
+	    ip.rbi9,
+	    ip.rbi10,
+	    ip.rbi11,
+	    ip.rbi12,
+	    ip.rbi13,
+	    ip.rbi14,
+	    ip.rbi15,
+	    ip.rbi16,
+	    ip.rbi17,
+	    ip.rbi18,
+	    ip.rbi19,
+	    ip.rbi20,
+	    ip.rbi21,
+	    ip.rbi22,
+	    ip.rbi23,
+	    ip.rbi24,
+	    ip.rbi25,
+	    ip.rbi26,
+	    ip.rbi27,
+	    ip.rbi28,
+	    ip.rbi29,
+	    ip.rbi30,
+	    ip.rbi31,
+	    ip.rbi32,
+	    ip.rbi33,
+	    ip.rbi34,
+	    ip.rbi35,
+	    ip.rbi36,
+	    ip.rbi37,
+	    ip.rbi38,
+	    ip.rbi39,
+	    ip.rbi40,
+	    ip.rbi41,
+	    ip.rbi42,
+	    ip.rbi43,
+	    ip.rbi44,
+	    ip.rbi45,
+	    ip.rbp1,
+	    ip.rbp2,
+	    ip.rbp3,
+	    ip.rbp4,
+	    ip.rbp5,
+	    ip.rbp6,
+	    ip.rbp7,
+	    ip.rbp8,
+	    ip.rbp9,
+	    ip.rbp10,
+	    ip.rbp11,
+	    ip.rbp12,
+	    ip.rbp13,
+	    ip.rbp14,
+	    ip.rbp15,
+	    ip.rbp16,
+	    ip.rbp17,
+	    ip.rbp18,
+	    ip.rbp19,
+	    ip.rbp20,
+	    ip.rbp21, --
+	    ip.rbp22,
+	    ip.rbp23,
+	    ip.rbp24,
+	    ip.rbp25,
+	    ip.txtfortalezas_o,
+	    ip.txtamenazas_d,
+	    ip.txtobservaciones,
+	    ip.txtrecomendaciones,
+	    ip.rbapto,
+	    ip.rbnoapto,
+	    ip.rbexcelente,
+	    ip.rbapto_observacion,
+	    ip.chklicencia,
+	    ip.chktrabcalientes,
+	    CASE 
+		WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A' 
+		    THEN 'Huamachuco'
+		ELSE (
+		    SELECT nombre_sede 
+		    FROM sede 
+		    WHERE cod_sede = n.cod_sede
+		)
+	    END AS nombre_sede,
+	    CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+	    n.color,
+	    obtener_name_jasper(p_norden, name_service),
+	    (case when n.cod_sede=1 then CONCAT(n.n_orden,'-T')
+		when n.cod_sede=4 then CONCAT(n.n_orden,'-TP')
+		 else CONCAT(n.n_orden,'-H') END ) as numero
+	FROM datos_paciente AS d
+	INNER JOIN n_orden_ocupacional AS n 
+	    ON d.cod_pa = n.cod_pa
+	INNER JOIN sede_multisucursal AS sm 
+	    ON n.cod_sede = sm.id
+	INNER JOIN evaluacion_psicologica_poderosa AS ip
+	    ON ip.n_orden = n.n_orden
+	WHERE n.n_orden = p_norden;
+
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
+values('evaluacion_psicologica_poderosa','formulario de evaluacion psicologica poderosa',false,false,true,false,false);
+
 CREATE OR REPLACE FUNCTION obtener_reporte_informe_psicologico_adeco(
     IN p_norden integer,
     IN name_service text)
@@ -345,6 +637,8 @@ BEGIN
 	resultado := 'CertificadoMedicoManipuladores_Barrick_Digitalizado';
      ELSIF name_service_param = 'informe_psicologico_estres' THEN
 	resultado := 'InformePsicologicoAdecoEstres_Digitalizado';
+     ELSIF name_service_param = 'evaluacion_psicologica_poderosa' THEN
+	resultado := 'InformePsicologico_Digitalizado';
   END IF; 
     RETURN resultado;
 END;
@@ -2151,10 +2445,28 @@ IF name_servicio_param = 'test_fatiga_somnolencia' THEN
             RETURN NEXT;
         END IF;
     END IF;
+
+    IF name_servicio_param = 'evaluacion_psicologica_poderosa' THEN 
+        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            SELECT user_registro INTO user_registro_var 
+            FROM  evaluacion_psicologica_poderosa WHERE n_orden = norden_param;
+            select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
+		IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
+		    dni_user_registro_var := 42664426;
+		ELSIF empresa_var = 'MONARCA GOLD S.A.C.' THEN
+		    dni_user_registro_var := 66666666;
+		END IF;
+            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
+            name_digitalizacion := 'SELLOFIRMA';
+            dni := dni_user_registro_var;
+            RETURN NEXT;
+        END IF;
+    END IF;
                  
 END;
 $BODY$
   LANGUAGE plpgsql;
+
 
 
 CREATE OR REPLACE FUNCTION sp_validar_existencia_servicios(
@@ -3131,6 +3443,28 @@ begin
 
         if(p_examen_med='informe_psicologico_estres') THEN
 	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from informe_psicologico_estres where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+        if(p_examen_med='certificado_manipuladores_barrick') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from certificado_manipuladores_barrick where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
+
+        if(p_examen_med='evaluacion_psicologica_poderosa') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from evaluacion_psicologica_poderosa where n_orden=p_historia_clinica limit 1;
 		if(v_id_existencia=0) THEN
 			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
 		else
