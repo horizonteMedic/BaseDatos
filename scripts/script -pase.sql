@@ -1,5 +1,113 @@
 select n_orden from n_orden_ocupacional limit 1
 
+CREATE OR REPLACE FUNCTION obtener_reporte_psicologia_espacios_confinados(
+    IN p_norden integer,
+    IN name_service text)
+  RETURNS TABLE(
+  dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", 
+  fechanacimientopaciente date, ocupacionpaciente text, lugarnacimientopaciente text, nivelestudiopaciente text, estadocivilpaciente text, 
+  cargopaciente text, areapaciente text, contrata text, norden integer, empresa text, nombreexamen text, codigoclinica text, edadpaciente text,
+  fecha date, razonamientoI boolean, razonamientoNPI boolean, razonamientoNP boolean,
+  razonamientoNPS boolean, razonamientoS boolean, memoriaI boolean,
+  memoriaNPI boolean, memoriaNP boolean, memoriaNPS boolean, memoriaS boolean,
+  atencionI boolean, atencioNPI boolean, atencionNP boolean, atencionNPS boolean,
+  atencionS boolean, visoMotoraI boolean, visoMotoraNPI boolean, visoMotoraNP boolean,
+  visoMotoraNPS boolean, visoMotoraS boolean, orientacionEspacialI boolean,
+  orientacionEspacialNPI boolean, orientacionEspacialNP boolean, orientacionEspacialNPS boolean,
+  orientacionEspacialS boolean, estabilidadEmocionalInestable boolean, estabilidadEmocionalEstable boolean,
+  ansiedadGeneralCaso boolean, ansiedadGeneralNoCaso boolean, ansiedadEspaciosConfinadosNada boolean,
+  ansiedadEspaciosConfinadosPoca boolean, ansiedadEspaciosConfinadosModerada boolean,
+  ansiedadEspaciosConfinadosElevada boolean, apto boolean, noApto boolean,
+  analisis text, recomendacion text,
+  nombresede text, sede text, color integer, namejasper text) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+	    d.cod_pa,
+	    d.nombres_pa,
+	    d.apellidos_pa,
+	    d.direccion_pa,
+	    d.sexo_pa,
+	    d.fecha_nacimiento_pa,
+	    d.ocupacion_pa,
+	    d.lugar_nac_pa,
+	    d.nivel_est_pa,
+	    d.estado_civil_pa,
+	    n.cargo_de,
+	    n.area_o,
+	    n.razon_contrata,
+	    n.n_orden,
+	    n.razon_empresa,
+	    n.nom_examen,
+	    n.cod_clinica,
+	    CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
+	    ip.fecha,
+	    ip.r1,
+	    ip.r2,
+	    ip.r3,
+	    ip.r4,
+	    ip.r5,
+	    ip.m1,
+	    ip.m2,
+	    ip.m3,
+	    ip.m4,
+	    ip.m5,
+	    ip.ac1,
+	    ip.ac2,
+	    ip.ac3,
+	    ip.ac4,
+	    ip.ac5,
+	    ip.cvm1,
+	    ip.cvm2,
+	    ip.cvm3,
+	    ip.cvm4,
+	    ip.cvm5,
+	    ip.oe1,
+	    ip.oe2,
+	    ip.oe3,
+	    ip.oe4,
+	    ip.oe5,
+	    ip.e1,
+	    ip.e2,
+	    ip.nag1,
+	    ip.nag2,
+	    ip.aec1,
+	    ip.aec2,
+	    ip.aec3,
+	    ip.aec4,
+	    ip.apto,
+	    ip.noapto,
+	    ip.analisis,
+	    ip.recomendacion,
+	    CASE 
+		WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A' 
+		    THEN 'Huamachuco'
+		ELSE (
+		    SELECT nombre_sede 
+		    FROM sede 
+		    WHERE cod_sede = n.cod_sede
+		)
+	    END AS nombre_sede,
+	    CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+	    n.color,
+	    obtener_name_jasper(p_norden, name_service)
+	FROM datos_paciente AS d
+	INNER JOIN n_orden_ocupacional AS n 
+	    ON d.cod_pa = n.cod_pa
+	INNER JOIN sede_multisucursal AS sm 
+	    ON n.cod_sede = sm.id
+	INNER JOIN psicologia_espacios_confinados AS ip
+	    ON ip.n_orden = n.n_orden
+	WHERE n.n_orden = p_norden;
+
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
+values('psicologia_espacios_confinados','formulario de psicologia espacios confinados',false,false,true,false,false);
+
 CREATE OR REPLACE FUNCTION obtener_reporte_certificado_aptitud_herramientas_manuales(
     IN p_norden integer,
     IN name_service text)
@@ -639,11 +747,14 @@ BEGIN
 	resultado := 'InformePsicologicoAdecoEstres_Digitalizado';
      ELSIF name_service_param = 'evaluacion_psicologica_poderosa' THEN
 	resultado := 'InformePsicologico_Digitalizado';
+     ELSIF name_service_param = 'psicologia_espacios_confinados' THEN
+	resultado := 'formatPsicologia_SuficienciaEspaciosC';
   END IF; 
     RETURN resultado;
 END;
 $BODY$
   LANGUAGE plpgsql;
+
 
 
 CREATE OR REPLACE FUNCTION obtener_parametros_digitalizados(
@@ -2462,6 +2573,23 @@ IF name_servicio_param = 'test_fatiga_somnolencia' THEN
             RETURN NEXT;
         END IF;
     END IF;
+
+    IF name_servicio_param = 'psicologia_espacios_confinados' THEN 
+        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
+            SELECT user_registro INTO user_registro_var 
+            FROM  psicologia_espacios_confinados WHERE n_orden = norden_param;
+            select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
+		IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
+		    dni_user_registro_var := 42664426;
+		ELSIF empresa_var = 'MONARCA GOLD S.A.C.' THEN
+		    dni_user_registro_var := 66666666;
+		END IF;
+            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
+            name_digitalizacion := 'SELLOFIRMA';
+            dni := dni_user_registro_var;
+            RETURN NEXT;
+        END IF;
+    END IF;
                  
 END;
 $BODY$
@@ -3473,6 +3601,17 @@ begin
 		end if;
 		
         end if;
+
+        if(p_examen_med='psicologia_espacios_confinados') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from psicologia_espacios_confinados where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
                                                                                               		                   	
 	RETURN query
 
@@ -3484,196 +3623,61 @@ $BODY$
 -----------------------------------------------------------------------------
 --PGADMIN 4
 
-CREATE TABLE area_secuencia (
-    prefijo VARCHAR(10) PRIMARY KEY,
-    ultimo_numero INTEGER NOT NULL DEFAULT 0
-);
+alter table area
+add column usuario_registro text,
+add column fecha_registro date,
+ADD COLUMN hora_registro TIME,
+add column usuario_actualizacion text,
+add column fecha_actualizacion date,
+ADD COLUMN hora_actualizacion TIME;
 
-create table area (
-	id_area SERIAL PRIMARY KEY,
-	prefijo VARCHAR(10) NOT NULL,
-	codigo VARCHAR(15),
-	descripcion TEXT,
-	estado BOOLEAN NOT NULL
-);
+alter table examen
+add column usuario_registro text,
+add column fecha_registro date,
+ADD COLUMN hora_registro TIME,
+add column usuario_actualizacion text,
+add column fecha_actualizacion date,
+ADD COLUMN hora_actualizacion TIME;
 
-create table examen (
-	id_examen SERIAL PRIMARY KEY,
-	id_area INTEGER NOT NULL,
-	orden INTEGER NOT NULL,
-	nombre TEXT NOT NULL,
-	descripcion TEXT,
-	estado BOOLEAN,
-	precio_referencial NUMERIC(10,2),
-	FOREIGN KEY (id_area) REFERENCES area(id_area)
-);
+alter table protocolo_empresa
+add column usuario_registro text,
+add column fecha_registro date,
+ADD COLUMN hora_registro TIME,
+add column usuario_actualizacion text,
+add column fecha_actualizacion date,
+ADD COLUMN hora_actualizacion TIME;
 
-ALTER TABLE examen
-ADD COLUMN prefijo VARCHAR(50);
+alter table protocolo
+add column usuario_registro text,
+add column fecha_registro date,
+ADD COLUMN hora_registro TIME,
+add column usuario_actualizacion text,
+add column fecha_actualizacion date,
+ADD COLUMN hora_actualizacion TIME;
 
-create table protocolo (
-	id_protocolo SERIAL PRIMARY KEY,
-	nombre TEXT NOT NULL,
-	descripcion TEXT,
-	precio INTEGER,
-	estado BOOLEAN NOT NULL
-)
+alter table protocolo_examenes
+add column usuario_registro text,
+add column fecha_registro date,
+ADD COLUMN hora_registro TIME,
+add column usuario_actualizacion text,
+add column fecha_actualizacion date,
+ADD COLUMN hora_actualizacion TIME;
 
-create table protocolo_examenes (
-	id_protocolo_examen SERIAL PRIMARY KEY,
-	id_protocolo INTEGER NOT NULL,
-	id_examen INTEGER NOT NULL,
-	precio NUMERIC(10,2),
-	estado BOOLEAN NOT NULL,
-	orden INTEGER,
-	FOREIGN KEY (id_protocolo) REFERENCES protocolo(id_protocolo),
-	FOREIGN KEY (id_examen) REFERENCES examen(id_examen)
-)
+alter table protocolo_sub_examenes
+add column usuario_registro text,
+add column fecha_registro date,
+ADD COLUMN hora_registro TIME,
+add column usuario_actualizacion text,
+add column fecha_actualizacion date,
+ADD COLUMN hora_actualizacion TIME;
 
-create table protocolo_empresa (
-	id_protocolo_empresa SERIAL PRIMARY KEY,
-	id_protocolo INTEGER NOT NULL,
-	ruc_empresa TEXT NOT NULL,
-	estado BOOLEAN NOT NULL,
-	FOREIGN KEY (id_protocolo) REFERENCES protocolo(id_protocolo)
-)
-
-create table sub_examen (
-	id_sub_examen SERIAL PRIMARY KEY,
-	id_examen INTEGER NOT NULL,
-	descripcion TEXT,
-	prefijo TEXT,
-	precio NUMERIC(10,2),
-	estado BOOLEAN DEFAULT 'true',
-	FOREIGN KEY (id_examen) REFERENCES examen(id_examen)
-)
-
-create table protocolo_sub_examenes (
-	id_protocolo_sub_examen SERIAL PRIMARY KEY,
-	id_protocolo INTEGER NOT NULL,
-	id_sub_examen INTEGER NOT NULL,
-	estado BOOLEAN NOT NULL,
-	FOREIGN KEY (id_protocolo) REFERENCES protocolo(id_protocolo),
-	FOREIGN KEY (id_sub_examen) REFERENCES sub_examen(id_sub_examen)
-)
-
-
--- Función para generar el código de área
-CREATE OR REPLACE FUNCTION generar_codigo_area()
-RETURNS TRIGGER AS $$
-DECLARE
-    nuevo_numero INTEGER;
-BEGIN
-    -- Se actualiza el contador para el prefijo
-    UPDATE area_secuencia
-    SET ultimo_numero = ultimo_numero + 1
-    WHERE prefijo = NEW.prefijo
-    RETURNING ultimo_numero INTO nuevo_numero;
-
-    -- Si no existe el prefijo en la tabla de secuencias, lo insertamos
-    IF NOT FOUND THEN
-        INSERT INTO area_secuencia (prefijo, ultimo_numero)
-        VALUES (NEW.prefijo, 1)
-        RETURNING ultimo_numero INTO nuevo_numero;
-    END IF;
-
-    -- Generamos el código con el prefijo y el número en 3 dígitos
-    NEW.codigo := NEW.prefijo || LPAD(nuevo_numero::TEXT, 3, '0');
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trg_generar_codigo_area
-BEFORE INSERT ON area
-FOR EACH ROW
-EXECUTE FUNCTION generar_codigo_area();
-
-
--- Función para calcular el orden
-CREATE OR REPLACE FUNCTION set_orden_examen()
-RETURNS TRIGGER AS $$
-DECLARE
-    max_orden INTEGER;
-BEGIN
-    -- Buscar el máximo orden dentro del área considerando solo los activos
-    SELECT COALESCE(MAX(orden), 0)
-    INTO max_orden
-    FROM examen
-    WHERE id_area = NEW.id_area AND estado = TRUE;
-
-    -- Asignar el nuevo orden
-    NEW.orden := max_orden + 1;
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- Trigger que llama a la función antes de insertar
-CREATE TRIGGER trigger_set_orden_examen
-BEFORE INSERT ON examen
-FOR EACH ROW
-EXECUTE FUNCTION set_orden_examen();
-
-
--- Función para calcular el orden
-CREATE OR REPLACE FUNCTION set_orden_protocolo_examenes()
-RETURNS TRIGGER AS $$
-DECLARE
-    max_orden INTEGER;
-BEGIN
-    -- Buscar el máximo orden dentro del área considerando solo los activos
-    SELECT COALESCE(MAX(orden), 0)
-    INTO max_orden
-    FROM protocolo_examenes
-    WHERE id_protocolo = NEW.id_protocolo AND estado = TRUE;
-
-    -- Asignar el nuevo orden
-    NEW.orden := max_orden + 1;
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- Trigger que llama a la función antes de insertar
-CREATE TRIGGER trigger_set_orden_protocolo_examenes
-BEFORE INSERT ON protocolo_examenes
-FOR EACH ROW
-EXECUTE FUNCTION set_orden_protocolo_examenes();
-
--- LISTADO DE PROTOCOLO POR FILTROS, V01
-
-
-
-CREATE OR REPLACE FUNCTION listado_protocolo_busqueda_filtros(
-	user_name_param text,razon_empre_param text, razon_emp_cont text)
-    RETURNS TABLE(id_resp bigint, mensaje text) 
-    LANGUAGE 'plpgsql'
-    COST 100
-    VOLATILE PARALLEL UNSAFE
-    ROWS 1000
-
-AS $BODY$
-	
-
-BEGIN
-
-	    RETURN QUERY 
-SELECT DISTINCT 
-       CAST(prot.id_protocolo AS bigint) AS id_resp,
-       prot.nombre as mensaje
-FROM protocolo AS prot
-INNER JOIN protocolo_empresa AS prot_emp 
-    ON prot.id_protocolo = prot_emp.id_protocolo
-INNER JOIN usuario_empresa_contrada AS user_prot_empcont  -- corregí el nombre
-    ON prot_emp.ruc_empresa = user_prot_empcont.ruc
-INNER JOIN usuario AS us 
-    ON user_prot_empcont.id_user = us.id_user
-WHERE us.username = user_name_param;
-
-END; 
-$BODY$;
-
+alter table sub_examen
+add column usuario_registro text,
+add column fecha_registro date,
+ADD COLUMN hora_registro TIME,
+add column usuario_actualizacion text,
+add column fecha_actualizacion date,
+ADD COLUMN hora_actualizacion TIME;
 
 -- BUSQUEDA DE EXAMENES SEGUN PROTOCOLO
 CREATE OR REPLACE FUNCTION listado_examenes_protocolos_paciente(
