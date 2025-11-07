@@ -2,6 +2,9 @@ select n_orden from n_orden_ocupacional limit 1
 
 
 
+
+
+
 -- insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
 -- values('evaluacion_psicologica_poderosa','formulario de evaluacion psicologica poderosa',false,false,true,false,false);
 
