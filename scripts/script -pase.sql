@@ -778,6 +778,27 @@ alter table protocolo add column forma_pago TEXT
 --     hora_actualizacion TIME
 -- )
 
+CREATE TABLE protocolo_sub_examen_adicional(
+ 	id_sub_examen_adicional_protocolo serial primary key,
+ 	id_sub_examen Integer not null,
+	id_protocolo INTEGER NOT NULL,
+	precio numeric(38,2),
+ 	estado boolean,
+ 	usuario_registro TEXT,
+    fecha_registro DATE,
+    hora_registro TIME,
+    usuario_actualizacion TEXT,
+    fecha_actualizacion DATE,
+    hora_actualizacion TIME,
+	CONSTRAINT fk_sub_examen
+        FOREIGN KEY (id_sub_examen)
+        REFERENCES sub_examen (id_sub_examen),
+
+    CONSTRAINT fk_protocolo
+        FOREIGN KEY (id_protocolo)
+        REFERENCES protocolo (id_protocolo)
+);
+
 CREATE TABLE protocolo_examen_adicional(
  	id_examen_adicional_protocolo serial primary key,
  	id_examen Integer not null,
