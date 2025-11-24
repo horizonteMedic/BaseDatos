@@ -1,5 +1,144 @@
 select n_orden from n_orden_ocupacional limit 1
 
+insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
+values('psicologiafobias','formulario de informe psicologia fobias',false,false,true,false,false);
+
+CREATE OR REPLACE FUNCTION obtener_reporte_psicologia_fobias(
+    IN p_norden integer,
+    IN name_service text)
+  RETURNS TABLE(
+dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", fechanacimientopaciente date, ocupacionpaciente text, lugarnacimientopaciente text, nivelestudiopaciente text, estadocivilpaciente text, cargopaciente text, 
+areapaciente text, contrata text, norden integer, empresa text, nombreexamen text, codigoclinica text, edadpaciente text,
+razonamientoI boolean, razonamientoNPI boolean, razonamientoNP boolean, razonamientoNPS boolean, razonamientoS boolean,
+memoriaI boolean,
+memoriaNPI boolean,
+memoriaNP boolean,
+memoriaNPS boolean,
+memoriaS boolean,
+atencionI boolean,
+atencionNPI boolean,
+atencionNP boolean,
+atencionNPS boolean,
+atencionS boolean,
+coordinacionI boolean,
+coordinacionNPI boolean,
+coordinacionNP boolean,
+coordinacionNPS boolean,
+coordinacionS boolean,
+orientacionI boolean,
+orientacionNPI boolean,
+orientacionNP boolean,
+orientacionNPS boolean,
+orientacionS boolean,
+estabilidadInestable boolean,
+estabilidadEstable boolean,
+nivelAnsiedadCaso boolean,
+nivelAnsiedadNoCaso boolean,
+consumoAlcoholCaso boolean,
+consumoAlcoholNoCaso boolean,
+fobiaAlturaNada boolean,
+fobiaAlturaLigeramente boolean,
+fobiaAlturaModeradamente boolean,
+fobiaAlturaMarcadamente boolean,
+fobiaAlturaMiedoExtremo boolean,
+apto boolean,
+noApto boolean,
+fecha date,
+analisis text,
+recomendacion text,
+nombreExamenPsicologico text,
+nombresede text, sede text, color integer, namejasper text) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+	    d.cod_pa,
+	    d.nombres_pa,
+	    d.apellidos_pa,
+	    d.direccion_pa,
+	    d.sexo_pa,
+	    d.fecha_nacimiento_pa,
+	    d.ocupacion_pa,
+	    d.lugar_nac_pa,
+	    d.nivel_est_pa,
+	    d.estado_civil_pa,
+	    n.cargo_de,
+	    n.area_o,
+	    n.razon_contrata,
+	    n.n_orden,
+	    n.razon_empresa,
+	    n.nom_examen,
+	    n.cod_clinica,
+	    CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
+	    
+	    pf.r1,
+	    pf.r2,
+	    pf.r3,
+	    pf.r4,
+	    pf.r5,
+	    pf.m1,
+	    pf.m2,
+	    pf.m3,
+	    pf.m4,
+	    pf.m5,
+	    pf.at1,
+	    pf.at2,
+	    pf.at3,
+	    pf.at4,
+	    pf.at5,
+	    pf.coo1,
+	    pf.coo2,
+	    pf.coo3,
+	    pf.coo4,
+	    pf.coo5,
+	    pf.oo1,
+	    pf.oo2,
+	    pf.oo3,
+	    pf.oo4,
+	    pf.oo5,
+	    pf.e1,
+	    pf.e2,
+	    pf.an1,
+	    pf.an2,
+	    pf.ca1,
+	    pf.ca2,
+	    pf.f1,
+	    pf.f2,
+	    pf.f3,
+	    pf.f4,
+	    pf.f5,
+	    pf.adpto,
+	    pf.noadpto,
+	    pf.fecha,
+	    pf.analisis,
+	    pf.recomendacion,
+	    pf.nombre_examen,
+
+	    CASE 
+		WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A' 
+		    THEN 'Huamachuco'
+		ELSE (
+		    SELECT nombre_sede 
+		    FROM sede 
+		    WHERE cod_sede = n.cod_sede
+		)
+	    END AS nombre_sede,
+	    CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+	    n.color,
+	    obtener_name_jasper(p_norden, name_service)
+	FROM datos_paciente AS d
+	INNER JOIN n_orden_ocupacional AS n 
+	    ON d.cod_pa = n.cod_pa
+	INNER JOIN sede_multisucursal AS sm 
+	    ON n.cod_sede = sm.id
+	INNER JOIN psicologiafobias AS pf
+	    ON pf.n_orden = n.n_orden
+	WHERE n.n_orden = p_norden;
+
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
 alter table lab_clinico add column usuario_firma text
 
 DROP FUNCTION obtener_datos_lab_clinico_reporte(integer);
