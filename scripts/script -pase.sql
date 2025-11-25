@@ -1,5 +1,254 @@
 select n_orden from n_orden_ocupacional limit 1
 
+DROP FUNCTION laboratorio_obtener_analisis_bioquimico_detalle(bigint);
+
+CREATE OR REPLACE FUNCTION laboratorio_obtener_analisis_bioquimico_detalle(IN norden_param bigint)
+  RETURNS TABLE(
+nombres_retorn text, fecha_retorn date, n_orden_retorn integer, sede_retorn text, cod_ab_retorn integer, txtcreatinina_retorn text, txtcolesterol_retorn text, 
+txtldlcolesterol_retorn text, txthdlcolesterol_retorn text, txtvldlcolesterol_retorn text, txttrigliseridos_retorn text, txtreponsable_retorn text, dir_tru_pierola text, 
+email_tru_pierola text, telf_tru_pierola text, cel_trujillo_pie text, dir_huancayo text, email_huancayo text, telf_huancayo text, dir_huamachuco text, email_huamachuco text, 
+telf_huamachuco text, cel_huamachuco text, dir_trujillo text, email_trujillo text, telf_trujillo text, color integer,
+dni_paciente integer, sexopaciente "char", fechanacimientopaciente date,ocupacionpaciente text, lugarnacimientopaciente text, nivelestudiopaciente text, estadocivilpaciente text,
+cargopaciente text, areapaciente text, nombreexamen text, codigoclinica text, edadpaciente text) AS
+$BODY$
+BEGIN
+  RETURN QUERY
+  SELECT
+    d.nombres_pa || ' ' || d.apellidos_pa,
+    ab.fecha_ab as fecha,
+    ab.n_orden,
+    (SELECT nombre_sede FROM sede WHERE cod_sede = n.cod_sede) as nombre_sede,    
+    ab.cod_ab,
+    ab.txtcreatinina,
+    ab.txtcolesterol,
+    ab.txtldlcolesterol,
+    ab.txthdlcolesterol,
+    ab.txtVldlColesterol,
+    ab.txtTrigliseridos,
+    ab.txtReponsable,  
+    (SELECT direccion FROM sede WHERE cod_sede = 4),
+    (SELECT email FROM sede WHERE cod_sede = 4),
+    (SELECT telefono FROM sede WHERE cod_sede = 4),
+    (SELECT celular FROM sede WHERE cod_sede = 4),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 3),
+    (SELECT email FROM sede WHERE cod_sede = 3),
+    (SELECT telefono FROM sede WHERE cod_sede = 3),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 2),
+    (SELECT email FROM sede WHERE cod_sede = 2),
+    (SELECT telefono FROM sede WHERE cod_sede = 2),
+    (SELECT celular FROM sede WHERE cod_sede = 2),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 1),
+    (SELECT email FROM sede WHERE cod_sede = 1),
+    (SELECT telefono FROM sede WHERE cod_sede = 1),
+    n.color,
+    d.cod_pa,
+	d.sexo_pa,
+	    d.fecha_nacimiento_pa,
+	    d.ocupacion_pa,
+	    d.lugar_nac_pa,
+	    d.nivel_est_pa,
+	    d.estado_civil_pa,
+	    n.cargo_de,
+	    n.area_o,
+	    n.nom_examen,
+	    n.cod_clinica,
+	    CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT)
+  FROM analisis_bioquimicos AS ab
+  INNER JOIN n_orden_ocupacional AS n ON n.n_orden = ab.n_orden
+  INNER JOIN usuarios AS u ON UPPER(u.usuario_user) = UPPER(ab.user_registro)
+  INNER JOIN datos_paciente AS d ON n.cod_pa = d.cod_pa
+  WHERE ab.n_orden = norden_param;
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+DROP FUNCTION obtener_reporte_hemograma_reporte(integer);
+
+CREATE OR REPLACE FUNCTION obtener_reporte_hemograma_reporte(IN n_orden_param integer)
+  RETURNS TABLE(
+nombres text, edad text, n_orden integer, dni integer, fecha_examen date, txthemoglobina text, txthematocrito text, txthematies text, txtvolumen text, txthemocorpuscular text, 
+txtconcentracion text, txtleucocitos text, txtneutrofilos text, txtabastonados text, txtsegmentados text, txtmonocitos text, txteosinofios text, txtbasofilos text, 
+txtlinfocitos text, txtplaquetas text, user_registro text, color integer, descripcion_sede text, direccion_4 text, email_4 text, telefono_4 text, celular_4 text, 
+direccion_3 text, email_3 text, telefono_3 text, direccion_2 text, email_2 text, telefono_2 text, celular_2 text, direccion_1 text, email_1 text, telefono_1 text,
+sexopaciente "char", fechanacimientopaciente date,ocupacionpaciente text, lugarnacimientopaciente text, nivelestudiopaciente text, estadocivilpaciente text,
+cargopaciente text, areapaciente text, nombreexamen text, codigoclinica text) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        dp.nombres_pa || ' ' || dp.apellidos_pa,
+        CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+        hemo.n_orden,
+        noo.cod_pa,
+        hemo.fecha_examen,
+        hemo.txthemoglobina,
+        hemo.txthematocrito,
+        hemo.txthematies,
+        hemo.txtvolumen,
+        hemo.txthemocorpuscular,
+        hemo.txtconcentracion,
+        hemo.txtleucocitos,
+        hemo.txtneutrofilos,
+        hemo.txtabastonados,
+        hemo.txtsegmentados,
+        hemo.txtmonocitos,
+        hemo.txteosinofios,
+        hemo.txtbasofilos,
+        hemo.txtlinfocitos,
+        hemo.txtplaquetas,
+        hemo.user_registro,
+        noo.color,
+        CASE WHEN UPPER(TRIM(noo.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+        (SELECT direccion FROM sede WHERE cod_sede = 4),
+        (SELECT email FROM sede WHERE cod_sede = 4),
+        (SELECT telefono FROM sede WHERE cod_sede = 4),
+        (SELECT celular FROM sede WHERE cod_sede = 4),
+        (SELECT direccion FROM sede WHERE cod_sede = 3),
+        (SELECT email FROM sede WHERE cod_sede = 3),
+        (SELECT telefono FROM sede WHERE cod_sede = 3),
+        (SELECT direccion FROM sede WHERE cod_sede = 2),
+        (SELECT email FROM sede WHERE cod_sede = 2),
+        (SELECT telefono FROM sede WHERE cod_sede = 2),
+        (SELECT celular FROM sede WHERE cod_sede = 2),
+        (SELECT direccion FROM sede WHERE cod_sede = 1),
+        (SELECT email FROM sede WHERE cod_sede = 1),
+        (SELECT telefono FROM sede WHERE cod_sede = 1),
+	dp.sexo_pa,
+	    dp.fecha_nacimiento_pa,
+	    dp.ocupacion_pa,
+	    dp.lugar_nac_pa,
+	    dp.nivel_est_pa,
+	    dp.estado_civil_pa,
+	    noo.cargo_de,
+	    noo.area_o,
+	    noo.nom_examen,
+	    noo.cod_clinica
+    FROM datos_paciente dp
+    INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+    INNER JOIN hemograma_autom hemo ON hemo.n_orden = noo.n_orden
+    INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+    WHERE noo.n_orden = n_orden_param;
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+DROP FUNCTION obtener_datos_lab_clinico_reporte(integer);
+
+CREATE OR REPLACE FUNCTION obtener_datos_lab_clinico_reporte(IN n_orden_param integer)
+  RETURNS TABLE(
+nombres text, empresa text, contrata text, cod_labclinico integer, tipo_servicio text, n_orden integer, fecha_lab date, chko boolean, chka boolean, chkb boolean, 
+chkab boolean, rbrhpositivo boolean, rbrhnegativo boolean, txthemoglobina text, txthematocrito text, txtvsg text, txtleucocitosematologia text, txthematiesematologia text, 
+txtneutrofilos text, txtabastonados text, txtsegmentadosematologia text, txtmonocitosematologia text, txteosinofiosematologia text, txtbasofilosematologia text, 
+txtlinfocitosematologia text, txtglucosabio text, txtcreatininabio text, chkpositivo boolean, chknegativo boolean, txtvih text, txtcoloref text, txtdensidadef text, 
+txtaspectoef text, txtphef text, txtnitritoseq text, txtproteinaseq text, txtcetonaseq text, txtleucocitoseq text, txturobilinogenoeq text, txtbilirubinaeq text, 
+txtglucosaeq text, txtsangreeq text, txtleucocitossu text, txtcelepitelialessu text, txtcilindiossu text, txtbacteriassu text, txthematiessu text, txtcristalessu text, 
+txtpussu text, txtotrossu text, txtcocaina text, txtmarihuana text, txtobservacioneslb text, res_lab text, txtplaquetas text, txtac_ascorbico text, user_registro text, 
+color integer, sede text, direccion_sede4 text, email_sede4 text, telefono_sede4 text, celular_sede4 text, direccion_sede3 text, email_sede3 text, telefono_sede3 text, 
+direccion_sede2 text, email_sede2 text, telefono_sede2 text, celular_sede2 text, direccion_sede1 text, email_sede1 text, telefono_sede1 text, usuario_firma text,
+dni_paciente integer, sexopaciente "char", fechanacimientopaciente date,ocupacionpaciente text, lugarnacimientopaciente text, nivelestudiopaciente text, estadocivilpaciente text,
+cargopaciente text, areapaciente text, nombreexamen text, codigoclinica text, edadpaciente text) AS
+$BODY$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    dp.apellidos_pa || ' ' || dp.nombres_pa,
+    n.razon_empresa,
+    n.razon_contrata,
+    lbl.cod_labclinico,
+    lbl.tipo_servicio,
+    lbl.n_orden,
+    lbl.fecha_lab,
+    lbl.chko,
+    lbl.chka,
+    lbl.chkb,
+    lbl.chkab,
+    lbl.rbrhpositivo,
+    lbl.rbrhnegativo,
+    lbl.txthemoglobina,
+    lbl.txthematocrito,
+    lbl.txtvsg,
+    lbl.txtleucocitosematologia,
+    lbl.txthematiesematologia,
+    lbl.txtneutrofilos,
+    lbl.txtabastonados,
+    lbl.txtsegmentadosematologia,
+    lbl.txtmonocitosematologia,
+    lbl.txteosinofiosematologia,
+    lbl.txtbasofilosematologia,
+    lbl.txtlinfocitosematologia,
+    lbl.txtglucosabio,
+    lbl.txtcreatininabio,
+    lbl.chkpositivo,
+    lbl.chknegativo,
+    lbl.txtvih,
+    lbl.txtcoloref,
+    lbl.txtdensidadef,
+    lbl.txtaspectoef,
+    lbl.txtphef,
+    lbl.txtnitritoseq,
+    lbl.txtproteinaseq,
+    lbl.txtcetonaseq,
+    lbl.txtleucocitoseq,
+    lbl.txturobilinogenoeq,
+    lbl.txtbilirubinaeq,
+    lbl.txtglucosaeq,
+    lbl.txtsangreeq,
+    lbl.txtleucocitossu,
+    lbl.txtcelepitelialessu,
+    lbl.txtcilindiossu,
+    lbl.txtbacteriassu,
+    lbl.txthematiessu,
+    lbl.txtcristalessu,
+    lbl.txtpussu,
+    lbl.txtotrossu,
+    lbl.txtcocaina,
+    lbl.txtmarihuana,
+    lbl.txtobservacioneslb,
+    lbl.res_lab,
+    lbl.txtplaquetas,
+    lbl.txtac_ascorbico,
+    lbl.user_registro,
+    n.color,
+    CAST(sm.descripcion AS TEXT),
+    (SELECT direccion FROM sede WHERE cod_sede = 4),
+    (SELECT email FROM sede WHERE cod_sede = 4),
+    (SELECT telefono FROM sede WHERE cod_sede = 4),
+    (SELECT celular FROM sede WHERE cod_sede = 4),
+    (SELECT direccion FROM sede WHERE cod_sede = 3),
+    (SELECT email FROM sede WHERE cod_sede = 3),
+    (SELECT telefono FROM sede WHERE cod_sede = 3),
+    (SELECT direccion FROM sede WHERE cod_sede = 2),
+    (SELECT email FROM sede WHERE cod_sede = 2),
+    (SELECT telefono FROM sede WHERE cod_sede = 2),
+    (SELECT celular FROM sede WHERE cod_sede = 2),
+    (SELECT direccion FROM sede WHERE cod_sede = 1),
+    (SELECT email FROM sede WHERE cod_sede = 1),
+    (SELECT telefono FROM sede WHERE cod_sede = 1),
+    lbl.usuario_firma,
+    dp.cod_pa,
+	dp.sexo_pa,
+	    dp.fecha_nacimiento_pa,
+	    dp.ocupacion_pa,
+	    dp.lugar_nac_pa,
+	    dp.nivel_est_pa,
+	    dp.estado_civil_pa,
+	    n.cargo_de,
+	    n.area_o,
+	    n.nom_examen,
+	    n.cod_clinica,
+	    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT)
+  FROM lab_clinico lbl
+  INNER JOIN n_orden_ocupacional n ON n.n_orden = lbl.n_orden
+  INNER JOIN datos_paciente dp ON dp.cod_pa = n.cod_pa
+  INNER JOIN sede_multisucursal sm ON n.cod_sede = sm.id 
+  WHERE n.n_orden = n_orden_param;
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
 insert into config_general_service_digital (name_service,descripcion,firma_p,huella_p,sello_prof_s,sello_doc_asig,sello_doc_adic)
 values('psicologiafobias','formulario de informe psicologia fobias',false,false,true,false,false);
 
