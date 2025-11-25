@@ -1,5 +1,251 @@
 select n_orden from n_orden_ocupacional limit 1
 
+DROP FUNCTION obetner_reporte_panel2d(integer);
+
+CREATE OR REPLACE FUNCTION obetner_reporte_panel2d(IN p_norden integer)
+  RETURNS TABLE(
+nombres text, edad text, norden integer, dni integer, fecha_examen date, re_marihuana text, re_cocaina text, txtmetodo text, color integer, sede_descripcion text, 
+dir_sede4 text, email_sede4 text, tel_sede4 text, cel_sede4 text, dir_sede3 text, email_sede3 text, tel_sede3 text, dir_sede2 text, email_sede2 text, tel_sede2 text, 
+cel_sede2 text, dir_sede1 text, email_sede1 text, tel_sede1 text,
+sexopaciente "char", fechanacimientopaciente date,ocupacionpaciente text, lugarnacimientopaciente text, nivelestudiopaciente text, estadocivilpaciente text,
+cargopaciente text, areapaciente text, nombreexamen text, codigoclinica text) AS
+$BODY$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    dp.nombres_pa || ' ' || dp.apellidos_pa,
+    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+    p2d.n_orden, 
+    noo.cod_pa,
+    p2d.fecha_examen,
+    p2d.re_marihuana,
+    p2d.re_cocaina,
+    p2d.txtmetodo,
+    noo.color,
+    CAST(sm.descripcion AS TEXT),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 4),
+    (SELECT email FROM sede WHERE cod_sede = 4),
+    (SELECT telefono FROM sede WHERE cod_sede = 4),
+    (SELECT celular FROM sede WHERE cod_sede = 4),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 3),
+    (SELECT email FROM sede WHERE cod_sede = 3),
+    (SELECT telefono FROM sede WHERE cod_sede = 3),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 2),
+    (SELECT email FROM sede WHERE cod_sede = 2),
+    (SELECT telefono FROM sede WHERE cod_sede = 2),
+    (SELECT celular FROM sede WHERE cod_sede = 2),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 1),
+    (SELECT email FROM sede WHERE cod_sede = 1),
+    (SELECT telefono FROM sede WHERE cod_sede = 1),
+    dp.sexo_pa,
+	    dp.fecha_nacimiento_pa,
+	    dp.ocupacion_pa,
+	    dp.lugar_nac_pa,
+	    dp.nivel_est_pa,
+	    dp.estado_civil_pa,
+	    noo.cargo_de,
+	    noo.area_o,
+	    noo.nom_examen,
+	    noo.cod_clinica
+
+  FROM datos_paciente dp
+  INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+  INNER JOIN panel2d p2d ON p2d.n_orden = noo.n_orden
+  INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+  WHERE noo.n_orden = p_norden;
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+DROP FUNCTION obetner_reporte_hepatitis(integer);
+
+CREATE OR REPLACE FUNCTION obetner_reporte_hepatitis(IN p_norden integer)
+  RETURNS TABLE(nombres text, edad text, n_orden integer, cod_pa integer, fecha_examen date, txtmarca text, txthepatitisa text, txthepatitisb text, color integer, 
+  sede_descripcion text, dir_sede4 text, email_sede4 text, tel_sede4 text, cel_sede4 text, dir_sede3 text, email_sede3 text, tel_sede3 text, dir_sede2 text, email_sede2 text, 
+  tel_sede2 text, cel_sede2 text, dir_sede1 text, email_sede1 text, tel_sede1 text,
+  sexopaciente "char", fechanacimientopaciente date,ocupacionpaciente text, lugarnacimientopaciente text, nivelestudiopaciente text, estadocivilpaciente text,
+cargopaciente text, areapaciente text, nombreexamen text, codigoclinica text) AS
+$BODY$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    dp.nombres_pa || ' ' || dp.apellidos_pa,
+    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+    hep.n_orden,
+    noo.cod_pa,
+    hep.fecha_examen,
+    hep.txtmarca,
+    hep.txthepatitisa,
+    hep.txthepatitisb,
+    noo.color,
+    CAST(sm.descripcion AS TEXT),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 4),
+    (SELECT email FROM sede WHERE cod_sede = 4),
+    (SELECT telefono FROM sede WHERE cod_sede = 4),
+    (SELECT celular FROM sede WHERE cod_sede = 4),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 3),
+    (SELECT email FROM sede WHERE cod_sede = 3),
+    (SELECT telefono FROM sede WHERE cod_sede = 3),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 2),
+    (SELECT email FROM sede WHERE cod_sede = 2),
+    (SELECT telefono FROM sede WHERE cod_sede = 2),
+    (SELECT celular FROM sede WHERE cod_sede = 2),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 1),
+    (SELECT email FROM sede WHERE cod_sede = 1),
+    (SELECT telefono FROM sede WHERE cod_sede = 1),
+    dp.sexo_pa,
+	    dp.fecha_nacimiento_pa,
+	    dp.ocupacion_pa,
+	    dp.lugar_nac_pa,
+	    dp.nivel_est_pa,
+	    dp.estado_civil_pa,
+	    noo.cargo_de,
+	    noo.area_o,
+	    noo.nom_examen,
+	    noo.cod_clinica
+
+  FROM datos_paciente dp
+  INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+  INNER JOIN lhepatitis hep ON hep.n_orden = noo.n_orden
+  INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+  WHERE noo.n_orden = p_norden;
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+DROP FUNCTION obetner_reporte_inmunologia(integer);
+
+CREATE OR REPLACE FUNCTION obetner_reporte_inmunologia(IN p_norden integer)
+  RETURNS TABLE(
+  nombres text, edad text, n_orden integer, fecha date, txttifico_o text, txttifico_h text, txtparatifico_a text, txtparatifico_b text, txtbrucella text, 
+  txthepatitis text, color integer, sede_descripcion text, dir_sede4 text, email_sede4 text, tel_sede4 text, cel_sede4 text, dir_sede3 text, email_sede3 text, 
+  tel_sede3 text, dir_sede2 text, email_sede2 text, tel_sede2 text, cel_sede2 text, dir_sede1 text, email_sede1 text, tel_sede1 text,
+  dni_paciente integer, sexopaciente "char", fechanacimientopaciente date,ocupacionpaciente text, lugarnacimientopaciente text, nivelestudiopaciente text, estadocivilpaciente text,
+cargopaciente text, areapaciente text, nombreexamen text, codigoclinica text) AS
+$BODY$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    dp.nombres_pa || ' ' || dp.apellidos_pa,
+    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+    inm.n_orden,
+    inm.fecha,
+    inm.txttifico_o,
+    inm.txttifico_h, 
+    inm.txtparatifico_a ,
+    inm.txtparatifico_b ,
+    inm.txtbrucella,
+    inm.txthepatitis,
+    noo.color,
+    CAST(sm.descripcion AS TEXT),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 4),
+    (SELECT email FROM sede WHERE cod_sede = 4),
+    (SELECT telefono FROM sede WHERE cod_sede = 4),
+    (SELECT celular FROM sede WHERE cod_sede = 4),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 3),
+    (SELECT email FROM sede WHERE cod_sede = 3),
+    (SELECT telefono FROM sede WHERE cod_sede = 3),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 2),
+    (SELECT email FROM sede WHERE cod_sede = 2),
+    (SELECT telefono FROM sede WHERE cod_sede = 2),
+    (SELECT celular FROM sede WHERE cod_sede = 2),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 1),
+    (SELECT email FROM sede WHERE cod_sede = 1),
+    (SELECT telefono FROM sede WHERE cod_sede = 1),
+    dp.cod_pa,
+	dp.sexo_pa,
+	    dp.fecha_nacimiento_pa,
+	    dp.ocupacion_pa,
+	    dp.lugar_nac_pa,
+	    dp.nivel_est_pa,
+	    dp.estado_civil_pa,
+	    noo.cargo_de,
+	    noo.area_o,
+	    noo.nom_examen,
+	    noo.cod_clinica
+
+  FROM datos_paciente dp
+  INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+  INNER JOIN inmunologia inm ON inm.n_orden = noo.n_orden
+  INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+  WHERE noo.n_orden = p_norden;
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+DROP FUNCTION obetner_reporte_microbiologia(integer);
+
+CREATE OR REPLACE FUNCTION obetner_reporte_microbiologia(IN p_norden integer)
+  RETURNS TABLE(
+nombres text, edad text, n_orden integer, fecha date, txtmuestra1 text, txtmuestra2 text, txtkoh text, color integer, sede_descripcion text, dir_sede4 text, 
+email_sede4 text, tel_sede4 text, cel_sede4 text, dir_sede3 text, email_sede3 text, tel_sede3 text, dir_sede2 text, email_sede2 text, tel_sede2 text, cel_sede2 text, 
+dir_sede1 text, email_sede1 text, tel_sede1 text,
+dni_paciente integer, sexopaciente "char", fechanacimientopaciente date,ocupacionpaciente text, lugarnacimientopaciente text, nivelestudiopaciente text, estadocivilpaciente text,
+cargopaciente text, areapaciente text, nombreexamen text, codigoclinica text) AS
+$BODY$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    dp.nombres_pa || ' ' || dp.apellidos_pa,
+    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+    micro.n_orden ,
+    micro.fecha ,
+    micro.txtmuestra1 ,
+    micro.txtmuestra2 ,
+    micro.txtkoh ,
+    noo.color,
+    CAST(sm.descripcion AS TEXT),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 4),
+    (SELECT email FROM sede WHERE cod_sede = 4),
+    (SELECT telefono FROM sede WHERE cod_sede = 4),
+    (SELECT celular FROM sede WHERE cod_sede = 4),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 3),
+    (SELECT email FROM sede WHERE cod_sede = 3),
+    (SELECT telefono FROM sede WHERE cod_sede = 3),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 2),
+    (SELECT email FROM sede WHERE cod_sede = 2),
+    (SELECT telefono FROM sede WHERE cod_sede = 2),
+    (SELECT celular FROM sede WHERE cod_sede = 2),
+
+    (SELECT direccion FROM sede WHERE cod_sede = 1),
+    (SELECT email FROM sede WHERE cod_sede = 1),
+    (SELECT telefono FROM sede WHERE cod_sede = 1),
+    dp.cod_pa,
+	dp.sexo_pa,
+	    dp.fecha_nacimiento_pa,
+	    dp.ocupacion_pa,
+	    dp.lugar_nac_pa,
+	    dp.nivel_est_pa,
+	    dp.estado_civil_pa,
+	    noo.cargo_de,
+	    noo.area_o,
+	    noo.nom_examen,
+	    noo.cod_clinica
+
+  FROM datos_paciente dp
+  INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+  INNER JOIN microbiologia micro ON micro.n_orden = noo.n_orden
+  INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+  WHERE noo.n_orden = p_norden;
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
 DROP FUNCTION obtener_reporte__inmunologia_lgonadotropina(integer);
 
 CREATE OR REPLACE FUNCTION obtener_reporte__inmunologia_lgonadotropina(IN norden_param integer)
