@@ -1,5 +1,573 @@
 select n_orden from n_orden_ocupacional limit 1
 
+DROP FUNCTION obtener_reporte_pacientes_matriz_ohla_construccion(text, text, text);
+
+CREATE OR REPLACE FUNCTION obtener_reporte_pacientes_matriz_ohla_gestor(
+    IN p_ruc_empresa text,
+    IN p_fecha_inicio text,
+    IN p_fecha_fin text,
+    IN p_sede text)
+  RETURNS TABLE(n integer, fecha_evaluacion date, centro_costo text, razon_empresa text, razon_contrata text, nombres text, sexo_pa "char", dni integer, puesto text, edad text, grupo_factor_sanguineo text, tipodemo text, resultado text, txtobserv2 text, dx_audiometria text, dx_radiologico text, dx_radiologico_oit text, dx_espirometria text, dx_imc text, dx_oftalmologico text, glucosa text, conclusion_glucosa text, perfil_lipidico text, conclusion_perfil_lipidico text, conclusion_creatinina text, sistolica text, diastolica text, ekg_resultado text, conclusiones_ficha_anexo16 text, aptitud_ocupacional text, aptitud_psicologica text, diagnostico_musculo_esqueletico text) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        n.n_orden,
+        n.fecha_apertura_po AS fecha_evaluacion,
+        n.txtobserv2 AS centro_costo,
+        n.razon_empresa,
+        n.razon_contrata,
+        TRIM(d.apellidos_pa) || ' ' || TRIM(d.nombres_pa) AS nombres,
+        d.sexo_pa,
+        d.cod_pa AS dni,
+        n.cargo_de AS puesto,
+        CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT) AS edad,
+        (
+            CASE 
+                WHEN lc.chko = 'TRUE' THEN 'O'
+                WHEN lc.chka = 'TRUE' THEN 'A'
+                WHEN lc.chkb = 'TRUE' THEN 'B'
+                WHEN lc.chkab = 'TRUE' THEN 'AB' 
+                ELSE '.' 
+            END
+            ||
+            CASE 
+                WHEN lc.rbrhpositivo = 'TRUE' THEN '+' 
+                WHEN lc.rbrhnegativo = 'TRUE' THEN '-' 
+            END
+        ) AS grupo_factor_sanguineo,
+
+        n.nom_examen AS tipodemo,
+        (
+            CASE 
+                WHEN ob.n_orden IS NOT NULL THEN 'Observado'
+                WHEN ca.chkapto = 'TRUE' THEN 'Apto'
+                WHEN ap1.chkapto = 'TRUE' THEN 'Apto'
+                WHEN ca.chkapto_restriccion = 'TRUE' THEN 'Apto con Restriccion'
+                WHEN ap1.chkapto_restriccion = 'TRUE' THEN 'Apto con Restriccion'
+                WHEN ca.chkno_apto = 'TRUE' THEN 'No Apto'
+                WHEN ap1.chkno_apto = 'TRUE' THEN 'No Apto'
+                WHEN ca.chkevaluado = 'TRUE' THEN 'Evaluado'
+                WHEN ca.chkconobservacion = 'TRUE' THEN 'Con Observaciones'
+                WHEN fi.n_orden IS NOT NULL THEN 'INTERCONSULTA PENDIENTE' || ':' || STRING_AGG(fi.especialidad, '-')
+                WHEN ca.n_orden IS NULL THEN 'NO REGISTRO APTITUD'
+            END
+        ) AS resultado,
+        n.txtobserv2,
+        CASE WHEN au.diagnostico IS NOT NULL THEN au.diagnostico ELSE 'Sin registros' END AS dx_audiometria,
+        CASE WHEN rt.txtconclusionesradiograficas IS NOT NULL THEN rt.txtconclusionesradiograficas ELSE 'Sin registros' END AS dx_radiologico,
+        CASE WHEN rt.txtconclusionesradiograficas IS NOT NULL THEN rt.txtconclusionesradiograficas ELSE 'Sin registros' END AS dx_radiologico_oit,
+        CASE WHEN f.interpretacion IS NOT NULL THEN f.interpretacion ELSE 'Sin registros' END AS dx_espirometria,
+        CASE WHEN t.imc IS NOT NULL THEN t.imc ELSE 'Sin registros' END AS dx_imc,
+        TRIM(
+	    CASE
+		WHEN oft.txtdiagnostico IS NOT NULL 
+		     AND oft.txtdiagnostico <> '' THEN oft.txtdiagnostico
+		WHEN o.e_oculares IS NOT NULL 
+		     AND o.e_oculares1 IS NOT NULL THEN o.e_oculares || ' - ' || o.e_oculares1
+		WHEN o.e_oculares IS NOT NULL THEN o.e_oculares
+		WHEN o.e_oculares1 IS NOT NULL THEN o.e_oculares1
+		ELSE 'Sin registros'
+	    END
+	) AS dx_oftalmologico,
+        --CASE WHEN oft.txtdiagnostico IS NOT NULL THEN oft.txtdiagnostico ELSE 'Sin registros' END AS dx_oftalmologico,
+        CASE
+            WHEN TRIM(lc.txtglucosabio) ~ '^[0-9]+(\.[0-9]+)?$'
+            THEN TRIM(lc.txtglucosabio)
+            ELSE 'Sin registros'
+        END AS glucosa,
+        CASE 
+            WHEN TRIM(lc.txtglucosabio) ~ '^[0-9]+(\.[0-9]+)?$' 
+                AND CAST(TRIM(lc.txtglucosabio) AS DECIMAL) > 100 
+                THEN 'HIPERGLUCEMIA'
+            WHEN TRIM(lc.txtglucosabio) ~ '^[0-9]+(\.[0-9]+)?$' 
+                AND CAST(TRIM(lc.txtglucosabio) AS DECIMAL) < 100 
+                THEN 'NORMAL'
+            ELSE 'Sin registros'
+        END AS conclusion_glucosa,
+        (
+            '- Colesterol Total: ' || CASE WHEN TRIM(ab.txtcolesterol) ~ '^[0-9]+(\.[0-9]+)?$' THEN ab.txtcolesterol ELSE 'Sin registros' END
+        ) || E'\n' ||
+        (
+            '- Triglicéridos: ' || CASE WHEN TRIM(ab.txttrigliseridos) ~ '^[0-9]+(\.[0-9]+)?$' THEN ab.txttrigliseridos ELSE 'Sin registros' END
+        ) || E'\n' ||
+        (
+            '- HDL: ' || CASE WHEN TRIM(ab.txthdlcolesterol) ~ '^[0-9]+(\.[0-9]+)?$' THEN ab.txthdlcolesterol ELSE 'Sin registros' END
+        ) || E'\n' ||
+        (
+            '- LDL: ' || CASE WHEN TRIM(ab.txtldlcolesterol) ~ '^[0-9]+(\.[0-9]+)?$' THEN ab.txtldlcolesterol ELSE 'Sin registros' END
+        ) || E'\n' ||
+        (
+            '- VLDL: ' || CASE WHEN TRIM(ab.txtvldlcolesterol) ~ '^[0-9]+(\.[0-9]+)?$' THEN ab.txtvldlcolesterol ELSE 'Sin registros' END
+        ) AS perfil_lipidico,
+        CASE 
+            WHEN (TRIM(ab.txtcolesterol) ~ '^[0-9]+(\.[0-9]+)?$' AND CAST(TRIM(ab.txtcolesterol) AS DECIMAL) > 200) 
+             AND (TRIM(ab.txttrigliseridos) ~ '^[0-9]+(\.[0-9]+)?$' AND CAST(TRIM(ab.txttrigliseridos) AS DECIMAL) > 150) THEN 
+                'HIPERLIPIDEMIA MIXTA'
+            ELSE 
+                '- Colesterol: ' || 
+                CASE 
+                    WHEN TRIM(ab.txtcolesterol) ~ '^[0-9]+(\.[0-9]+)?$' THEN 
+                        CASE WHEN CAST(TRIM(ab.txtcolesterol) AS DECIMAL) > 200 THEN 'HIPERCOLESTEROLEMIA' ELSE 'NORMAL' END
+                    ELSE 'Sin registros' 
+                END 
+                || chr(10) ||
+                '- Trigliceridos: ' || 
+                CASE 
+                    WHEN TRIM(ab.txttrigliseridos) ~ '^[0-9]+(\.[0-9]+)?$' THEN 
+                        CASE WHEN CAST(TRIM(ab.txttrigliseridos) AS DECIMAL) > 150 THEN 'HIPERTRIGLICERIDEMIA' ELSE 'NORMAL' END
+                    ELSE 'Sin registros' 
+                END
+        END AS conclusion_perfil_lipidico,
+        CASE WHEN lb.txtcreatinina IS NOT NULL THEN lb.txtcreatinina ELSE 'Sin registros' END AS conclusion_creatinina,
+        CASE WHEN t.sistolica IS NOT NULL THEN t.sistolica ELSE 'Sin registros' END AS sistolica,
+        CASE WHEN t.diastolica IS NOT NULL THEN t.diastolica ELSE 'Sin registros' END AS diastolica,
+        COALESCE(ie.conclusion, ie.hallazgo, iep2.conclusion) AS ekg_resultado,
+        CASE WHEN ap1.txtconclusiones IS NULL THEN ca.txtconclusiones ELSE ap1.txtconclusiones END AS conclusiones_ficha_anexo16,
+        -- CASE 
+--             WHEN ap1.chkapto THEN 'Apto'
+--             WHEN ap1.chkapto_restriccion THEN 'Apto con restricción'
+--             WHEN ap1.chkno_apto THEN 'No apto'
+--             WHEN ca.chkapto THEN 'Apto'
+--             WHEN ca.chkapto_restriccion THEN 'Apto con restricción'
+--             WHEN ca.chkno_apto THEN 'No apto'
+--             WHEN ca.chkevaluado THEN 'Evaluado'
+--             WHEN ca.chkconobservacion THEN 'Con observacion'
+--             ELSE 'NO REGISTRO APTITUD'
+--         END AS aptitud_ocupacional,
+	CASE
+            WHEN 
+		bc.chk_si = 'TRUE'
+		AND n.nom_examen ILIKE '%PSICOSENSOMETRIA%' 
+		AND EXISTS (
+		    SELECT 1 
+		    FROM ficha_sas f 
+		    WHERE f.n_orden = n.n_orden
+		)
+		AND EXISTS (
+		    SELECT 1 
+		    FROM b_certificado_conduccion b
+		    WHERE b.n_orden = n.n_orden
+		)
+	    THEN 'Apto' --nuevo
+            WHEN 
+		bc.chk_apto_r = 'TRUE'
+		AND n.nom_examen ILIKE '%PSICOSENSOMETRIA%'
+		AND EXISTS (
+		    SELECT 1 FROM ficha_sas f WHERE f.n_orden = n.n_orden
+		)
+		AND EXISTS (
+		    SELECT 1 FROM b_certificado_conduccion b WHERE b.n_orden = n.n_orden
+		)
+	    THEN 'Apto con Restriccion' --nuevo
+            WHEN 
+		bc.chk_observado = 'TRUE'
+		AND n.nom_examen ILIKE '%PSICOSENSOMETRIA%'
+		AND EXISTS (
+		    SELECT 1 FROM ficha_sas f WHERE f.n_orden = n.n_orden
+		)
+		AND EXISTS (
+		    SELECT 1 FROM b_certificado_conduccion b WHERE b.n_orden = n.n_orden
+		)
+	    THEN 'Con Observación' --nuevo
+            WHEN 
+		bc.chk_no = 'TRUE'
+		AND n.nom_examen ILIKE '%PSICOSENSOMETRIA%'
+		AND EXISTS (
+		    SELECT 1 FROM ficha_sas f WHERE f.n_orden = n.n_orden
+		)
+		AND EXISTS (
+		    SELECT 1 FROM b_certificado_conduccion b WHERE b.n_orden = n.n_orden
+		)
+	    THEN 'No Apto' --nuevo
+            WHEN ama.chkapto = 'TRUE' THEN 'Apto'
+            WHEN ama.chkapto_restriccion = 'TRUE' THEN 'Apto con Restriccion'
+            WHEN ama.chkno_apto = 'TRUE' THEN 'No Apto'
+            WHEN ap1.chkapto = 'TRUE' THEN 'Apto'
+            WHEN ap1.chkapto_restriccion = 'TRUE' THEN 'Apto con Restriccion'
+            WHEN ap1.chkno_apto = 'TRUE' THEN 'No Apto'
+            WHEN ca.chkapto = 'TRUE' THEN 'Apto'
+            WHEN ca.chkapto_restriccion = 'TRUE' THEN 'Apto con Restriccion'
+            WHEN ca.chkno_apto = 'TRUE' THEN 'No Apto'
+            WHEN ca.chkevaluado = 'TRUE' THEN 'Evaluado'
+            WHEN ca.chkconobservacion = 'TRUE' THEN 'Con Observación'
+            WHEN fi.n_orden IS NOT NULL THEN 'INTERCONSULTA PENDIENTE: ' || string_agg(fi.especialidad, '-')
+            WHEN ama.n_orden IS NULL THEN 'APTITUD PENDIENTE'
+	    END AS aptitud_ocupacional,
+        CASE 
+            WHEN ps2.apto IS TRUE THEN 'Apto'
+            WHEN ps2.apto IS FALSE THEN 'No apto'
+            WHEN ip.aprobo_inf THEN 'Apto'
+            WHEN ip.desaprobo_inf THEN 'No apto'
+            ELSE 'NO REGISTRO APTITUD'
+        END AS aptitud_psicologica,
+        TRIM(
+            COALESCE(eme.txtdiagnostico, '') 
+            || 
+            CASE 
+            WHEN eme.txtdiagnostico IS NOT NULL 
+                AND rg.conclu IS NOT NULL THEN ' - ' || rg.conclu
+            ELSE COALESCE(rg.conclu, '')
+            END
+        ) AS diagnostico_musculo_esqueletico
+    FROM datos_paciente AS d
+    INNER JOIN n_orden_ocupacional AS n ON d.cod_pa = n.cod_pa
+    LEFT JOIN triaje AS t ON t.n_orden = n.n_orden
+    LEFT JOIN oftalmologia AS o ON o.n_orden = n.n_orden
+    LEFT JOIN oftalmologia_lo AS ol ON ol.n_orden = n.n_orden
+    LEFT JOIN audiometria_po AS au ON au.n_orden = n.n_orden
+    LEFT JOIN funcion_abs AS f ON f.n_orden = n.n_orden
+    LEFT JOIN ficha_audiologica AS fa ON fa.n_orden = n.n_orden
+    LEFT JOIN informe_electrocardiograma AS ie ON ie.n_orden = n.n_orden
+    LEFT JOIN informe_electrocardiograma_poderosa AS iep2 ON iep2.n_orden = n.n_orden
+    LEFT JOIN ex_radiograficos_sanguineos AS er ON er.n_orden = n.n_orden
+    LEFT JOIN radiografia_torax AS rt ON rt.n_orden = n.n_orden
+    LEFT JOIN oit AS oi ON oi.n_orden = n.n_orden
+    LEFT JOIN odontograma AS od ON od.n_orden = n.n_orden
+    LEFT JOIN analisis_bioquimicos AS ab ON ab.n_orden = n.n_orden
+    LEFT JOIN lab_clinico AS lc ON lc.n_orden = n.n_orden
+    LEFT JOIN anexo7c AS a ON a.n_orden = n.n_orden
+    LEFT JOIN anexo_agroindustrial AS aa ON aa.n_orden = n.n_orden
+    LEFT JOIN aptitud_medico_ocupacional11 AS ca ON ca.n_orden = n.n_orden
+    LEFT JOIN aptitud_medico_ocupacional_agro AS ama ON ama.n_orden = n.n_orden
+    LEFT JOIN anexo7d AS ad ON ad.n_orden = n.n_orden
+    LEFT JOIN anexoc AS ac ON ac.n_orden = n.n_orden
+    LEFT JOIN observaciones AS ob ON ob.n_orden = n.n_orden
+    LEFT JOIN b_certificado_conduccion AS bc ON bc.n_orden = n.n_orden
+    LEFT JOIN b_certificado_altura AS ba ON ba.n_orden = n.n_orden
+    LEFT JOIN certificacion_medica_altura AS cma ON cma.n_orden = n.n_orden
+    LEFT JOIN informe_psicologico AS ip ON ip.n_orden = n.n_orden
+    LEFT JOIN evaluacion_musculo_esqueletica AS eme ON eme.n_orden = n.n_orden
+    LEFT JOIN evaluacion_musculo_esqueletica2021 AS emes ON emes.n_orden = n.n_orden
+    LEFT JOIN ac_bioquimica2022 AS acu ON acu.n_orden = n.n_orden
+    LEFT JOIN toxicologia AS tox ON tox.n_orden = n.n_orden
+    LEFT JOIN oftalmologia2021 AS oft ON oft.n_orden = n.n_orden
+    LEFT JOIN odontograma AS odo ON odo.n_orden = n.n_orden
+    LEFT JOIN perfil_hepatico AS ph ON ph.n_orden = n.n_orden
+    LEFT JOIN antecedentes_patologicos AS apa ON apa.n_orden = n.n_orden
+    LEFT JOIN certificado_aptitud_medico_ocupacional AS ap1 ON ap1.n_orden = n.n_orden
+    LEFT JOIN ficha_interconsulta AS fi ON fi.n_orden = n.n_orden
+    LEFT JOIN l_bioquimica AS lb ON lb.n_orden = n.n_orden
+    LEFT JOIN radiografia AS rg ON rg.n_orden = n.n_orden
+    LEFT JOIN ficha_psicologica_anexo02 AS ps2 ON ps2.n_orden = n.n_orden
+    LEFT JOIN empresas AS ep ON n.razon_empresa = ep.razon_empresa
+    WHERE 
+        ep.ruc_empresa = p_ruc_empresa
+        AND EXISTS(
+		SELECT 1
+		FROM sede_multisucursal sm
+		WHERE sm.id = n.cod_sede
+		 AND sm.codigo_sucursal = p_sede
+	)
+        AND (n.txtobserv2 ILIKE '%GESTOR%' OR n.txtobserv2 ILIKE '%326%')
+        AND n.fecha_apertura_po >= CAST(p_fecha_inicio AS DATE)
+        AND n.fecha_apertura_po <= CAST(p_fecha_fin AS DATE)
+
+    GROUP BY 
+        n.n_orden, n.fecha_apertura_po, n.txtobserv2, n.razon_empresa, n.razon_contrata, 
+        d.apellidos_pa, d.nombres_pa, d.sexo_pa, d.cod_pa,
+        n.cargo_de, lc.chko, lc.chka, lc.chkb, lc.chkab, lc.rbrhpositivo, lc.rbrhnegativo,
+        n.nom_examen, ob.n_orden, ca.chkapto, ap1.chkapto, ca.chkapto_restriccion, ap1.chkapto_restriccion,
+        ca.chkno_apto, ap1.chkno_apto, ca.chkevaluado, ca.chkconobservacion,
+        fi.n_orden, ca.n_orden, au.diagnostico, rt.txtconclusionesradiograficas, f.interpretacion,
+        t.imc, oft.txtdiagnostico, lc.txtglucosabio, ab.txttrigliseridos, lb.txtcreatinina,
+        t.sistolica, t.diastolica, ie.conclusion, ap1.txtconclusiones, ap1.chkapto, ap1.chkapto_restriccion,
+        ap1.chkno_apto, eme.txtdiagnostico, rg.conclu, d.fecha_nacimiento_pa, ps2.apto, ab.txtColesterol,
+        ab.txtCreatinina, ab.txthdlcolesterol, ab.txtldlcolesterol, ab.txtvldlcolesterol, o.e_oculares, o.e_oculares1,
+        ip.aprobo_inf, ip.desaprobo_inf, iep2.conclusion, ie.hallazgo, bc.chk_si, bc.chk_apto_r, bc.chk_observado, bc.chk_no,
+        ama.chkapto, ama.chkapto_restriccion, ama.chkno_apto, fi.n_orden, fi.especialidad, ama.n_orden
+
+    ORDER BY n.n_orden ASC;
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+DROP FUNCTION obtener_reporte_pacientes_matriz_ohla_construccion(text, text, text);
+
+CREATE OR REPLACE FUNCTION obtener_reporte_pacientes_matriz_ohla_construccion(
+    IN p_ruc_empresa text,
+    IN p_fecha_inicio text,
+    IN p_fecha_fin text,
+    IN p_sede text)
+  RETURNS TABLE(n integer, fecha_evaluacion date, centro_costo text, razon_empresa text, razon_contrata text, nombres text, sexo_pa "char", dni integer, puesto text, edad text, grupo_factor_sanguineo text, tipodemo text, resultado text, txtobserv2 text, dx_audiometria text, dx_radiologico text, dx_radiologico_oit text, dx_espirometria text, dx_imc text, dx_oftalmologico text, glucosa text, conclusion_glucosa text, perfil_lipidico text, conclusion_perfil_lipidico text, conclusion_creatinina text, sistolica text, diastolica text, ekg_resultado text, conclusiones_ficha_anexo16 text, aptitud_ocupacional text, aptitud_psicologica text, diagnostico_musculo_esqueletico text) AS
+$BODY$
+DECLARE
+BEGIN
+    RETURN QUERY
+    SELECT 
+        n.n_orden,
+        n.fecha_apertura_po AS fecha_evaluacion,
+        n.txtobserv2 AS centro_costo,
+        n.razon_empresa,
+        n.razon_contrata,
+        TRIM(d.apellidos_pa) || ' ' || TRIM(d.nombres_pa) AS nombres,
+        d.sexo_pa,
+        d.cod_pa AS dni,
+        n.cargo_de AS puesto,
+        CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT) AS edad,
+        (
+            CASE 
+                WHEN lc.chko = 'TRUE' THEN 'O'
+                WHEN lc.chka = 'TRUE' THEN 'A'
+                WHEN lc.chkb = 'TRUE' THEN 'B'
+                WHEN lc.chkab = 'TRUE' THEN 'AB' 
+                ELSE '.' 
+            END
+            ||
+            CASE 
+                WHEN lc.rbrhpositivo = 'TRUE' THEN '+' 
+                WHEN lc.rbrhnegativo = 'TRUE' THEN '-' 
+            END
+        ) AS grupo_factor_sanguineo,
+
+        n.nom_examen AS tipodemo,
+        (
+            CASE 
+                WHEN ob.n_orden IS NOT NULL THEN 'Observado'
+                WHEN ca.chkapto = 'TRUE' THEN 'Apto'
+                WHEN ap1.chkapto = 'TRUE' THEN 'Apto'
+                WHEN ca.chkapto_restriccion = 'TRUE' THEN 'Apto con Restriccion'
+                WHEN ap1.chkapto_restriccion = 'TRUE' THEN 'Apto con Restriccion'
+                WHEN ca.chkno_apto = 'TRUE' THEN 'No Apto'
+                WHEN ap1.chkno_apto = 'TRUE' THEN 'No Apto'
+                WHEN ca.chkevaluado = 'TRUE' THEN 'Evaluado'
+                WHEN ca.chkconobservacion = 'TRUE' THEN 'Con Observaciones'
+                WHEN fi.n_orden IS NOT NULL THEN 'INTERCONSULTA PENDIENTE' || ':' || STRING_AGG(fi.especialidad, '-')
+                WHEN ca.n_orden IS NULL THEN 'NO REGISTRO APTITUD'
+            END
+        ) AS resultado,
+        n.txtobserv2,
+        CASE WHEN au.diagnostico IS NOT NULL THEN au.diagnostico ELSE 'Sin registros' END AS dx_audiometria,
+        CASE WHEN rt.txtconclusionesradiograficas IS NOT NULL THEN rt.txtconclusionesradiograficas ELSE 'Sin registros' END AS dx_radiologico,
+        CASE WHEN rt.txtconclusionesradiograficas IS NOT NULL THEN rt.txtconclusionesradiograficas ELSE 'Sin registros' END AS dx_radiologico_oit,
+        CASE WHEN f.interpretacion IS NOT NULL THEN f.interpretacion ELSE 'Sin registros' END AS dx_espirometria,
+        CASE WHEN t.imc IS NOT NULL THEN t.imc ELSE 'Sin registros' END AS dx_imc,
+        TRIM(
+	    CASE
+		WHEN oft.txtdiagnostico IS NOT NULL 
+		     AND oft.txtdiagnostico <> '' THEN oft.txtdiagnostico
+		WHEN o.e_oculares IS NOT NULL 
+		     AND o.e_oculares1 IS NOT NULL THEN o.e_oculares || ' - ' || o.e_oculares1
+		WHEN o.e_oculares IS NOT NULL THEN o.e_oculares
+		WHEN o.e_oculares1 IS NOT NULL THEN o.e_oculares1
+		ELSE 'Sin registros'
+	    END
+	) AS dx_oftalmologico,
+        --CASE WHEN oft.txtdiagnostico IS NOT NULL THEN oft.txtdiagnostico ELSE 'Sin registros' END AS dx_oftalmologico,
+        CASE
+            WHEN TRIM(lc.txtglucosabio) ~ '^[0-9]+(\.[0-9]+)?$'
+            THEN TRIM(lc.txtglucosabio)
+            ELSE 'Sin registros'
+        END AS glucosa,
+        CASE 
+            WHEN TRIM(lc.txtglucosabio) ~ '^[0-9]+(\.[0-9]+)?$' 
+                AND CAST(TRIM(lc.txtglucosabio) AS DECIMAL) > 100 
+                THEN 'HIPERGLUCEMIA'
+            WHEN TRIM(lc.txtglucosabio) ~ '^[0-9]+(\.[0-9]+)?$' 
+                AND CAST(TRIM(lc.txtglucosabio) AS DECIMAL) < 100 
+                THEN 'NORMAL'
+            ELSE 'Sin registros'
+        END AS conclusion_glucosa,
+        (
+            '- Colesterol Total: ' || CASE WHEN TRIM(ab.txtcolesterol) ~ '^[0-9]+(\.[0-9]+)?$' THEN ab.txtcolesterol ELSE 'Sin registros' END
+        ) || E'\n' ||
+        (
+            '- Triglicéridos: ' || CASE WHEN TRIM(ab.txttrigliseridos) ~ '^[0-9]+(\.[0-9]+)?$' THEN ab.txttrigliseridos ELSE 'Sin registros' END
+        ) || E'\n' ||
+        (
+            '- HDL: ' || CASE WHEN TRIM(ab.txthdlcolesterol) ~ '^[0-9]+(\.[0-9]+)?$' THEN ab.txthdlcolesterol ELSE 'Sin registros' END
+        ) || E'\n' ||
+        (
+            '- LDL: ' || CASE WHEN TRIM(ab.txtldlcolesterol) ~ '^[0-9]+(\.[0-9]+)?$' THEN ab.txtldlcolesterol ELSE 'Sin registros' END
+        ) || E'\n' ||
+        (
+            '- VLDL: ' || CASE WHEN TRIM(ab.txtvldlcolesterol) ~ '^[0-9]+(\.[0-9]+)?$' THEN ab.txtvldlcolesterol ELSE 'Sin registros' END
+        ) AS perfil_lipidico,
+        CASE 
+            WHEN (TRIM(ab.txtcolesterol) ~ '^[0-9]+(\.[0-9]+)?$' AND CAST(TRIM(ab.txtcolesterol) AS DECIMAL) > 200) 
+             AND (TRIM(ab.txttrigliseridos) ~ '^[0-9]+(\.[0-9]+)?$' AND CAST(TRIM(ab.txttrigliseridos) AS DECIMAL) > 150) THEN 
+                'HIPERLIPIDEMIA MIXTA'
+            ELSE 
+                '- Colesterol: ' || 
+                CASE 
+                    WHEN TRIM(ab.txtcolesterol) ~ '^[0-9]+(\.[0-9]+)?$' THEN 
+                        CASE WHEN CAST(TRIM(ab.txtcolesterol) AS DECIMAL) > 200 THEN 'HIPERCOLESTEROLEMIA' ELSE 'NORMAL' END
+                    ELSE 'Sin registros' 
+                END 
+                || chr(10) ||
+                '- Trigliceridos: ' || 
+                CASE 
+                    WHEN TRIM(ab.txttrigliseridos) ~ '^[0-9]+(\.[0-9]+)?$' THEN 
+                        CASE WHEN CAST(TRIM(ab.txttrigliseridos) AS DECIMAL) > 150 THEN 'HIPERTRIGLICERIDEMIA' ELSE 'NORMAL' END
+                    ELSE 'Sin registros' 
+                END
+        END AS conclusion_perfil_lipidico,
+        CASE WHEN lb.txtcreatinina IS NOT NULL THEN lb.txtcreatinina ELSE 'Sin registros' END AS conclusion_creatinina,
+        CASE WHEN t.sistolica IS NOT NULL THEN t.sistolica ELSE 'Sin registros' END AS sistolica,
+        CASE WHEN t.diastolica IS NOT NULL THEN t.diastolica ELSE 'Sin registros' END AS diastolica,
+        COALESCE(ie.conclusion, ie.hallazgo, iep2.conclusion) AS ekg_resultado,
+        CASE WHEN ap1.txtconclusiones IS NULL THEN ca.txtconclusiones ELSE ap1.txtconclusiones END AS conclusiones_ficha_anexo16,
+        -- CASE 
+--             WHEN ap1.chkapto THEN 'Apto'
+--             WHEN ap1.chkapto_restriccion THEN 'Apto con restricción'
+--             WHEN ap1.chkno_apto THEN 'No apto'
+--             WHEN ca.chkapto THEN 'Apto'
+--             WHEN ca.chkapto_restriccion THEN 'Apto con restricción'
+--             WHEN ca.chkno_apto THEN 'No apto'
+--             WHEN ca.chkevaluado THEN 'Evaluado'
+--             WHEN ca.chkconobservacion THEN 'Con observacion'
+--             ELSE 'NO REGISTRO APTITUD'
+--         END AS aptitud_ocupacional,
+        CASE
+            WHEN 
+		bc.chk_si = 'TRUE'
+		AND n.nom_examen ILIKE '%PSICOSENSOMETRIA%' 
+		AND EXISTS (
+		    SELECT 1 
+		    FROM ficha_sas f 
+		    WHERE f.n_orden = n.n_orden
+		)
+		AND EXISTS (
+		    SELECT 1 
+		    FROM b_certificado_conduccion b
+		    WHERE b.n_orden = n.n_orden
+		)
+	    THEN 'Apto' --nuevo
+            WHEN 
+		bc.chk_apto_r = 'TRUE'
+		AND n.nom_examen ILIKE '%PSICOSENSOMETRIA%'
+		AND EXISTS (
+		    SELECT 1 FROM ficha_sas f WHERE f.n_orden = n.n_orden
+		)
+		AND EXISTS (
+		    SELECT 1 FROM b_certificado_conduccion b WHERE b.n_orden = n.n_orden
+		)
+	    THEN 'Apto con Restriccion' --nuevo
+            WHEN 
+		bc.chk_observado = 'TRUE'
+		AND n.nom_examen ILIKE '%PSICOSENSOMETRIA%'
+		AND EXISTS (
+		    SELECT 1 FROM ficha_sas f WHERE f.n_orden = n.n_orden
+		)
+		AND EXISTS (
+		    SELECT 1 FROM b_certificado_conduccion b WHERE b.n_orden = n.n_orden
+		)
+	    THEN 'Con Observación' --nuevo
+            WHEN 
+		bc.chk_no = 'TRUE'
+		AND n.nom_examen ILIKE '%PSICOSENSOMETRIA%'
+		AND EXISTS (
+		    SELECT 1 FROM ficha_sas f WHERE f.n_orden = n.n_orden
+		)
+		AND EXISTS (
+		    SELECT 1 FROM b_certificado_conduccion b WHERE b.n_orden = n.n_orden
+		)
+	    THEN 'No Apto' --nuevo
+            WHEN ama.chkapto = 'TRUE' THEN 'Apto'
+            WHEN ama.chkapto_restriccion = 'TRUE' THEN 'Apto con Restriccion'
+            WHEN ama.chkno_apto = 'TRUE' THEN 'No Apto'
+            WHEN ap1.chkapto = 'TRUE' THEN 'Apto'
+            WHEN ap1.chkapto_restriccion = 'TRUE' THEN 'Apto con Restriccion'
+            WHEN ap1.chkno_apto = 'TRUE' THEN 'No Apto'
+            WHEN ca.chkapto = 'TRUE' THEN 'Apto'
+            WHEN ca.chkapto_restriccion = 'TRUE' THEN 'Apto con Restriccion'
+            WHEN ca.chkno_apto = 'TRUE' THEN 'No Apto'
+            WHEN ca.chkevaluado = 'TRUE' THEN 'Evaluado'
+            WHEN ca.chkconobservacion = 'TRUE' THEN 'Con Observación'
+            WHEN fi.n_orden IS NOT NULL THEN 'INTERCONSULTA PENDIENTE: ' || string_agg(fi.especialidad, '-')
+            WHEN ama.n_orden IS NULL THEN 'APTITUD PENDIENTE'
+	    END AS aptitud_ocupacional,
+        CASE 
+            WHEN ps2.apto IS TRUE THEN 'Apto'
+            WHEN ps2.apto IS FALSE THEN 'No apto'
+            WHEN ip.aprobo_inf THEN 'Apto'
+            WHEN ip.desaprobo_inf THEN 'No apto'
+            ELSE 'NO REGISTRO APTITUD'
+        END AS aptitud_psicologica,
+        TRIM(
+            COALESCE(eme.txtdiagnostico, '') 
+            || 
+            CASE 
+            WHEN eme.txtdiagnostico IS NOT NULL 
+                AND rg.conclu IS NOT NULL THEN ' - ' || rg.conclu
+            ELSE COALESCE(rg.conclu, '')
+            END
+        ) AS diagnostico_musculo_esqueletico
+    FROM datos_paciente AS d
+    INNER JOIN n_orden_ocupacional AS n ON d.cod_pa = n.cod_pa
+    LEFT JOIN triaje AS t ON t.n_orden = n.n_orden
+    LEFT JOIN oftalmologia AS o ON o.n_orden = n.n_orden
+    LEFT JOIN oftalmologia_lo AS ol ON ol.n_orden = n.n_orden
+    LEFT JOIN audiometria_po AS au ON au.n_orden = n.n_orden
+    LEFT JOIN funcion_abs AS f ON f.n_orden = n.n_orden
+    LEFT JOIN ficha_audiologica AS fa ON fa.n_orden = n.n_orden
+    LEFT JOIN informe_electrocardiograma AS ie ON ie.n_orden = n.n_orden
+    LEFT JOIN informe_electrocardiograma_poderosa AS iep2 ON iep2.n_orden = n.n_orden
+    LEFT JOIN ex_radiograficos_sanguineos AS er ON er.n_orden = n.n_orden
+    LEFT JOIN radiografia_torax AS rt ON rt.n_orden = n.n_orden
+    LEFT JOIN oit AS oi ON oi.n_orden = n.n_orden
+    LEFT JOIN odontograma AS od ON od.n_orden = n.n_orden
+    LEFT JOIN analisis_bioquimicos AS ab ON ab.n_orden = n.n_orden
+    LEFT JOIN lab_clinico AS lc ON lc.n_orden = n.n_orden
+    LEFT JOIN anexo7c AS a ON a.n_orden = n.n_orden
+    LEFT JOIN anexo_agroindustrial AS aa ON aa.n_orden = n.n_orden
+    LEFT JOIN aptitud_medico_ocupacional11 AS ca ON ca.n_orden = n.n_orden
+    LEFT JOIN aptitud_medico_ocupacional_agro AS ama ON ama.n_orden = n.n_orden
+    LEFT JOIN anexo7d AS ad ON ad.n_orden = n.n_orden
+    LEFT JOIN anexoc AS ac ON ac.n_orden = n.n_orden
+    LEFT JOIN observaciones AS ob ON ob.n_orden = n.n_orden
+    LEFT JOIN b_certificado_conduccion AS bc ON bc.n_orden = n.n_orden
+    LEFT JOIN b_certificado_altura AS ba ON ba.n_orden = n.n_orden
+    LEFT JOIN certificacion_medica_altura AS cma ON cma.n_orden = n.n_orden
+    LEFT JOIN informe_psicologico AS ip ON ip.n_orden = n.n_orden
+    LEFT JOIN evaluacion_musculo_esqueletica AS eme ON eme.n_orden = n.n_orden
+    LEFT JOIN evaluacion_musculo_esqueletica2021 AS emes ON emes.n_orden = n.n_orden
+    LEFT JOIN ac_bioquimica2022 AS acu ON acu.n_orden = n.n_orden
+    LEFT JOIN toxicologia AS tox ON tox.n_orden = n.n_orden
+    LEFT JOIN oftalmologia2021 AS oft ON oft.n_orden = n.n_orden
+    LEFT JOIN odontograma AS odo ON odo.n_orden = n.n_orden
+    LEFT JOIN perfil_hepatico AS ph ON ph.n_orden = n.n_orden
+    LEFT JOIN antecedentes_patologicos AS apa ON apa.n_orden = n.n_orden
+    LEFT JOIN certificado_aptitud_medico_ocupacional AS ap1 ON ap1.n_orden = n.n_orden
+    LEFT JOIN ficha_interconsulta AS fi ON fi.n_orden = n.n_orden
+    LEFT JOIN l_bioquimica AS lb ON lb.n_orden = n.n_orden
+    LEFT JOIN radiografia AS rg ON rg.n_orden = n.n_orden
+    LEFT JOIN ficha_psicologica_anexo02 AS ps2 ON ps2.n_orden = n.n_orden
+    LEFT JOIN empresas AS ep ON n.razon_empresa = ep.razon_empresa
+    INNER JOIN sede_multisucursal AS sm ON sm.id = n.cod_sede
+    WHERE 
+        ep.ruc_empresa = p_ruc_empresa
+        AND EXISTS(
+		SELECT 1
+		FROM sede_multisucursal sm
+		WHERE sm.id = n.cod_sede
+		 AND sm.codigo_sucursal = p_sede
+	)
+        AND (n.txtobserv2 ILIKE '%CONSTRUCCION%'
+            OR n.txtobserv2 SIMILAR TO '%(PAQ[.]? (6|7|8))%'
+            OR n.txtobserv2 ILIKE '%911%')
+        AND n.fecha_apertura_po >= CAST(p_fecha_inicio AS DATE)
+        AND n.fecha_apertura_po <= CAST(p_fecha_fin AS DATE)
+
+    GROUP BY 
+        n.n_orden, n.fecha_apertura_po, n.txtobserv2, n.razon_empresa, n.razon_contrata, 
+        d.apellidos_pa, d.nombres_pa, d.sexo_pa, d.cod_pa,
+        n.cargo_de, lc.chko, lc.chka, lc.chkb, lc.chkab, lc.rbrhpositivo, lc.rbrhnegativo,
+        n.nom_examen, ob.n_orden, ca.chkapto, ap1.chkapto, ca.chkapto_restriccion, ap1.chkapto_restriccion,
+        ca.chkno_apto, ap1.chkno_apto, ca.chkevaluado, ca.chkconobservacion,
+        fi.n_orden, ca.n_orden, au.diagnostico, rt.txtconclusionesradiograficas, f.interpretacion,
+        t.imc, oft.txtdiagnostico, lc.txtglucosabio, ab.txttrigliseridos, lb.txtcreatinina,
+        t.sistolica, t.diastolica, ie.conclusion, ap1.txtconclusiones, ap1.chkapto, ap1.chkapto_restriccion,
+        ap1.chkno_apto, eme.txtdiagnostico, rg.conclu, d.fecha_nacimiento_pa, ps2.apto, ab.txtColesterol,
+        ab.txtCreatinina, ab.txthdlcolesterol, ab.txtldlcolesterol, ab.txtvldlcolesterol, o.e_oculares, o.e_oculares1,
+        ip.aprobo_inf, ip.desaprobo_inf, iep2.conclusion, ie.hallazgo, bc.chk_si, bc.chk_apto_r, bc.chk_observado, bc.chk_no,
+        ama.chkapto, ama.chkapto_restriccion, ama.chkno_apto, fi.n_orden, fi.especialidad, ama.n_orden
+
+    ORDER BY n.n_orden ASC;
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
 DROP FUNCTION obtener_reporte_aptitud_altura_poderosa(integer, text);
 
 CREATE OR REPLACE FUNCTION obtener_reporte_aptitud_altura_poderosa(
