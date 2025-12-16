@@ -2,6 +2,316 @@ select n_orden
 from n_orden_ocupacional
 limit 1;
 
+DROP FUNCTION obtener_reporte_anexo16(integer, text);
+
+
+CREATE OR REPLACE FUNCTION obtener_reporte_anexo16(
+    IN p_norden integer,
+    IN name_service text)
+  RETURNS TABLE(fechaanexo7c_fecha date, telefonotrabajopaciente_tel_trabajo_pa text, telefonocasapaciente_tel_casa_pa text, celularpaciente_cel_pa text, dni_cod_pa integer, sexo_sexo_pa "char", numerocontacto_num_contacto text, direccionpaciente_direccion text, fechanacimientopaciente_fecha_nacimiento_pa date, lugarnacimientopaciente_lugar_nac_pa text, estadocivilpaciente_estado_civil_pa text, nivelestudiopaciente_nivel_est_pa text, cargo_cargo_de text, fvcfuncionrespiratoria_fvc text, fev1funcionrespiratoria_fev1 text, fev1fvcfuncionrespiratoria_fev1fvc text, fef2575funcionrespiratoria_fef25_75 text, empresa_razon_empresa text, explotacion_nom_ex text, altura_altura_po text, contrata_razon_contrata text, norden_n_orden integer, fechaapertura_fecha_apertura_po date, nombreexamen_nom_examen text, mineral_mineral_po text, nombres_nombres text, edad_edad text, perimetrocuellotriaje_perimetro_cuello text, imctriaje_imc text, pesotriaje_peso text, tallatriaje_talla text, cinturatriaje_cintura text, caderatriaje_cadera text, icctriaje_icc text, temperaturatriaje_temperatura text, frecuenciarespiratoriatriaje_f_respiratoria text, frecuenciacardiacatriaje_f_cardiaca text, saturacionoxigenotriaje_sat_02 text, sistolicatriaje_sistolica text, diastolicatriaje_diastolica text, ruidoanexo7c_chkruido boolean, polvoanexo7c_chkpolvo boolean, vidsegmentarioanexo7c_chkvidsegmentario boolean, vidtotalanexo7c_chkvidtotal boolean, cancerigenosanexo7c_chkcancerigenos boolean, mutagenicosanexo7c_chkmutagenicos boolean, solventesanexo7c_chksolventes boolean, metalesanexo7c_chkmetales boolean, temperaturaanexo7c_chktemperatura boolean, biologicosanexo7c_chkbiologicos boolean, posturasanexo7c_chkposturas boolean, turnosanexo7c_chkturnos boolean, cargasanexo7c_chkcargas boolean, movrepetanexo7c_chkmovrepet boolean, pvdanexo7c_chkpvd boolean, electricosanexo7c_electricos boolean, vibracionesanexo7c_vibraciones boolean, otrosanexo7c_chkotros boolean, alturaestructuraanexo7c_altura_estructura boolean, alturageograficaanexo7c_altura_geog boolean, quimicosanexo7c_quimicos boolean, reubicacionsianexo7c_tbrsi boolean, reubicacionnoanexo7c_rbrno boolean, puestoactualanexo7c_txtpuestoactual text, tiempoanexo7c_txttiempo text, antecedentespersonalesanexo7c_txtantecedentespersonales text, antecedentesfamiliaresanexo7c_txtantecedentesfamiliares text, tetanoanexo7c_tetano boolean, hepatitisbanexo7c_hepatitisb boolean, fiebreamarillaanexo7c_fiebreamarilla boolean, hijosvivosanexo7c_txthijosvivos text, hijosmuertosanexo7c text, tabaconadaaexo7c_chktnada boolean, tabacopocoanexo7c_chktpoco boolean, tabacohabitualanexo7c_chkthabitual boolean, tabacoexcesivoanexo7c_chktexcesivo boolean, alcoholnadaanexo7c_chkanada boolean, alcoholpocoanexo7c_chkapoco boolean, alcoholhabitualanexo7c_chkahabitual boolean, alcoholexcesivoanexo7c_chkaexcesivo boolean, drogasnadaanexo7c_chkdnada boolean, drogaspocoanexo7c_chkdpoco boolean, drogashabitualanexo7c_chkdhabitual boolean, drogasexcesivoanexo7c_chkdexcesivo boolean, conclusionanexo7c_txtconclusion text, cabezaanexo7c_txtcabeza text, narizanexo7c_txtnariz text, cuelloanexo7c_txtcuello text, perimetroanexo7c_txtperimetro text, baflanexo7c_txtb_a_f_l text, visioncoloresanexo7c_txtvisioncolores text, enfermedadesocularesanexo7c_txtenfermedadesoculares text, reflejospupilaresanexo7c_txtreflejospupilares text, binocularanexo7c_txtbinocular text, odanexo7c_txtod text, oianexo7c_txtoi text, toraxanexo7c_txttorax text, corazonanexo7c_txtcorazon text, pulmonesnormalanexo7c_rbnormal boolean, pulmonesanormalanexo7c_rbanormal boolean, pulmonesdescripcionanexo7c_txtpulmones text, miembrossuperioresanexo7c_txtmiembrossuperiores text, miembrosinferioresanexo7c_txtmiembrosinferiores text, ausentesodontograma_txtausentes integer, piezasmalestadoodontograma_txtpiezasmalestado integer, visioncercasincorregirod_v_cerca_s_od text, visioncercasincorregiroi_v_cerca_s_oi text, odcc_odcc text, oicc_oicc text, visionlejossincorregirod_v_lejos_s_od text, visionlejossincorregiroi_v_lejos_s_oi text, odlc_odlc text, oilc_oilc text, vc_vc text, vb_vb text, rp_rp text, enfermedadesocularesoftalmo_e_oculares text, enfermedadesocularesotrosoftalmo_e_oculares1 text, enfermedadesocularesvisionlejos_e_oculvisionlejos text, tecishiharanormal_rbtecishihara_normal boolean, tecishiharaanormal_rbtecishihara_anormal boolean, teccoleresnormal_rbteccoleres_normal boolean, teccoleresanormal_rbteccoleres_anormal boolean, tecestereopsianormal_rbtecestereopsia_normal boolean, tecestereopsiaanormal_rbtecestereopsia_anormal boolean, oidoderecho500audiometria_o_d_500 text, oidoderecho1000audiometria_o_d_1000 text, oidoderecho2000audiometria_o_d_2000 text, oidoderecho3000audiometria_o_d_3000 text, oidoderecho4000audiometria_o_d_4000 text, oidoderecho6000audiometria_o_d_6000 text, oidoderecho8000audiometria_o_d_8000 text, oidoizquierdo500audiometria_o_i_500 text, oidoizquierdo1000audiometria_o_i_1000 text, oidoizquierdo2000audiometria_o_i_2000 text, oidoizquierdo3000audiometria_o_i_3000 text, oidoizquierdo4000audiometria_o_i_4000 text, oidoizquierdo6000audiometria_o_i_6000 text, oidoizquierdo8000audiometria_o_i_8000 text, diagnosticoaudiometricocompleto_diagnostico text, reflejososteotendinososanexo7c_txtreflejososteotendinosos text, marchaanexo7c_txtmarcha text, columnavertebralanexo7c_txtcolumnavertebral text, abdomenanexo7c_txtabdomen text, anillosinguinalesanexo7c_txtanillosinguinales text, organosgenitalesanexo7c_txtorganosgenitales text, tactorectalnohizoanexo7c_rbtnohizo boolean, tactorectalnormalanexo7c_rbtnormal boolean, tactorectalanormalanexo7c_rbtanormal boolean, describirobservacionanexo7c_chkdescribirobservacion boolean, herniasanexo7c_txthernias text, varicesanexo7c_txtvarices text, gangliosanexo7c_txtganglios text, lenguageanexo7c_txtlenguage text, observacionesfichamedicaanexo7c_txtobservacionesfm text, nrx_n_rx integer, fechaexamenradiografico_fecha_exra date, calidadexamenradiografico_txtcalidad text, simbolosexamenradiografico_txtsimbolos text, conclusionmedicoanexo7c_txtconclusionmed text, estadomentalanexo7c_txtestadomental text, anamnesisanexo7c_txtanamnesis text, examenradiografico0_ex_0 boolean, examenradiografico10_ex_10 boolean, examenradiografico11_ex_11 boolean, examenradiografico12_ex_12 boolean, examenradiografico21_ex_21 boolean, examenradiografico22_ex_22 boolean, examenradiografico23_ex_23 boolean, examenradiografico32_ex_32 boolean, examenradiografico33_ex_33 boolean, examenradiografico3mas_ex_3mas boolean, examenradiograficoabc_ex_abc boolean, examenradiograficost_ex_st boolean, examenradiograficosinneumoconiosis_txtsinneumoconiosis text, examenradiograficoconneumoconiosis_txtconneumoconiosis text, examenradiograficoirep_txtirep text, examenradiograficootros_txtotrosex text, examenradiograficoaptosi_apto_si boolean, examenradiograficoaptono_apto_no boolean, examenradiograficoaptore_apto_re boolean, verticesradiografiatorax_txtvertices text, hilosradiografiatorax_txthilios text, senoscostofrenicos_txtsenoscostofrenicos text, meadiastinos_txtmediastinos text, siluetacardiovascular_txtsiluetacardiovascular text, conclusionesradiograficas_txtconclusionesradiograficas text, color integer, gruposanguineoo_chko boolean, gruposanguineoa_chka boolean, gruposanguineob_chkb boolean, gruposanguineoab_chkab boolean, gruposanguineorhpositivo_rbrhpositivo boolean, gruposanguineorhnegativo_rbrhnegativo boolean, hemoglobina_txthemoglobina text, positivolaboratorioclinico_chkpositivo boolean, negativolaboratorioclinico_chknegativo boolean, glucosalaboratorioclinico_txtglucosabio text, creatininalaboratorioclinico_txtcreatininabio text, vsglaboratorioclinico_txtvsg text, cocainalaboratorioclinico_txtcocaina text, marihuanalaboratorioclinico_txtmarihuana text, leucocitos_txtleucocitosematologia text, hematies_txthematiesematologia text, plaquetas_txtplaquetas text, neutrofilos_txtneutrofilos text, abastonados_txtabastonados text, segmentados_txtsegmentadosematologia text, monocitos_txtmonocitosematologia text, eosinofilos_txteosinofiosematologia text, basofilos_txtbasofilosematologia text, linfocitos_txtlinfocitosematologia text, creatininaanalisisbioquimico_txtcreatinina text, colesterolanalisisbioquimico_txtcolesterol text, ldlcolesterolanalisisbioquimico_txtldlcolesterol text, hdlcolesterolanalisisbioquimico_txthdlcolesterol text, vldlcolesterolanalisisbioquimico_txtvldlcolesterol text, trigliceridosanalisisbioquimico_txttrigliceridos text, sede text, nombresede text, numero text, codigoanexo7c_cod_anexo integer, namejasper text, pielanexo7c_piel boolean, pieldescripcionanexo7c_piel_descripcion text, usuariofirma text, interpretacionfuncionrespiratoria_interpretacion text, hematocritoLaboratorioClinico_txthematocrito text,
+creatininaPerfilRenal_txtcreatinina text,
+ureaAsericaPerfilRenal_txtureaserica text,
+acidoUricoPerfilRenal_txtacidourico text) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+	SELECT 
+	    a.fecha,
+	    d.tel_trabajo_pa,
+	    d.tel_casa_pa,
+	    d.cel_pa,
+	    d.cod_pa,
+	    d.sexo_pa,
+	    CASE
+		WHEN LENGTH(TRIM(CAST(d.tel_casa_pa AS TEXT))) > 1 THEN d.tel_casa_pa
+		ELSE d.cel_pa
+	    END AS num_contacto,
+	    d.direccion_pa ||'-'|| d.distrito_pa ||'-'|| d.provincia_pa ||'-'|| d.departamento_pa as direccion,
+	    d.fecha_nacimiento_pa,
+	    d.lugar_nac_pa,
+	    d.estado_civil_pa,
+	    d.nivel_est_pa,
+	    n.cargo_de,
+	    f.fvc,
+	    f.fev1,
+	    f.fev1fvc,
+	    f.fef25_75,
+	    n.razon_empresa,
+	    n.nom_ex,
+	    n.altura_po,
+	    n.razon_contrata,
+	    n.n_orden,
+	    n.fecha_apertura_po,
+	    e.nom_examen,
+	    n.mineral_po,
+	    d.apellidos_pa||' '||d.nombres_pa as nombres,
+	    CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
+	    t.perimetro_cuello,
+	    t.imc,
+	    t.peso,
+	    t.talla,
+	    t.cintura,
+	    t.cadera,
+	    t.icc,
+	    t.temperatura,
+	    t.f_respiratoria,
+	    t.f_cardiaca,
+	    t.sat_02,
+	    t.sistolica,
+	    t.diastolica,
+
+	    CASE WHEN apt.ruido IS NULL THEN a.chkruido ELSE apt.ruido END,
+	    CASE WHEN apt.polvo IS NULL THEN a.chkpolvo ELSE apt.polvo END,
+	    CASE WHEN apt.vid_segmentario IS NULL THEN a.chkvidsegmentario ELSE apt.vid_segmentario END,
+	    CASE WHEN apt.vid_total IS NULL THEN a.chkvidtotal ELSE apt.vid_total END,
+	    CASE WHEN apt.cancerigenos IS NULL THEN a.chkcancerigenos ELSE apt.cancerigenos END,
+	    CASE WHEN apt.mutagenicos IS NULL THEN a.chkmutagenicos ELSE apt.mutagenicos END,
+	    CASE WHEN apt.solventes IS NULL THEN a.chksolventes ELSE apt.solventes END,
+	    CASE WHEN apt.metales IS NULL THEN a.chkmetales ELSE apt.metales END,
+	    CASE WHEN apt.temperatura IS NULL THEN a.chktemperatura ELSE apt.temperatura END,
+	    CASE WHEN apt.biologicos IS NULL THEN a.chkbiologicos ELSE apt.biologicos END,
+	    CASE WHEN apt.posturas IS NULL THEN a.chkposturas ELSE apt.posturas END,
+	    CASE WHEN apt.turnos IS NULL THEN a.chkturnos ELSE apt.turnos END,
+	    CASE WHEN apt.cargas IS NULL THEN a.chkcargas ELSE apt.cargas END,
+	    CASE WHEN apt.mov_repet IS NULL THEN a.chkmovrepet ELSE apt.mov_repet END,
+	    CASE WHEN apt.pvd IS NULL THEN a.chkpvd ELSE apt.pvd END,
+	    CASE WHEN apt.electricos IS NULL THEN a.electricos ELSE apt.electricos END,
+	    CASE WHEN apt.vibraciones IS NULL THEN a.vibraciones ELSE apt.vibraciones END,
+	    CASE WHEN apt.otros IS NULL THEN a.chkotros ELSE apt.otros END,
+	    CASE WHEN apt.altura_estructura IS NULL THEN a.altura_estructura ELSE apt.altura_estructura END,
+	    CASE WHEN apt.altura_geografica IS NULL THEN a.altura_geog ELSE apt.altura_geografica END,
+	    CASE WHEN apt.quimicos IS NULL THEN a.quimicos ELSE apt.quimicos END,
+	    
+	    a.tbrsi,
+	    a.rbrno,
+	    a.txtpuestoactual,
+	    a.txttiempo,
+	    a.txtantecedentespersonales,
+	    a.txtantecedentesfamiliares,
+	    a.tetano,
+	    a.hepatitisb,
+	    a.fiebreamarilla,
+	    a.txthijosvivos,
+	    a.txthijosmuertos,
+	    a.chktnada,
+	    a.chktpoco,
+	    a.chkthabitual,
+	    a.chktexcesivo,
+	    a.chkanada,
+	    a.chkapoco,
+	    a.chkahabitual,
+	    a.chkaexcesivo,
+	    a.chkdnada,
+	    a.chkdpoco,
+	    a.chkdhabitual,
+	    a.chkdexcesivo,
+	    a.txtconclusion,
+	    a.txtcabeza,
+	    a.txtnariz,
+	    a.txtcuello,
+	    a.txtperimetro,
+	    a.txtb_a_f_l,
+	    a.txtvisioncolores,
+	    a.txtenfermedadesoculares,
+	    a.txtreflejospupilares,
+	    a.txtbinocular,
+	    a.txtod,
+	    a.txtoi,
+	    a.txttorax,
+	    a.txtcorazon,
+	    a.rbnormal,
+	    a.rbanormal,
+	    a.txtpulmones,
+	    a.txtmiembrossuperiores,
+	    a.txtmiembrosinferiores,
+	    od.txtausentes,
+	    od.txtpiezasmalestado,
+	    
+	    CASE WHEN oft.txtcercasincorregirod is not null THEN oft.txtcercasincorregirod else o.v_cerca_s_od end as v_cerca_s_od,
+	    CASE WHEN oft.txtcercasincorregiroi is not null THEN oft.txtcercasincorregiroi else o.v_cerca_s_oi end as v_cerca_s_oi,
+	    CASE WHEN oft.txtcercacorregidaod is not null THEN oft.txtcercacorregidaod
+		 WHEN ol.v_cerca_c_od IS NULL THEN o.v_cerca_c_od
+		 else ol.v_cerca_c_od end as ODCC,
+	    CASE WHEN oft.txtcercacorregidaoi is not null THEN oft.txtcercacorregidaoi
+		 WHEN ol.v_cerca_c_oi IS NULL THEN o.v_cerca_c_oi
+		 else ol.v_cerca_c_oi end as OICC,
+	    CASE WHEN oft.txtlejossincorregirod is not null THEN oft.txtlejossincorregirod else o.v_lejos_s_od end as v_lejos_s_od,
+	    CASE WHEN oft.txtlejossincorregiroi is not null THEN oft.txtlejossincorregiroi else o.v_lejos_s_oi end as v_lejos_s_oi,
+	    CASE WHEN oft.txtlejoscorregidaod is not null THEN oft.txtlejoscorregidaod
+		 WHEN ol.v_lejos_c_od IS NULL THEN o.v_lejos_c_od  ELSE ol.v_lejos_c_od  END as ODLC,
+	    CASE WHEN oft.txtlejoscorregidaoi is not null THEN oft.txtlejoscorregidaoi
+		 WHEN ol.v_lejos_c_oi IS NULL THEN o.v_lejos_c_oi  ELSE ol.v_lejos_c_oi  END as OILC,
+	    CASE WHEN ol.v_colores IS NULL THEN o.v_colores  ELSE ol.v_colores  END as VC,
+	    CASE WHEN oft.txtbinocularsincorregir IS not NULL THEN oft.txtbinocularsincorregir
+		 WHEN ol.v_binocular IS NULL THEN o.v_binocular
+		 ELSE ol.v_binocular  END as VB,
+	    CASE WHEN ol.r_pupilares IS NULL THEN o.r_pupilares  ELSE ol.r_pupilares  END as RP,
+	    CASE WHEN oft.txtdiagnostico IS not NULL THEN oft.txtdiagnostico  else o.e_oculares end as e_oculares,
+	    o.e_oculares1,
+	    o.e_oculvisionlejos, 
+	    oft.rbtecishihara_normal,
+	    oft.rbtecishihara_anormal,
+	    oft.rbteccoleres_normal,
+	    oft.rbteccoleres_anormal,
+	    oft.rbtecestereopsia_normal,
+	    oft.rbtecestereopsia_anormal,
+	    
+	    CASE WHEN  au.o_d_500 is not null THEN au.o_d_500
+		     WHEN  a25.o_d_500 is not null THEN a25.o_d_500 else m.o_d_500 end as o_d_500 ,
+		CASE WHEN au.o_d_1000 is not null THEN au.o_d_1000
+		     WHEN a25.o_d_1000 is not null THEN a25.o_d_1000 else m.o_d_1000 end as o_d_1000 ,
+		CASE WHEN au.o_d_2000 is not null THEN au.o_d_2000
+		     WHEN  a25.o_d_2000 is not null THEN a25.o_d_2000 else m.o_d_2000 end as o_d_2000 ,
+		CASE WHEN au.o_d_3000 is not null THEN au.o_d_3000
+		     WHEN  a25.o_d_3000 is not null THEN a25.o_d_3000 else m.o_d_3000 end as o_d_3000 ,
+		CASE WHEN au.o_d_4000 is not null THEN au.o_d_4000
+		     WHEN  a25.o_d_4000 is not null THEN a25.o_d_4000 else m.o_d_4000 end as o_d_4000 ,
+		CASE WHEN au.o_d_6000 is not null THEN au.o_d_6000
+		     WHEN  a25.o_d_6000 is not null THEN a25.o_d_6000 else m.o_d_6000 end as o_d_6000 ,
+		CASE WHEN au.o_d_8000 is not null THEN au.o_d_8000
+		     WHEN  a25.o_d_8000 is not null THEN a25.o_d_8000 else m.o_d_8000 end as o_d_8000 ,
+		CASE WHEN au.o_i_500 is not null THEN au.o_i_500
+		     WHEN a25.o_i_500 is not null THEN a25.o_i_500 else m.o_i_500 end as o_i_500 ,
+		CASE WHEN au.o_i_1000 is not null THEN au.o_i_1000
+		     WHEN a25.o_i_1000 is not null THEN a25.o_i_1000 else m.o_i_1000 end as o_i_1000 ,
+		CASE WHEN au.o_i_2000 is not null THEN au.o_i_2000
+		     WHEN a25.o_i_2000 is not null THEN a25.o_i_2000 else m.o_i_2000 end as o_i_2000 ,
+		CASE WHEN au.o_i_3000 is not null THEN au.o_i_3000
+		     WHEN a25.o_i_3000 is not null THEN a25.o_i_3000 else m.o_i_3000 end as o_i_3000 ,
+		CASE WHEN au.o_i_4000 is not null THEN au.o_i_4000
+		     WHEN a25.o_i_4000 is not null THEN a25.o_i_4000 else m.o_i_4000 end as o_i_4000 ,
+		CASE WHEN au.o_i_6000 is not null THEN au.o_i_6000
+		     WHEN a25.o_i_6000 is not null THEN a25.o_i_6000 else m.o_i_6000 end as o_i_6000 ,
+		CASE WHEN au.o_i_8000 is not null THEN au.o_i_8000
+		     WHEN a25.o_i_8000 is not null THEN a25.o_i_8000 else m.o_i_8000 end as o_i_8000 ,
+		CASE WHEN m.diagnostico is null THEN '' else m.diagnostico end as diagnostico,
+	    
+	    a.txtreflejososteotendinosos,
+	    a.txtmarcha,
+	    a.txtcolumnavertebral,
+	    a.txtabdomen,
+	    a.txtanillosinguinales,
+	    a.txtorganosgenitales,
+	    a.rbtnohizo,
+	    a.rbtnormal,
+	    a.rbtanormal,
+	    a.chkdescribirobservacion,
+	    a.txthernias,
+	    a.txtvarices,
+	    a.txtganglios,
+	    a.txtlenguage,
+	    a.txtobservacionesfm,
+	    e2.n_rx,
+	    e2.fecha_exra,
+	    e2.txtcalidad,
+	    e2.txtsimbolos,
+	    a.txtconclusionmed,
+	    a.txtestadomental,
+	    a.txtanamnesis,
+	    e2.ex_0,
+	    e2.ex_10,
+	    e2.ex_11,
+	    e2.ex_12,
+	    e2.ex_21,
+	    e2.ex_22,
+	    e2.ex_23,
+	    e2.ex_32,
+	    e2.ex_33,
+	    e2.ex_3mas,
+	    e2.ex_abc,
+	    e2.ex_st,
+	    e2.txtsinneumoconiosis,
+	    e2.txtconneumoconiosis,
+	    e2.txtirep,
+	    e2.txtotrosex,
+	    e2.apto_si,
+	    e2.apto_no,
+	    e2.apto_re,
+	    r.txtvertices,
+	    r.txthilios,
+	    r.txtsenoscostofrenicos,
+	    r.txtmediastinos,
+	    r.txtsiluetacardiovascular,
+	    r.txtconclusionesradiograficas,
+	    n.color,
+	    l.chko,
+	    l.chka,
+	    l.chkb,
+	    l.chkab,
+	    l.rbrhpositivo,
+	    l.rbrhnegativo,
+	    l.txthemoglobina,
+	    l.chkpositivo,
+	    l.chknegativo,
+	    l.txtglucosabio,
+	    l.txtcreatininabio,
+	    l.txtvsg,
+	    l.txtcocaina,
+	    l.txtmarihuana,
+	    l.txtleucocitosematologia,
+	    l.txthematiesematologia,
+	    l.txtplaquetas,
+	    l.txtneutrofilos,
+	    l.txtabastonados,
+	    l.txtsegmentadosematologia,
+	    l.txtmonocitosematologia,
+	    l.txteosinofiosematologia, 
+	    l.txtbasofilosematologia, 
+	    l.txtlinfocitosematologia,
+	    ab.txtcreatinina,
+	    ab.txtcolesterol,
+	    ab.txtldlcolesterol,
+	    ab.txthdlcolesterol,
+	    ab.txtvldlcolesterol,
+	    ab.txttrigliseridos,
+	    CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' AND n.cod_sede <> 3 THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+	    CASE
+		    WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A' THEN 'Huamachuco'
+		    WHEN n.cod_sede = 1 THEN 'Trujillo'
+		    WHEN n.cod_sede = 2 THEN 'Huamachuco'
+		    WHEN n.cod_sede = 3 THEN 'Huancayo'
+		    WHEN n.cod_sede = 4 THEN 'Trujillo'
+	    END AS nombreSede,
+	    (case when n.cod_sede=1 then CONCAT(n.n_orden,'-T')
+		  when n.cod_sede=4 then CONCAT(n.n_orden,'-TP')
+		  else CONCAT(n.n_orden,'-H') 
+	     END) as numero,
+	     a.cod_anexo,
+	     obtener_name_jasper(p_norden, name_service),
+	     a.piel,
+	     a.piel_descripcion,
+	     a.usuario_firma,
+	     f.interpretacion,
+	     l.txthematocrito,
+	     lbi.txtcreatinina,
+	     lbi.txtureaserica,
+	     lbi.txtacidourico
+	FROM n_orden_ocupacional AS n
+	INNER JOIN datos_paciente AS d ON (n.cod_pa = d.cod_pa)
+	INNER JOIN sede_multisucursal AS sm ON n.cod_sede = sm.id
+	INNER JOIN examen_medico_ocupacional AS e ON (e.nom_examen = n.nom_examen)
+	INNER JOIN anexo7c AS a ON (a.n_orden = n.n_orden)
+	INNER JOIN triaje AS t ON (t.n_orden = n.n_orden)
+	LEFT JOIN oftalmologia AS o ON (o.n_orden = n.n_orden)
+	LEFT JOIN audiometria_2021 AS au ON (n.n_orden = au.n_orden)
+	LEFT JOIN audiometria_2023 AS a25 ON (n.n_orden = a25.n_orden)
+	LEFT JOIN oftalmologia2021 AS oft ON (n.n_orden = oft.n_orden)
+	INNER JOIN funcion_abs AS f ON (f.n_orden = n.n_orden)
+	INNER JOIN odontograma AS od ON (od.n_orden = n.n_orden)
+	LEFT JOIN audiometria_po AS m ON (m.n_orden = n.n_orden)
+	LEFT JOIN oftalmologia_lo AS ol ON (ol.n_orden = n.n_orden)
+	INNER JOIN radiografia_torax AS r ON (r.n_orden = n.n_orden)
+	INNER JOIN lab_clinico AS l ON (l.n_orden = n.n_orden)
+	INNER JOIN ex_radiograficos_sanguineos AS e2 ON (e2.n_orden = n.n_orden)
+	LEFT JOIN analisis_bioquimicos AS ab ON (n.n_orden = ab.n_orden)
+	LEFT JOIN antecedentes_patologicos AS apt ON (n.n_orden = apt.n_orden)
+	LEFT JOIN l_bioquimica AS lbi ON (n.n_orden = lbi.n_orden)
+	WHERE n.n_orden = p_norden
+	LIMIT 1;
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
 
 CREATE OR REPLACE FUNCTION sp_validar_existencia_servicios(
     IN p_historia_clinica bigint,
