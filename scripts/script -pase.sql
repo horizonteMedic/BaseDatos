@@ -4,6 +4,206 @@ limit 1;
 
 DROP FUNCTION obtener_reporte_anexo16(integer, text);
 
+alter table trastornos_personalidad add column usuario_firma text
+alter table infor_conductores add column usuario_firma text;
+
+CREATE OR REPLACE FUNCTION obtener_reporte_informe_trastorno_personalidad(
+    IN p_norden integer,
+    IN name_service text)
+  RETURNS TABLE(dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", 
+  fechanacimientopaciente date, ocupacionpaciente text, lugarnacimientopaciente text, nivelestudiopaciente text, estadocivilpaciente text, 
+  cargopaciente text, areapaciente text, contrata text, norden integer, empresa text, codigoclinica text, tipoexamen text, edadpaciente text, 
+  paranoide_bajo boolean, paranoide_medio boolean, paranoide_alto boolean, esquizoide_bajo boolean, esquizoide_medio boolean, esquizoide_alto boolean,
+   esquizotipico_bajo boolean, esquizotipico_medio boolean, esquizotipico_alto boolean, histrionico_bajo boolean, histrionico_medio boolean,
+    histrionico_alto boolean, antisocial_bajo boolean, antisocial_medio boolean, antisocial_alto boolean, narcicista_bajo boolean, 
+    narcicista_medio boolean, narcicista_alto boolean, impulsivo_bajo boolean, impulsivo_medio boolean, impulsivo_alto boolean,
+     limite_bajo boolean, limite_medio boolean, limite_alto boolean, anancastico_bajo boolean, anancastico_medio boolean, anancastico_alto boolean, 
+     dependiente_bajo boolean, dependiente_medio boolean, dependiente_alto boolean, ansioso_bajo boolean, ansioso_medio boolean, ansioso_alto boolean, 
+     observaciones text, recomendacion text, apto boolean, noapto boolean, usuario_firma text, nombresede text, sede text, color integer, namejasper text) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+    SELECT
+        d.cod_pa,
+        d.nombres_pa,
+        d.apellidos_pa,
+        d.direccion_pa,
+        d.sexo_pa,
+        d.fecha_nacimiento_pa,
+        d.ocupacion_pa,
+        d.lugar_nac_pa,
+        d.nivel_est_pa,
+        d.estado_civil_pa,
+        n.cargo_de,
+        n.area_o,
+        n.razon_contrata,
+        n.n_orden,
+        n.razon_empresa,
+        n.cod_clinica,
+        n.nom_examen,
+        CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
+
+        -- ===== TRASTORNO PERSONALIDAD =====
+        tp.grup_a_paranoide_bajo,
+        tp.grup_a_paranoide_medio,
+        tp.grup_a_paranoide_alto,
+
+        tp.grup_a_esquizoide_bajo,
+        tp.grup_a_esquizoide_medio,
+        tp.grup_a_esquizoide_alto,
+
+        tp.grup_a_esquizotipico_bajo,
+        tp.grup_a_esquizotipico_medio,
+        tp.grup_a_esquizotipico_alto,
+
+        tp.grup_b_histrionico_bajo,
+        tp.grup_b_histrionico_medio,
+        tp.grup_b_histrionico_alto,
+
+        tp.grup_b_antisocial_bajo,
+        tp.grup_b_antisocial_medio,
+        tp.grup_b_antisocial_alto,
+
+        tp.grup_b_narcicista_bajo,
+        tp.grup_b_narcicista_medio,
+        tp.grup_b_narcicista_alto,
+
+        tp.grup_b_inesta_emoci_subtip_impul_bajo,
+        tp.grup_b_inesta_emoci_subtip_impul_medio,
+        tp.grup_b_inesta_emoci_subtip_impul_alto,
+
+        tp.grup_b_emoci_subtip_lim_bajo,
+        tp.grup_b_emoci_subtip_lim_medio,
+        tp.grup_b_emoci_subtip_lim_alto,
+
+        tp.grup_c_anancastico_bajo,
+        tp.grup_c_anancastico_medio,
+        tp.grup_c_anancastico_alto,
+
+        tp.grup_c_dependiente_bajo,
+        tp.grup_c_dependiente_medio,
+        tp.grup_c_dependiente_alto,
+
+        tp.grup_c_ansioso_bajo,
+        tp.grup_c_ansioso_medio,
+        tp.grup_c_ansioso_alto,
+
+        tp.analisis_resulta,
+        tp.recomendacion,
+        tp.perf_cumple,
+        tp.perf_no_cumple,
+        tp.usuario_firma,
+
+        CASE
+            WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A'
+                THEN 'Huamachuco'
+            ELSE (
+                SELECT nombre_sede
+                FROM sede
+                WHERE cod_sede = n.cod_sede
+            )
+        END,
+        CASE
+            WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A'
+                THEN 'Huamachuco'
+            ELSE CAST(sm.descripcion AS TEXT)
+        END,
+        n.color,
+        obtener_name_jasper(p_norden, name_service)
+
+    FROM datos_paciente d
+    INNER JOIN n_orden_ocupacional n
+        ON d.cod_pa = n.cod_pa
+    INNER JOIN sede_multisucursal sm
+        ON n.cod_sede = sm.id
+    INNER JOIN trastornos_personalidad tp
+        ON tp.n_orden = n.n_orden
+    WHERE n.n_orden = p_norden;
+
+END;
+$BODY$
+  LANGUAGE plpgsql
+
+
+
+CREATE OR REPLACE FUNCTION obtener_reporte_informe_conductores(
+    IN p_norden integer,
+    IN name_service text)
+  RETURNS TABLE(dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", 
+  fechanacimientopaciente date, ocupacionpaciente text, lugarnacimientopaciente text, nivelestudiopaciente text, estadocivilpaciente text, 
+  cargopaciente text, areapaciente text, contrata text, norden integer, empresa text, codigoclinica text, tipoexamen text, 
+  edadpaciente text, crit_atencion text, crit_concetracion text, crit_segurid_control_conduc text, anali_foda_forta_oport text, 
+  anali_foda_amenaz_debili text, observacion text, recomendacion text, perf_cumple boolean, perf_no_cumple boolean, user_registro text,usuario_firma text,
+  nombresede text, sede text, color integer, namejasper text) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+    SELECT
+        -- ===== PACIENTE =====
+        d.cod_pa,
+        d.nombres_pa,
+        d.apellidos_pa,
+        d.direccion_pa,
+        d.sexo_pa,
+        d.fecha_nacimiento_pa,
+        d.ocupacion_pa,
+        d.lugar_nac_pa,
+        d.nivel_est_pa,
+        d.estado_civil_pa,
+
+        -- ===== LABORALES =====
+        n.cargo_de,
+        n.area_o,
+        n.razon_contrata,
+        n.n_orden,
+        n.razon_empresa,
+        n.cod_clinica,
+        n.nom_examen,
+        CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
+
+        -- ===== INFORME CONDUCTORES =====
+        ic.crit_atencion,
+        ic.crit_concetracion,
+        ic.crit_segurid_control_conduc,
+        ic.anali_foda_forta_oport,
+        ic.anali_foda_amenaz_debili,
+        ic.observacion,
+        ic.recomendacion,
+        ic.perf_cumple,
+        ic.perf_no_cumple,
+        ic.user_registro,
+        ic.usuario_firma,
+
+        -- ===== SEDE / JASPER =====
+        CASE 
+            WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A'
+            THEN 'Huamachuco'
+            ELSE (SELECT nombre_sede FROM sede WHERE cod_sede = n.cod_sede)
+        END AS nombresede,
+
+        CASE 
+            WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A'
+            THEN 'Huamachuco'
+            ELSE (CAST(sm.descripcion AS TEXT))
+        END AS sede,
+
+        n.color,
+        obtener_name_jasper(p_norden, name_service)
+
+    FROM datos_paciente d
+    INNER JOIN n_orden_ocupacional n
+        ON d.cod_pa = n.cod_pa
+    INNER JOIN sede_multisucursal sm
+        ON n.cod_sede = sm.id
+    INNER JOIN infor_conductores ic
+        ON ic.n_orden = n.n_orden
+    WHERE n.n_orden = p_norden;
+END;
+$BODY$
+  LANGUAGE plpgsql 
+
+
+
 CREATE OR REPLACE FUNCTION obtener_reporte_informe_conductores(
         IN p_norden integer,
         IN name_service text
