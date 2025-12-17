@@ -6,6 +6,7 @@ DROP FUNCTION obtener_reporte_anexo16(integer, text);
 
 alter table trastornos_personalidad add column usuario_firma text
 alter table infor_conductores add column usuario_firma text;
+alter table alto_riesgo add column usuario_firma text
 
 CREATE OR REPLACE FUNCTION obtener_reporte_informe_trastorno_personalidad(
     IN p_norden integer,
