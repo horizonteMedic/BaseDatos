@@ -4985,183 +4985,315 @@ WHERE n.n_orden = p_norden;
 END;
 $BODY$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION obtener_name_jasper(
-        norden_param bigint,
-        name_service_param text
-    ) RETURNS text AS $BODY$
-DECLARE resultado text;
-name_empresa_busqueda_var text;
-name_valor_microbiologia_var text;
-name_valor_hepatitisa_var text;
-name_valor_hepatitisc_var text;
-valor_coproparasitologico_var boolean;
-valor_cuantitativo_antigeno_var boolean;
-valor_formato_marsa_var boolean;
-valor_electro_cardiograma boolean;
-BEGIN -- Obtener el nombre de la empresa de la historia clinica a registrar;
-SELECT trim(razon_empresa) INTO name_empresa_busqueda_var
-from n_orden_ocupacional
-where n_orden = norden_param;
--- obtener el valor del txt en microbiologia
-SELECT trim(txtkoh) INTO name_valor_microbiologia_var
-from microbiologia
-where n_orden = norden_param;
--- obtener el valor del txt en hepatitis
-SELECT trim(txthepatitisa) INTO name_valor_hepatitisa_var
-from lhepatitis
-where n_orden = norden_param;
-SELECT trim(hepatitisc) INTO name_valor_hepatitisc_var
-from lhepatitis
-where n_orden = norden_param;
--- obtener el valor del boolean en coproparasitologico
-SELECT tipo_coproparasitologico INTO valor_coproparasitologico_var
-from ac_coproparasitologico
-where n_orden = norden_param;
--- obtener los valores de los booleanos en examen inmunologico
-SELECT cuantitativo_antigeno,
-    formato_marsa INTO valor_cuantitativo_antigeno_var,
-    valor_formato_marsa_var
-from examen_inmunologico
-where n_orden = norden_param;
--- obtener valor boolean del campo informe_completo de electro cardiograma
-SELECT CASE
-        WHEN informe_completo IS NULL THEN TRUE
-        ELSE informe_completo
-    END AS informe_completo INTO valor_electro_cardiograma
-from informe_electrocardiograma
-where n_orden = norden_param;
-IF name_service_param = 'con_panel10D' THEN resultado := 'Consentimiento_Panel10D_Digitalizado';
-ELSIF name_service_param = 'con_panel5D' THEN IF name_empresa_busqueda_var = 'OBRASCÓN HUARTE LAIN S.A' THEN resultado := 'Consentimiento_Panel5D_ohla_Digitalizado';
-ELSE resultado := 'Consentimiento_Panel5D_Digitalizado';
-END IF;
-ELSIF name_service_param = 'con_panel3D' THEN resultado := 'Consentimiento_Panel3D_Digitalizado';
-ELSIF name_service_param = 'con_panel2D' THEN resultado := 'Consentimiento_Panel2D_Digitalizado';
-ELSIF name_service_param = 'consent_Muestra_Sangre' THEN resultado := 'Consentimiento_Muestra_Sangre_Digitalizado';
-ELSIF name_service_param = 'consent_marihuana' THEN resultado := 'Consentimiento_Marihuana_Digitalizado';
-ELSIF name_service_param = 'consent_Boro' THEN resultado := 'Consentimiento_Boro_Digitalizado';
-ELSIF name_service_param = 'analisis_bioquimicos' THEN resultado := 'AnalisisBioquimicos_Digitalizado';
-ELSIF name_service_param = 'lab_clinico' THEN resultado := 'LaboratorioClinico_Digitalizado';
-ELSIF name_service_param = 'hemograma_autom' THEN resultado := 'Hematologia_Digitalizado';
-ELSIF name_service_param = 'lgonadotropina' THEN resultado := 'LGonadotropina_Digitalizado';
-ELSIF name_service_param = 'panel2d' THEN resultado := 'Panel2d_Digitalizado';
-ELSIF name_service_param = 'panel3d' THEN resultado := 'Panel3d_Digitalizado';
-ELSIF name_service_param = 'toxicologia' THEN IF name_empresa_busqueda_var = 'OBRASCÓN HUARTE LAIN S.A' THEN resultado := 'ResultadosPanel5d_ohla_Digitalizado';
-ELSE resultado := 'ResultadosPanel5d_Digitalizado';
-END IF;
-ELSIF name_service_param = 'panel10d' THEN resultado := 'Panel10d_Digitalizado';
-ELSIF name_service_param = 'inmunologia' THEN resultado := 'InmunologiaLab_Digitalizado';
-ELSIF name_service_param = 'microbiologia' THEN IF name_valor_microbiologia_var IS NOT NULL
-AND LENGTH(name_valor_microbiologia_var) > 0 THEN resultado := 'Microbiologia1_Digitalizado';
-ELSE resultado := 'Microbiologia_Digitalizado';
-END IF;
-ELSIF name_service_param = 'lhepatitis' THEN IF name_valor_hepatitisa_var IS NOT NULL
-AND LENGTH(name_valor_hepatitisa_var) > 0 THEN resultado := 'LHepatitisA_Digitalizado';
-ELSIF name_valor_hepatitisc_var IS NOT NULL
-AND LENGTH(name_valor_hepatitisc_var) > 0 THEN resultado := 'LHepatitisC_Digitalizado';
-ELSE resultado := 'LHepatitisB_Digitalizado';
-END IF;
-ELSIF name_service_param = 'l_bioquimica' THEN resultado := 'LBioquimica_Digitalizado';
-ELSIF name_service_param = 'ac_bioquimica2022' THEN resultado := 'AnalisisClinicosB_Digitalizado';
-ELSIF name_service_param = 'perfil_hepatico' THEN resultado := 'PerfilHepatico_Digitalizado';
-ELSIF name_service_param = 'ac_coprocultivo' THEN resultado := 'coprocultivo_digitalizado';
-ELSIF name_service_param = 'ac_coproparasitologico' THEN IF valor_coproparasitologico_var = true THEN resultado := 'Coproparasitologico_Digitalizado';
-ELSE resultado := 'ParasitologiaSeriado_Digitalizado';
-END IF;
-ELSIF name_service_param = 'examen_inmunologico' THEN IF valor_cuantitativo_antigeno_var = true THEN resultado := 'pcuantiantigeno';
-ELSE IF valor_formato_marsa_var = true THEN resultado := 'pcualitativaantigenoMarsa';
-ELSE resultado := 'pcualitativaantigeno';
-END IF;
-END IF;
-ELSIF name_service_param = 'audiometria_2023' THEN IF name_empresa_busqueda_var LIKE '%MINERA BOROO MISQUICHILCA S.A.%'
-OR name_empresa_busqueda_var ILIKE '%EMPRESA DE TRANSPORTES N & V S.A.C.%'
-OR name_empresa_busqueda_var ILIKE '%DEYFOR EIRL%' THEN resultado := 'Audiometria2021-_Digitalizado_boro';
-ELSE resultado := 'Audiometria2021-_Digitalizado';
-END IF;
-ELSIF name_service_param = 'historia_oc_info' THEN IF name_empresa_busqueda_var LIKE '%MINERA BOROO MISQUICHILCA S.A.%'
-OR name_empresa_busqueda_var ILIKE '%EMPRESA DE TRANSPORTES N & V S.A.C.%'
-OR name_empresa_busqueda_var ILIKE '%DEYFOR EIRL%' THEN resultado := 'HistoriaOcupacional_Digitalizado_boro';
-ELSE resultado := 'HistoriaOcupacional_Digitalizado';
-END IF;
-ELSIF name_service_param = 'audiometria_po' THEN resultado := 'FichaAudiologica_Digitalizado';
-ELSIF name_service_param = 'cuestionario_audiometria' THEN resultado := 'CuestionarioAudiometria_Digitalizado';
-ELSIF name_service_param = 'oftalmologia_lo' THEN resultado := 'OftalmologiaLO';
-ELSIF name_service_param = 'oftalmologia' THEN resultado := 'Oftalmologia';
-ELSIF name_service_param = 'oftalmologia_reporte' THEN resultado := 'ReporteOftalmologico';
-ELSIF name_service_param = 'oftalmologia2021' THEN IF name_empresa_busqueda_var LIKE '%MINERA BOROO MISQUICHILCA S.A.%'
-OR name_empresa_busqueda_var ILIKE '%EMPRESA DE TRANSPORTES N & V S.A.C.%'
-OR name_empresa_busqueda_var ILIKE '%DEYFOR EIRL%' THEN resultado := 'EvaluacionOftalmologica2021_Digitalizado_boro';
-ELSIF name_empresa_busqueda_var LIKE 'OBRASCÓN HUARTE LAIN S.A' THEN resultado := 'EvaluacionOftalmologica2021_Digitalizado_ohla';
-ELSE resultado := 'EvaluacionOftalmologica2021_Digitalizado';
-END IF;
-ELSIF name_service_param = 'odontograma' THEN resultado := 'Odontograma_Digitalizado';
-ELSIF name_service_param = 'odontograma_lo' THEN resultado := 'Odontograma_lo_Digitalizado';
-ELSIF name_service_param = 'radiografia_torax' THEN resultado := 'RagiografiaToraxPA_Digitalizado';
-ELSIF name_service_param = 'radiografia_fechas' THEN resultado := 'ReporteFechasRadiografia_Digitalizado';
-ELSIF name_service_param = 'radiografia' THEN resultado := 'RAYOSXXXOFI_Digitalizado';
-ELSIF name_service_param = 'oit' THEN IF name_empresa_busqueda_var LIKE '%MINERA BOROO MISQUICHILCA S.A.%'
-OR name_empresa_busqueda_var ILIKE '%EMPRESA DE TRANSPORTES N & V S.A.C.%'
-OR name_empresa_busqueda_var ILIKE '%DEYFOR EIRL%' THEN resultado := 'OIT_Digitalizado_boro';
-ELSE resultado := 'OIT_Digitalizado';
-END IF;
-ELSIF name_service_param = 'evaluacion_musculo_esqueletica' THEN resultado := 'EvaluacionMuscoloEsqueletica';
-ELSIF name_service_param = 'evaluacion_musculo_esqueletica2021' THEN resultado := 'EvaluacionMuscoloEsqueletica2021_Digitalizado_boro';
-ELSIF name_service_param = 'consentimientoInformado' THEN resultado := 'conInformadoOcupacional_Digitalizado';
-ELSIF name_service_param = 'cuestionario_nordico' THEN resultado := 'CuestionarioNordico';
-ELSIF name_service_param = 'consentimiento_rayosx' THEN resultado := 'ConsentimientoRayosX_Digitalizado';
-ELSIF name_service_param = 'test_fatiga_somnolencia' THEN resultado := 'TestFatigaSomnolenia_Digitalizado_boro';
-ELSIF name_service_param = 'informe_electrocardiograma' THEN IF valor_electro_cardiograma = TRUE THEN resultado := 'InformeElectrocardiograma2023';
-ELSE resultado := 'InformeElectrocardiograma_Digitalizado';
-END IF;
-ELSIF name_service_param = 'antece_enfermedades_altura' THEN IF name_empresa_busqueda_var LIKE '%MINERA BOROO MISQUICHILCA S.A.%'
-OR name_empresa_busqueda_var ILIKE '%EMPRESA DE TRANSPORTES N & V S.A.C.%'
-OR name_empresa_busqueda_var ILIKE '%DEYFOR EIRL%' THEN resultado := 'AnexoCB_boro_Digitalizado';
-ELSE resultado := 'AnexoCB_Digitalizado';
-END IF;
-ELSIF name_service_param = 'anexo_agroindustrial' THEN resultado := 'Anexo2';
-ELSIF name_service_param = 'consentimientobuenasalud' THEN resultado := 'ConsentimientoBuenaSalud2021_Digitalizado';
-ELSIF name_service_param = 'anexo7c' THEN resultado := 'Anexo7C_Boro';
-ELSIF name_service_param = 'anexo16a' THEN IF name_empresa_busqueda_var LIKE '%MINERA BOROO MISQUICHILCA S.A.%'
-OR name_empresa_busqueda_var ILIKE '%EMPRESA DE TRANSPORTES N & V S.A.C.%'
-OR name_empresa_busqueda_var ILIKE '%DEYFOR EIRL%' THEN resultado := 'Anexo16ABoro_Digitalizado';
-ELSE resultado := 'Anexo16A_Digitalizado';
-END IF;
-ELSIF name_service_param = 'antecedentes_patologicos' THEN IF name_empresa_busqueda_var LIKE '%MINERA BOROO MISQUICHILCA S.A.%'
-OR name_empresa_busqueda_var ILIKE '%EMPRESA DE TRANSPORTES N & V S.A.C.%'
-OR name_empresa_busqueda_var ILIKE '%DEYFOR EIRL%' THEN resultado := 'ficha_antecedente_patologico_boro';
-ELSE resultado := 'ficha_antecedente_patologico_Digitalizado';
-END IF;
-ELSIF name_service_param = 'aptitud_medico_ocupacional_agro' THEN resultado := 'Aptitud_Agroindustrial';
-ELSIF name_service_param = 'certificado_aptitud_medico_ocupacional' THEN IF name_empresa_busqueda_var LIKE 'OBRASCÓN HUARTE LAIN S.A' THEN resultado := 'Aptitud_medico_ocupacional_11';
-ELSE resultado := 'Aptitud_medico_ocupacional_F';
-END IF;
-ELSIF name_service_param = 'ficha_sas' THEN resultado := 'FichaDetencionSAS_boro_Digitalizado';
-ELSIF name_service_param = 'certificado_aptitud_medico_resumen' THEN resultado := 'Aptitud_medico_resumen_Digitalizado';
-ELSIF name_service_param = 'b_certificado_conduccion' THEN resultado := 'certificaciondeconduccion_Digitalizado_boro';
-ELSIF name_service_param = 'ficha_interconsulta' THEN resultado := 'Ficha_interconsulta_Digitalizado';
-ELSIF name_service_param = 'b_certificado_altura' THEN resultado := 'Certificacion_suficiencia_trabajos_en_altura_boro_Digitalizado';
-ELSIF name_service_param = 'informe_psicologico' THEN resultado := 'InformePsicologico_Digitalizado';
-ELSIF name_service_param = 'b_uso_respiradores' THEN resultado := 'UsoRespiradores';
-ELSIF name_service_param = 'ficha_psicologica_anexo02' THEN resultado := 'InformePsicologico_Anexo02_Digitalizado';
-ELSIF name_service_param = 'ficha_psicologica_anexo03' THEN resultado := 'FichaPsicologicaOcupacional_Digitalizado';
-ELSIF name_service_param = 'certificado_altura_poderosa' THEN resultado := 'CertificadoAlturaPoderosa_Digitalizado';
-ELSIF name_service_param = 'hoja_consulta_externa' THEN resultado := 'Hoja_Consulta_Externa';
-ELSIF name_service_param = 'aptitud_altura_poderosa' THEN resultado := 'Aptitud_Poderosa_Digitalizado';
-ELSIF name_service_param = 'aptitud_trabajos_encaliente' THEN resultado := 'Aptitud_Trabajos_EnCaliente_Digitalizado';
-ELSIF name_service_param = 'aptitud_licencia_conduciri' THEN resultado := 'Aptitud_Licencia_Conducir_Interna_Digitalizado';
-ELSIF name_service_param = 'certificado_aptitud_herramientas_manuales' THEN resultado := 'Certificado_Aptitud_Herramientas_Manuales_Digitalizado';
-ELSIF name_service_param = 'informe_psicolaboral' THEN resultado := 'Informe_PsicolaboralBoroo_Digitalizado';
-ELSIF name_service_param = 'certificado_manipuladores_barrick' THEN resultado := 'CertificadoMedicoManipuladores_Barrick_Digitalizado';
-ELSIF name_service_param = 'informe_psicologico_estres' THEN resultado := 'InformePsicologicoAdecoEstres_Digitalizado';
-ELSIF name_service_param = 'evaluacion_psicologica_poderosa' THEN resultado := 'InformePsicologico_Digitalizado';
-ELSIF name_service_param = 'psicologia_espacios_confinados' THEN resultado := 'formatPsicologia_SuficienciaEspaciosC';
-ELSIF name_service_param = 'informe_riesgos_psicosociales' THEN resultado := 'Informe_Riesgos_Psicosociales_Digitalizado';
-ELSIF name_service_param = 'informe_burnout' THEN resultado := 'Informe_burnout_Digitalizado';
-ELSIF name_service_param = 'psicologiafobias' THEN resultado := 'formatPsicologia_Digitalizado';
-ELSIF name_service_param = 'calidad_sueño' THEN resultado := 'CUESTIONARIO_CALIDAD_DE_SUEÑO_Digitalizado';
-ELSIF name_service_param = 'trastornos_personalidad' THEN resultado := 'INFORME_DE_TEST_SALAMANCA_Digitalizado';
-END IF;
-RETURN resultado;
+    norden_param bigint,
+    name_service_param text)
+  RETURNS text AS
+$BODY$
+DECLARE
+    resultado text;
+    name_empresa_busqueda_var text;
+    name_valor_microbiologia_var text;
+    name_valor_hepatitisa_var text;
+    name_valor_hepatitisc_var text;
+    valor_coproparasitologico_var boolean;
+    valor_cuantitativo_antigeno_var boolean;
+    valor_formato_marsa_var boolean;
+    valor_electro_cardiograma boolean;
+BEGIN
+   -- Obtener el nombre de la empresa de la historia clinica a registrar;
+    SELECT trim(razon_empresa) INTO name_empresa_busqueda_var from n_orden_ocupacional where n_orden=norden_param;
+
+   -- obtener el valor del txt en microbiologia
+    SELECT trim(txtkoh) INTO name_valor_microbiologia_var from microbiologia where n_orden=norden_param;
+
+   -- obtener el valor del txt en hepatitis
+    SELECT trim(txthepatitisa) INTO name_valor_hepatitisa_var from lhepatitis where n_orden=norden_param;
+
+    SELECT trim(hepatitisc) INTO name_valor_hepatitisc_var from lhepatitis where n_orden=norden_param;
+
+   -- obtener el valor del boolean en coproparasitologico
+    SELECT tipo_coproparasitologico INTO valor_coproparasitologico_var from ac_coproparasitologico where n_orden=norden_param;
+
+   -- obtener los valores de los booleanos en examen inmunologico
+    SELECT cuantitativo_antigeno, formato_marsa INTO valor_cuantitativo_antigeno_var, valor_formato_marsa_var from examen_inmunologico where n_orden=norden_param;
+
+   -- obtener valor boolean del campo informe_completo de electro cardiograma
+    SELECT CASE WHEN informe_completo IS NULL THEN TRUE ELSE informe_completo END AS informe_completo INTO valor_electro_cardiograma from informe_electrocardiograma where n_orden=norden_param;
+
+    IF name_service_param = 'con_panel10D' THEN
+        resultado := 'Consentimiento_Panel10D_Digitalizado';
+
+    ELSIF name_service_param = 'con_panel5D' THEN
+        IF name_empresa_busqueda_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
+            resultado := 'Consentimiento_Panel5D_ohla_Digitalizado';
+        ELSE
+            resultado := 'Consentimiento_Panel5D_Digitalizado';
+        END IF;
+
+    ELSIF name_service_param = 'con_panel3D' THEN
+        resultado := 'Consentimiento_Panel3D_Digitalizado';
+
+    ELSIF name_service_param = 'con_panel2D' THEN
+        resultado := 'Consentimiento_Panel2D_Digitalizado';
+
+    ELSIF name_service_param = 'consent_Muestra_Sangre' THEN
+        resultado := 'Consentimiento_Muestra_Sangre_Digitalizado';
+
+    ELSIF name_service_param = 'consent_marihuana' THEN
+        resultado := 'Consentimiento_Marihuana_Digitalizado';
+
+    ELSIF name_service_param = 'consent_Boro' THEN
+        resultado := 'Consentimiento_Boro_Digitalizado';
+        
+    ELSIF name_service_param = 'analisis_bioquimicos' THEN
+        resultado := 'AnalisisBioquimicos_Digitalizado';
+
+    ELSIF name_service_param = 'lab_clinico' THEN
+        resultado := 'LaboratorioClinico_Digitalizado'; 
+
+    ELSIF name_service_param = 'hemograma_autom' THEN
+        resultado := 'Hematologia_Digitalizado'; 
+
+    ELSIF name_service_param = 'lgonadotropina' THEN
+        resultado := 'LGonadotropina_Digitalizado'; 
+
+    ELSIF name_service_param = 'panel2d' THEN
+        resultado := 'Panel2d_Digitalizado';  
+
+    ELSIF name_service_param = 'panel3d' THEN
+        resultado := 'Panel3d_Digitalizado';                                      
+
+    ELSIF name_service_param = 'toxicologia' THEN
+        IF name_empresa_busqueda_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
+            resultado := 'ResultadosPanel5d_ohla_Digitalizado';
+        ELSE
+            resultado := 'ResultadosPanel5d_Digitalizado';
+        END IF;
+
+    ELSIF name_service_param = 'panel10d' THEN
+        resultado := 'Panel10d_Digitalizado';                                      
+
+    ELSIF name_service_param = 'inmunologia' THEN
+        resultado := 'InmunologiaLab_Digitalizado';     
+
+    ELSIF name_service_param = 'microbiologia' THEN
+	IF name_valor_microbiologia_var IS NOT NULL AND LENGTH(name_valor_microbiologia_var) > 0 THEN
+	resultado :=  'Microbiologia1_Digitalizado';
+	ELSE
+	resultado :=  'Microbiologia_Digitalizado';
+	END IF;      
+
+
+    ELSIF name_service_param = 'lhepatitis' THEN
+	IF name_valor_hepatitisa_var IS NOT NULL AND LENGTH(name_valor_hepatitisa_var) > 0 THEN
+	resultado :=  'LHepatitisA_Digitalizado';
+	ELSIF name_valor_hepatitisc_var IS NOT NULL AND LENGTH(name_valor_hepatitisc_var) > 0 THEN
+	resultado :=  'LHepatitisC_Digitalizado';
+	ELSE
+	resultado :=  'LHepatitisB_Digitalizado';
+	END IF;      
+
+    ELSIF name_service_param = 'l_bioquimica' THEN
+        resultado := 'LBioquimica_Digitalizado';     
+
+    ELSIF name_service_param = 'ac_bioquimica2022' THEN
+        resultado := 'AnalisisClinicosB_Digitalizado';     
+
+    ELSIF name_service_param = 'perfil_hepatico' THEN
+        resultado := 'PerfilHepatico_Digitalizado';     
+
+    ELSIF name_service_param = 'ac_coprocultivo' THEN
+        resultado := 'coprocultivo_digitalizado';           
+
+    ELSIF name_service_param = 'ac_coproparasitologico' THEN
+        IF valor_coproparasitologico_var = true THEN
+            resultado := 'Coproparasitologico_Digitalizado';
+        ELSE
+            resultado := 'ParasitologiaSeriado_Digitalizado';
+        END IF;
+
+    ELSIF name_service_param = 'examen_inmunologico' THEN
+        IF valor_cuantitativo_antigeno_var = true THEN
+	        resultado := 'pcuantiantigeno';
+	ELSE
+            IF valor_formato_marsa_var = true THEN
+                resultado := 'pcualitativaantigenoMarsa';
+            ELSE
+                resultado := 'pcualitativaantigeno';
+            END IF;
+	END IF;
+    ELSIF name_service_param = 'audiometria_2023' THEN
+        IF name_empresa_busqueda_var LIKE '%MINERA BOROO MISQUICHILCA S.A.%' OR name_empresa_busqueda_var ILIKE '%EMPRESA DE TRANSPORTES N & V S.A.C.%'
+		OR name_empresa_busqueda_var ILIKE '%DEYFOR EIRL%' THEN
+            resultado := 'Audiometria2021-_Digitalizado_boro'; 
+        ELSE
+            resultado := 'Audiometria2021-_Digitalizado';
+        END IF;
+    ELSIF name_service_param = 'historia_oc_info' THEN
+        IF name_empresa_busqueda_var LIKE '%MINERA BOROO MISQUICHILCA S.A.%' OR name_empresa_busqueda_var ILIKE '%EMPRESA DE TRANSPORTES N & V S.A.C.%'
+		OR name_empresa_busqueda_var ILIKE '%DEYFOR EIRL%' THEN
+            resultado := 'HistoriaOcupacional_Digitalizado_boro'; 
+        ELSE
+            resultado := 'HistoriaOcupacional_Digitalizado';
+        END IF;
+    ELSIF name_service_param = 'audiometria_po' THEN
+        resultado := 'FichaAudiologica_Digitalizado';
+    ELSIF name_service_param = 'cuestionario_audiometria' THEN
+        resultado := 'CuestionarioAudiometria_Digitalizado';
+    ELSIF name_service_param = 'oftalmologia_lo' THEN
+        resultado := 'OftalmologiaLO';
+    ELSIF name_service_param = 'oftalmologia' THEN
+        resultado := 'Oftalmologia';
+    ELSIF name_service_param = 'oftalmologia_reporte' THEN
+        resultado := 'ReporteOftalmologico';
+    ELSIF name_service_param = 'oftalmologia2021' THEN
+	IF name_empresa_busqueda_var LIKE '%MINERA BOROO MISQUICHILCA S.A.%' OR name_empresa_busqueda_var ILIKE '%EMPRESA DE TRANSPORTES N & V S.A.C.%'
+		OR name_empresa_busqueda_var ILIKE '%DEYFOR EIRL%' THEN
+            resultado := 'EvaluacionOftalmologica2021_Digitalizado_boro';
+        ELSIF name_empresa_busqueda_var LIKE 'OBRASCÓN HUARTE LAIN S.A' THEN
+	    resultado := 'EvaluacionOftalmologica2021_Digitalizado_ohla';
+        ELSE
+            resultado := 'EvaluacionOftalmologica2021_Digitalizado';
+        END IF;
+    ELSIF name_service_param = 'odontograma' THEN
+        resultado := 'Odontograma_Digitalizado';
+    ELSIF name_service_param = 'odontograma_lo' THEN
+        resultado := 'Odontograma_lo_Digitalizado';
+    ELSIF name_service_param = 'radiografia_torax' THEN
+        resultado := 'RagiografiaToraxPA_Digitalizado';
+    ELSIF name_service_param = 'radiografia_fechas' THEN
+        resultado := 'ReporteFechasRadiografia_Digitalizado';
+    ELSIF name_service_param = 'radiografia' THEN
+        resultado := 'RAYOSXXXOFI_Digitalizado';
+    ELSIF name_service_param = 'oit' THEN
+	IF name_empresa_busqueda_var LIKE '%MINERA BOROO MISQUICHILCA S.A.%' OR name_empresa_busqueda_var ILIKE '%EMPRESA DE TRANSPORTES N & V S.A.C.%'
+		OR name_empresa_busqueda_var ILIKE '%DEYFOR EIRL%' THEN
+		resultado := 'OIT_Digitalizado_boro';
+	ELSE
+		resultado := 'OIT_Digitalizado';
+	END IF;
+    ELSIF name_service_param = 'evaluacion_musculo_esqueletica' THEN
+        resultado := 'EvaluacionMuscoloEsqueletica';
+    ELSIF name_service_param = 'evaluacion_musculo_esqueletica2021' THEN
+        resultado := 'EvaluacionMuscoloEsqueletica2021_Digitalizado_boro';
+    ELSIF name_service_param = 'consentimientoInformado' THEN
+	resultado := 'conInformadoOcupacional_Digitalizado';
+    ELSIF name_service_param = 'cuestionario_nordico' THEN
+	resultado := 'CuestionarioNordico';
+    ELSIF name_service_param = 'consentimiento_rayosx' THEN
+	resultado := 'ConsentimientoRayosX_Digitalizado';
+    ELSIF name_service_param = 'test_fatiga_somnolencia' THEN
+	resultado := 'TestFatigaSomnolenia_Digitalizado_boro';
+    ELSIF name_service_param = 'informe_electrocardiograma' THEN
+	IF valor_electro_cardiograma = TRUE THEN
+		resultado := 'InformeElectrocardiograma2023';
+	ELSE
+		resultado := 'InformeElectrocardiograma_Digitalizado';
+	END IF;
+    ELSIF name_service_param = 'antece_enfermedades_altura' THEN
+	IF name_empresa_busqueda_var LIKE '%MINERA BOROO MISQUICHILCA S.A.%' OR name_empresa_busqueda_var ILIKE '%EMPRESA DE TRANSPORTES N & V S.A.C.%'
+		OR name_empresa_busqueda_var ILIKE '%DEYFOR EIRL%' THEN
+		resultado := 'AnexoCB_boro_Digitalizado';
+	ELSE
+		resultado := 'AnexoCB_Digitalizado';
+	END IF;
+    ELSIF name_service_param = 'anexo_agroindustrial' THEN
+	resultado := 'Anexo2';
+    ELSIF name_service_param = 'consentimientobuenasalud' THEN
+	resultado := 'ConsentimientoBuenaSalud2021_Digitalizado';
+    ELSIF name_service_param = 'anexo7c' THEN
+	resultado := 'Anexo7C_Boro';
+     ELSIF name_service_param = 'anexo16a' THEN
+	IF name_empresa_busqueda_var LIKE '%MINERA BOROO MISQUICHILCA S.A.%' OR name_empresa_busqueda_var ILIKE '%EMPRESA DE TRANSPORTES N & V S.A.C.%'
+		OR name_empresa_busqueda_var ILIKE '%DEYFOR EIRL%' THEN
+		resultado := 'Anexo16ABoro_Digitalizado';
+	ELSE
+		resultado := 'Anexo16A_Digitalizado';
+	END IF;
+     ELSIF name_service_param = 'antecedentes_patologicos' THEN
+	IF name_empresa_busqueda_var LIKE '%MINERA BOROO MISQUICHILCA S.A.%' OR name_empresa_busqueda_var ILIKE '%EMPRESA DE TRANSPORTES N & V S.A.C.%'
+		OR name_empresa_busqueda_var ILIKE '%DEYFOR EIRL%' THEN
+		resultado := 'ficha_antecedente_patologico_boro';
+	ELSE
+		resultado := 'ficha_antecedente_patologico_Digitalizado';
+	END IF;
+     ELSIF name_service_param = 'aptitud_medico_ocupacional_agro' THEN
+	resultado := 'Aptitud_Agroindustrial';
+     ELSIF name_service_param = 'certificado_aptitud_medico_ocupacional' THEN
+        IF name_empresa_busqueda_var LIKE 'OBRASCÓN HUARTE LAIN S.A' THEN
+		resultado := 'Aptitud_medico_ocupacional_11';
+	ELSE
+		resultado := 'Aptitud_medico_ocupacional_F';
+	END IF;
+     ELSIF name_service_param = 'ficha_sas' THEN
+	resultado := 'FichaDetencionSAS_boro_Digitalizado';
+     ELSIF name_service_param = 'certificado_aptitud_medico_resumen' THEN
+	resultado := 'Aptitud_medico_resumen_Digitalizado';
+     ELSIF name_service_param = 'b_certificado_conduccion' THEN
+	resultado := 'certificaciondeconduccion_Digitalizado_boro';
+     ELSIF name_service_param = 'ficha_interconsulta' THEN
+	resultado := 'Ficha_interconsulta_Digitalizado';
+     ELSIF name_service_param = 'b_certificado_altura' THEN
+	resultado := 'Certificacion_suficiencia_trabajos_en_altura_boro_Digitalizado';
+     ELSIF name_service_param = 'informe_psicologico' THEN
+	resultado := 'InformePsicologico_Digitalizado';
+     ELSIF name_service_param = 'b_uso_respiradores' THEN
+	resultado := 'UsoRespiradores';
+     ELSIF name_service_param = 'ficha_psicologica_anexo02' THEN
+	resultado := 'InformePsicologico_Anexo02_Digitalizado';
+     ELSIF name_service_param = 'ficha_psicologica_anexo03' THEN
+	resultado := 'FichaPsicologicaOcupacional_Digitalizado';
+     ELSIF name_service_param = 'certificado_altura_poderosa' THEN
+	resultado := 'CertificadoAlturaPoderosa_Digitalizado';
+     ELSIF name_service_param = 'hoja_consulta_externa' THEN
+	resultado := 'Hoja_Consulta_Externa';
+     ELSIF name_service_param = 'aptitud_altura_poderosa' THEN
+	resultado := 'Aptitud_Poderosa_Digitalizado';
+     ELSIF name_service_param = 'aptitud_trabajos_encaliente' THEN
+	resultado := 'Aptitud_Trabajos_EnCaliente_Digitalizado';
+     ELSIF name_service_param = 'aptitud_licencia_conduciri' THEN
+	resultado := 'Aptitud_Licencia_Conducir_Interna_Digitalizado';
+     ELSIF name_service_param = 'certificado_aptitud_herramientas_manuales' THEN
+	resultado := 'Certificado_Aptitud_Herramientas_Manuales_Digitalizado';
+     ELSIF name_service_param = 'informe_psicolaboral' THEN
+	resultado := 'Informe_PsicolaboralBoroo_Digitalizado';
+     ELSIF name_service_param = 'certificado_manipuladores_barrick' THEN
+	resultado := 'CertificadoMedicoManipuladores_Barrick_Digitalizado';
+     ELSIF name_service_param = 'informe_psicologico_estres' THEN
+	resultado := 'InformePsicologicoAdecoEstres_Digitalizado';
+     ELSIF name_service_param = 'evaluacion_psicologica_poderosa' THEN
+	resultado := 'InformePsicologico_Digitalizado';
+     ELSIF name_service_param = 'psicologia_espacios_confinados' THEN
+	resultado := 'formatPsicologia_SuficienciaEspaciosC';
+     ELSIF name_service_param = 'informe_riesgos_psicosociales' THEN
+	resultado := 'Informe_Riesgos_Psicosociales_Digitalizado';
+     ELSIF name_service_param = 'informe_burnout' THEN
+	resultado := 'Informe_burnout_Digitalizado';
+     ELSIF name_service_param = 'psicologiafobias' THEN
+	resultado := 'formatPsicologia_Digitalizado';
+     ELSIF name_service_param = 'calidad_sueño' THEN
+	resultado := 'CUESTIONARIO_CALIDAD_DE_SUEÑO_Digitalizado';
+	ELSIF name_service_param = 'trastornos_personalidad' THEN
+	resultado := 'Informe_Psico_Test_Personalidad';
+	ELSIF name_service_param = 'infor_conductores' THEN
+	resultado := 'Informe_Psico_Conductores';
+	ELSIF name_service_param = 'certificacion_medica_altura' THEN
+	resultado := 'A_CertificacionMedicaPTA_Digitalizado';
+	ELSIF name_service_param = 'alto_riesgo' THEN
+	resultado := 'Informe_Psico_Alto_Riesgo';
+	ELSIF name_service_param = 'especificos' THEN
+	resultado := 'Informe_Psico_Especificos';
+	ELSIF name_service_param = 'cuestionario_berlin' THEN
+	resultado := 'Informe_Psico_Cuestionario_Berlin';
+  END IF; 
+    RETURN resultado;
 END;
-$BODY$ LANGUAGE plpgsql;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION obtener_name_jasper(bigint, text)
+  OWNER TO pierola;
+
 CREATE OR REPLACE FUNCTION obtener_existencias_examenes(nOrden INTEGER) RETURNS TABLE (existe BOOLEAN, nameService TEXT) LANGUAGE plpgsql AS $$ BEGIN RETURN QUERY
 SELECT EXISTS(
         SELECT 1
