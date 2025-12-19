@@ -15,6 +15,82 @@ add column usuario_firma text;
 ALTER TABLE cuestionario_berlin 
 ADD COLUMN fecha_registro DATE;
 
+
+
+ALTER TABLE exam_complementarios add column usuario_firma text;
+ALTER TABLE exam_complementarios add column fecha_registro date;
+
+
+  insert into config_general_service_digital (
+        name_service,
+        descripcion,
+        firma_p,
+        huella_p,
+        sello_prof_s,
+        sello_doc_asig,
+        sello_doc_adic
+    )
+values(
+        'exam_complementarios',
+        'Formulario para Cuestionario de Examen Complementarios',
+        false,
+        false,
+        true,
+        false,
+        false
+    );
+
+
+CREATE OR REPLACE FUNCTION obtener_reporte_examen_complementario(
+    IN p_norden integer,
+    IN name_service text)
+  RETURNS TABLE(
+    -- PACIENTE
+    dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, 
+    sexopaciente "char", fechanacimientopaciente date, ocupacionpaciente text, lugarnacimientopaciente text, 
+    nivelestudiopaciente text, estadocivilpaciente text, edadpaciente text,
+    -- ORDEN / EMPRESA
+    norden integer, empresa text, cargopaciente text, areapaciente text, contrata text, 
+    codigoclinica text, tipoexamen text, fecha_apertura_po date,
+    -- RESULTADOS (EXAM_COMPLEMENTARIOS)
+    level_autoconciencia text, level_autoconfianza text, level_autorregula text, level_motiva text,
+    level_empatia text, level_compt_social text, foda_for_opor text, foda_amen_debi text,
+    observacion text, recomenda text, cumple_perfil boolean, 
+    -- AUDITORÍA Y FIRMA
+    user_registro text, fecha_registro date, usuario_firma text,
+    -- GESTIÓN Y SEDE (Corregido 'nombrespede' a 'nombresede')
+    nombresede text, sede text, color integer, namejasper text
+) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        d.cod_pa, d.nombres_pa, d.apellidos_pa, d.direccion_pa, d.sexo_pa, d.fecha_nacimiento_pa, 
+        d.ocupacion_pa, d.lugar_nac_pa, d.nivel_est_pa, d.estado_civil_pa,
+        CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
+        n.n_orden, n.razon_empresa, n.cargo_de, n.area_o, n.razon_contrata, 
+        n.cod_clinica, n.nom_examen, n.fecha_apertura_po,
+        -- Datos de la tabla de examen complementario (ip)
+        ip.level_autoconciencia, ip.level_autoconfianza, ip.level_autorregula, ip.level_motiva,
+        ip.level_empatia, ip.level_compt_social, ip.foda_for_opor, ip.foda_amen_debi,
+        ip.observacion, ip.recomenda, ip.cumple_perfil,
+        ip.user_registro, ip.fecha_registro, ip.usuario_firma,
+        -- Sede y Jasper (Alias corregidos para coincidir con el RETURNS TABLE)
+        (SELECT s.nombre_sede FROM sede s WHERE s.cod_sede = n.cod_sede)::text AS nombresede,
+        (SELECT CAST(sm.descripcion AS TEXT) FROM sede_multisucursal sm WHERE sm.id = n.cod_sede) AS sede,
+        n.color,
+        obtener_name_jasper(p_norden, name_service)::text AS namejasper -- Alias explícito
+    FROM datos_paciente AS d
+    INNER JOIN n_orden_ocupacional AS n ON d.cod_pa = n.cod_pa
+    INNER JOIN exam_complementarios AS ip ON ip.n_orden = n.n_orden
+    WHERE n.n_orden = p_norden;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE;
+
+
+
+
 insert into config_general_service_digital (
         name_service,
         descripcion,
@@ -686,6 +762,7 @@ WHERE n.n_orden = p_norden;
 END;
 $BODY$;
 
+
 CREATE OR REPLACE FUNCTION obtener_name_jasper(
     norden_param bigint,
     name_service_param text)
@@ -976,17 +1053,19 @@ BEGIN
      ELSIF name_service_param = 'calidad_sueño' THEN
 	resultado := 'CUESTIONARIO_CALIDAD_DE_SUEÑO_Digitalizado';
 	ELSIF name_service_param = 'trastornos_personalidad' THEN
-	resultado := 'INFORME_DE_TEST_SALAMANCA_Digitalizado';
+	resultado := 'Informe_Psico_Test_Personalidad';
 	ELSIF name_service_param = 'infor_conductores' THEN
-	resultado := 'INFORME_PARA_CONDUCTORES_FORMATO_Digitalizado';
+	resultado := 'Informe_Psico_Conductores';
 	ELSIF name_service_param = 'certificacion_medica_altura' THEN
 	resultado := 'A_CertificacionMedicaPTA_Digitalizado';
 	ELSIF name_service_param = 'alto_riesgo' THEN
-	resultado := 'INFORME_PARA_TRABAJOS_DE_ALTO_RIESGO_Digitalizado';
+	resultado := 'Informe_Psico_Alto_Riesgo';
 	ELSIF name_service_param = 'especificos' THEN
-	resultado := 'TRABAJOS_EN_ESPECIFICO_Digitalizado';
+	resultado := 'Informe_Psico_Especificos';
 	ELSIF name_service_param = 'cuestionario_berlin' THEN
-	resultado := 'INFORME_PSICOLÓGICO_DE_CUESTIONARIO_DE_BERLIN_Digitalizado';
+	resultado := 'Informe_Psico_Cuestionario_Berlin';
+	ELSIF name_service_param = 'exam_complementarios' THEN
+	resultado := 'Informe_Psico_Exam_Complementario';
   END IF; 
     RETURN resultado;
 END;
@@ -1669,7 +1748,11 @@ WHERE n.n_orden = p_norden
 LIMIT 1;
 END;
 $BODY$ LANGUAGE plpgsql;
-CREATE OR REPLACE FUNCTION sp_validar_existencia_servicios(
+
+
+
+
+  CREATE OR REPLACE FUNCTION sp_validar_existencia_servicios(
     IN p_historia_clinica bigint,
     IN p_examen_med text)
   RETURNS TABLE(id_resp integer, mensaje text) AS
@@ -2811,16 +2894,28 @@ begin
 		end if;
 		
         end if;
+
+                if(p_examen_med='exam_complementarios') THEN
+	   select (CASE WHEN COUNT(*) >0 THEN 1 ELSE 0 END) into v_id_existencia  from exam_complementarios where n_orden=p_historia_clinica limit 1;
+		if(v_id_existencia=0) THEN
+			v_mensaje:='SIN REGISTROS EN EL SISTEMA';
+		else
+			v_mensaje:='YA FUE REGISTRADO';
+				
+		end if;
+		
+        end if;
                                                                                          		                   	
 	RETURN query
 
  SELECT v_id_existencia AS id_resp,v_mensaje as mensaje;
 end;
 $BODY$
-  LANGUAGE plpgsql;
+  LANGUAGE plpgsql
 
 
-CREATE OR REPLACE FUNCTION obtener_parametros_digitalizados(
+
+   CREATE OR REPLACE FUNCTION obtener_parametros_digitalizados(
     IN norden_param bigint,
     IN name_servicio_param text)
   RETURNS TABLE(descripcion text, name_digitalizacion text, dni integer) AS
@@ -3122,7 +3217,7 @@ BEGIN
             descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
             name_digitalizacion := 'SELLOFIRMA';
             dni := dni_user_registro_var;
-            RETURN NEXT;
+            RETURN NEXT;s
         END IF;  
         
         IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
@@ -4751,6 +4846,21 @@ IF name_servicio_param = 'test_fatiga_somnolencia' THEN
         END IF;
     END IF;
 
+           IF name_servicio_param = 'alto_riesgo' THEN 
+        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
+            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END INTO user_registro_var 
+            FROM alto_riesgo WHERE n_orden = norden_param;
+            select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
+		IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
+		    dni_user_registro_var := 42664426;
+		END IF;
+            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
+            name_digitalizacion := 'SELLOFIRMA';
+            dni := dni_user_registro_var;
+            RETURN NEXT;
+        END IF;
+    END IF;
+
     IF name_servicio_param = 'certificacion_medica_altura' THEN
 	IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN 
             descripcion := 'FIRMA DEL PACIENTE';
@@ -4808,14 +4918,31 @@ IF name_servicio_param = 'test_fatiga_somnolencia' THEN
             RETURN NEXT;
         END IF;
     END IF;
+
+
+             IF name_servicio_param = 'exam_complementarios' THEN 
+        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
+            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END INTO user_registro_var 
+            FROM exam_complementarios WHERE n_orden = norden_param;
+            select dni_user into dni_user_registro_var from usuarios where  UPPER(usuario_user)= UPPER(user_registro_var);
+		IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
+		    dni_user_registro_var := 42664426;
+		END IF;
+            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
+            name_digitalizacion := 'SELLOFIRMA';
+            dni := dni_user_registro_var;
+            RETURN NEXT;
+        END IF;
+    END IF;
+                 
                  
 END;
 $BODY$
-  LANGUAGE plpgsql VOLATILE
-  COST 100
-  ROWS 1000;
-ALTER FUNCTION obtener_parametros_digitalizados(bigint, text)
-  OWNER TO pierola;
+  LANGUAGE plpgsql 
+
+
+
+
 
 
 
