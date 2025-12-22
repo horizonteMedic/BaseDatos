@@ -18,6 +18,69 @@ ALTER TABLE exam_complementarios
 add column usuario_firma text;
 ALTER TABLE exam_complementarios
 add column fecha_registro date;
+
+CREATE TABLE bombaelectrica (
+    n_orden          integer NOT NULL
+        PRIMARY KEY
+        CONSTRAINT fk_bombaelectrica_norden
+            REFERENCES n_orden_ocupacional(n_orden)
+            ON UPDATE CASCADE ON DELETE CASCADE,
+            
+    -- Campos específicos de la evaluación
+    t_riesgo_electrico    text,
+    t_tareas_altura       text,
+    t_espacios_confinados text,
+    manejo_herramientas   text,
+    foda_for_opor         text,
+    foda_amen_debi        text,
+    observacion           text,
+    recomenda             text,
+    cumple_perfil         boolean,
+        user_registro         text,
+    usuario_firma         text,
+    fecha_registro        date DEFAULT CURRENT_DATE
+);
+CREATE OR REPLACE FUNCTION obtener_reporte_bomba_electrica(p_norden integer, name_service text)
+RETURNS TABLE(
+    dnipaciente integer, nombres text, apellidospaciente text, direccionpaciente text, 
+    sexopaciente "char", fechanacimientopaciente date, edadpaciente text,
+    norden integer, empresa text, cargopaciente text, areapaciente text,
+    t_riesgo_electrico text, t_tareas_altura text, t_espacios_confinados text, manejo_herramientas text,
+    foda_for_opor text, foda_amen_debi text, observacion text, recomenda text, cumple_perfil boolean,
+    user_registro text, usuario_firma text, fecha_registro date,
+    color integer, nombrespede text, sede text, namejasper text
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        d.cod_pa, d.nombres_pa::text, d.apellidos_pa::text, d.direccion_pa::text, d.sexo_pa, d.fecha_nacimiento_pa,
+        CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
+        n.n_orden, n.razon_empresa, n.cargo_de, n.area_o,
+        b.t_riesgo_electrico, b.t_tareas_altura, b.t_espacios_confinados, b.manejo_herramientas,
+        b.foda_for_opor, b.foda_amen_debi, b.observacion, b.recomenda, b.cumple_perfil,
+        b.user_registro, b.usuario_firma, b.fecha_registro,
+        n.color, 
+        (SELECT s.nombre_sede FROM sede s WHERE s.cod_sede = n.cod_sede)::text AS nombrespede,
+        (SELECT CAST(sm.descripcion AS TEXT) FROM sede_multisucursal sm WHERE sm.id = n.cod_sede) AS sede,
+        obtener_name_jasper(p_norden, name_service)::text
+    FROM datos_paciente d
+    INNER JOIN n_orden_ocupacional n ON d.cod_pa = n.cod_pa
+    INNER JOIN bombaelectrica b ON b.n_orden = n.n_orden
+    WHERE n.n_orden = p_norden;
+END; $$ LANGUAGE plpgsql;
+
+
+
+
+
+
+
+
+
+
+
+
+
 CREATE TABLE psi_brigadistas (
     n_orden integer NOT NULL PRIMARY KEY CONSTRAINT fk_psi_brigadistas_norden REFERENCES n_orden_ocupacional(n_orden) ON UPDATE CASCADE ON
 DELETE CASCADE,
@@ -1098,6 +1161,8 @@ ELSIF name_service_param = 'especificos' THEN resultado := 'Informe_Psico_Especi
 ELSIF name_service_param = 'cuestionario_berlin' THEN resultado := 'Informe_Psico_Cuestionario_Berlin';
 ELSIF name_service_param = 'exam_complementarios' THEN resultado := 'Informe_Psico_Exam_Complementario';
 ELSIF name_service_param = 'psi_brigadistas' THEN resultado := 'Informe_Psico_Brigadista';
+    ELSIF name_service_param = 'bombaelectrica' THEN
+        resultado := 'Informe_Psico_BombaElectrica';
 END IF;
 RETURN resultado;
 END;
@@ -3254,11 +3319,35 @@ if(v_id_existencia = 0) THEN v_mensaje := 'SIN REGISTROS EN EL SISTEMA';
 else v_mensaje := 'YA FUE REGISTRADO';
 end if;
 end if;
+
+
+        if (p_examen_med = 'bombaelectrica') THEN
+        select (CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END)
+        into v_id_existencia
+        from bombaelectrica
+        where n_orden = p_historia_clinica
+        limit 1;
+        if (v_id_existencia = 0) THEN
+            v_mensaje := 'SIN REGISTROS EN EL SISTEMA';
+        else
+            v_mensaje := 'YA FUE REGISTRADO';
+
+        end if;
+
+    end if;
+
+
+
+
+
 RETURN query
 SELECT v_id_existencia AS id_resp,
     v_mensaje AS mensaje;
 end;
 $BODY$ LANGUAGE plpgsql
+
+
+
 CREATE OR REPLACE FUNCTION obtener_parametros_digitalizados(
         IN norden_param bigint,
         IN name_servicio_param text
@@ -5755,6 +5844,28 @@ dni := dni_user_registro_var;
 RETURN NEXT;
 END IF;
 END IF;
+
+ IF name_servicio_param = 'bombaelectrica' THEN
+        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
+            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
+            INTO user_registro_var
+            FROM bombaelectrica
+            WHERE n_orden = norden_param;
+            select dni_user
+            into dni_user_registro_var
+            from usuarios
+            where UPPER(usuario_user) = UPPER(user_registro_var);
+            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
+--                 dni_user_registro_var := 42664426;
+--             END IF;
+            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
+            name_digitalizacion := 'SELLOFIRMA';
+            dni := dni_user_registro_var;
+            RETURN NEXT;
+        END IF;
+    END IF;
+
+
 END;
 $BODY$ LANGUAGE plpgsql
 INSERT INTO config_general_service_digital (
