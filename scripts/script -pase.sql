@@ -21,6 +21,54 @@ ALTER TABLE exam_complementarios add column usuario_firma text;
 ALTER TABLE exam_complementarios add column fecha_registro date;
 
 CREATE TABLE cuadradorvigia ( n_orden integer PRIMARY KEY REFERENCES n_orden_ocupacional(n_orden), t_riesgo_electrico text, t_tareas_altura text, t_espacios_confinados text, manejo_herramientas text, foda_for_opor text, foda_amen_debi text, observacion text, recomenda text, cumple_perfil boolean, user_registro text, usuario_firma text, fecha_registro date DEFAULT CURRENT_DATE );
+  INSERT INTO config_general_service_digital ( name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic ) values( 'riesgocoronario', 'Informe de laboratorio para Riesgo Coronario', false, false, true, false, false );
+
+
+CREATE OR REPLACE FUNCTION obtener_reporte_riesgo_coronario(
+    IN p_norden integer,
+    IN name_service text)
+  RETURNS TABLE(
+    -- PACIENTE
+    cod_pa integer, nombres_pa text, apellidos_pa text, direccion_pa text, 
+    sexo_pa text, fecha_nacimiento_pa date, ocupacion_pa text, 
+    lugar_nac_pa text, nivel_est_pa text, estado_civil_pa text, fec_nac text,
+    -- LABORALES
+    n_orden integer, razon_empresa text, cargo_de text, area_o text, 
+    razon_contrata text, fecha_apertura_po date,
+    cod_clinica text, tipo_examen text, -- <--- NUEVOS ALIAS
+    -- EXAMEN
+    fecha_examen date, muestra text, resultado_riesgocoronario integer, 
+    -- AUDITORÍA
+    user_registro text, usuario_firma text, fecha_registro timestamp without time zone,
+    -- GESTIÓN
+    color integer, nombre_sede text, sede text, namejasper text
+) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        d.cod_pa, d.nombres_pa::text, d.apellidos_pa::text, d.direccion_pa::text, 
+        d.sexo_pa::text, d.fecha_nacimiento_pa, d.ocupacion_pa::text, 
+        d.lugar_nac_pa::text, d.nivel_est_pa::text, d.estado_civil_pa::text, 
+        CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
+        n.n_orden, n.razon_empresa::text, n.cargo_de::text, n.area_o::text, 
+        n.razon_contrata::text, n.fecha_apertura_po,
+        n.n_orden::text AS cod_clinica, 
+        n.nom_examen::text AS tipo_examen, 
+        r.fecha_examen, r.muestra, r.resultado_riesgocoronario, 
+        r.user_registro, r.usuario_firma, r.fecha_registro,
+        n.color, 
+        (SELECT s.nombre_sede FROM sede s WHERE s.cod_sede = n.cod_sede)::text,
+        (SELECT CAST(sm.descripcion AS TEXT) FROM sede_multisucursal sm WHERE sm.id = n.cod_sede),
+        obtener_name_jasper(p_norden, name_service)::text
+    FROM datos_paciente d
+    INNER JOIN n_orden_ocupacional n ON d.cod_pa = n.cod_pa
+    INNER JOIN riesgocoronario r ON r.n_orden = n.n_orden
+    WHERE n.n_orden = p_norden;
+END; $BODY$
+  LANGUAGE plpgsql VOLATILE;
+
+
 
 CREATE OR REPLACE FUNCTION obtener_reporte_cuadrador_vigia(p_norden integer, name_service text) RETURNS TABLE( cod_pa integer, nombre text, fecha_nacimiento_pa date, nivel_est_pa text, fec_nac text, n_orden integer, razon_empresa text, cargo_de text, fecha_apertura_po date
 -- Nombres reales de la tabla 
