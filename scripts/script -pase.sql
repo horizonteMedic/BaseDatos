@@ -2,6 +2,217 @@ SELECT  n_orden
 FROM n_orden_ocupacional
 LIMIT 1;
 
+CREATE OR REPLACE FUNCTION obtener_reporte_consentimientos(
+    IN p_norden integer,
+    IN name_service text)
+  RETURNS TABLE(dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", fechanacimientopaciente date, ocupacionpaciente text, lugarnacimientopaciente text, nivelestudiopaciente text, estadocivilpaciente text, cargopaciente text, areapaciente text, contrata text, norden integer, empresa text, codigoclinica text, tipoexamen text, edadpaciente text, idconsentimiento integer, tiporeporte character varying, nombrereporte character varying, antecedentespatologicos boolean, detalleantecedentes text, fechafirma timestamp without time zone, horareporte time without time zone, usuarioregistro character varying, fecharegistro timestamp without time zone, nombresede text, sede text, color integer, namejasper text) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+	    d.cod_pa,
+	    d.nombres_pa,
+	    d.apellidos_pa,
+	    d.direccion_pa,
+	    d.sexo_pa,
+	    d.fecha_nacimiento_pa,
+	    d.ocupacion_pa,
+	    d.lugar_nac_pa,
+	    d.nivel_est_pa,
+	    d.estado_civil_pa,
+	    n.cargo_de,
+	    n.area_o,
+	    n.razon_contrata,
+	    n.n_orden,
+	    n.razon_empresa,
+	    n.cod_clinica,
+	    n.nom_examen,
+	    CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
+	    ca.id_consentimiento,
+	    ca.tipo_reporte,
+	    ca.nombre_reporte,
+	    ca.antecedentes_patologicos,
+	    ca.detalle_antecedentes,
+	    ca.fecha_firma,
+	    ca.hora_reporte,
+	    ca.user_registro,
+	    ca.fecha_registro,
+	    CASE 
+		WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A' 
+		    THEN 'Huamachuco'
+		ELSE (
+		    SELECT nombre_sede 
+		    FROM sede 
+		    WHERE cod_sede = n.cod_sede
+		)
+	    END AS nombre_sede,
+	    CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+	    n.color,
+	    obtener_name_jasper(p_norden, name_service)
+	FROM datos_paciente AS d
+	INNER JOIN n_orden_ocupacional AS n 
+	    ON d.cod_pa = n.cod_pa
+	INNER JOIN sede_multisucursal AS sm 
+	    ON n.cod_sede = sm.id
+	INNER JOIN consentimientos_admision AS ca
+	    ON ca.n_orden = n.n_orden
+	WHERE n.n_orden = p_norden
+	    AND UPPER(nombre_reporte) = UPPER(name_service);
+
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+
+SELECT * FROM obtener_reporte_consentimientos(
+    96639,
+    'consent_informado_medica')
+
+
+INSERT INTO config_general_service_digital ( name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic ) values( 'CONSENT_SINTOMATICO', 'Formulario de consentimiento sintomatico', TRUE, TRUE, FALSE, false, false );
+
+INSERT INTO config_general_service_digital ( name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic ) values( 'CONSENT_INFORMADO_MEDICA', 'Formulario de consentimiento informado medico', TRUE, TRUE, FALSE, false, false );
+
+INSERT INTO config_general_service_digital ( name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic ) values( 'CONSENT_RECOM_MEDIC', 'Formulario de recomendaciones medicas', TRUE, TRUE, FALSE, false, false );
+
+INSERT INTO config_general_service_digital ( name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic ) values( 'DECLA_JURA_ANTECE_PERSON_FAM', 'Formulario de consentimiento declaracion jurada persona familiar', TRUE, TRUE, FALSE, false, false );
+
+INSERT INTO config_general_service_digital ( name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic ) values( 'DECLA_INFO_APTITUD_MO', 'Formulario de consentimiento declaracion informacion aptitud', TRUE, TRUE, FALSE, false, false );
+
+
+
+CREATE OR REPLACE FUNCTION obtener_reporte_consentimientos(
+    IN p_norden integer,
+    IN name_service text)
+  RETURNS TABLE(
+dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", fechanacimientopaciente date, ocupacionpaciente text, lugarnacimientopaciente text, nivelestudiopaciente text, 
+estadocivilpaciente text, cargopaciente text, areapaciente text, contrata text, norden integer, empresa text, codigoclinica text, tipoexamen text, edadpaciente text,
+idConsentimiento integer, tipoReporte character varying(10), nombreReporte character varying(150), antecedentesPatologicos boolean, detalleAntecedentes text, fechaFirma TIMESTAMP, horaReporte TIME,
+usuarioRegistro character varying(50), fechaRegistro TIMESTAMP,
+nombresede text, sede text, color integer, namejasper text) AS
+$BODY$
+BEGIN
+    RETURN QUERY
+    SELECT 
+	    d.cod_pa,
+	    d.nombres_pa,
+	    d.apellidos_pa,
+	    d.direccion_pa,
+	    d.sexo_pa,
+	    d.fecha_nacimiento_pa,
+	    d.ocupacion_pa,
+	    d.lugar_nac_pa,
+	    d.nivel_est_pa,
+	    d.estado_civil_pa,
+	    n.cargo_de,
+	    n.area_o,
+	    n.razon_contrata,
+	    n.n_orden,
+	    n.razon_empresa,
+	    n.cod_clinica,
+	    n.nom_examen,
+	    CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
+	    ca.id_consentimiento,
+	    ca.tipo_reporte,
+	    ca.nombre_reporte,
+	    ca.antecedentes_patologicos,
+	    ca.detalle_antecedentes,
+	    ca.fecha_firma,
+	    ca.hora_reporte,
+	    ca.user_registro,
+	    ca.fecha_registro,
+	    CASE 
+		WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A' 
+		    THEN 'Huamachuco'
+		ELSE (
+		    SELECT nombre_sede 
+		    FROM sede 
+		    WHERE cod_sede = n.cod_sede
+		)
+	    END AS nombre_sede,
+	    CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+	    n.color,
+	    obtener_name_jasper(p_norden, name_service)
+	FROM datos_paciente AS d
+	INNER JOIN n_orden_ocupacional AS n 
+	    ON d.cod_pa = n.cod_pa
+	INNER JOIN sede_multisucursal AS sm 
+	    ON n.cod_sede = sm.id
+	INNER JOIN consentimientos_admision AS ca
+	    ON ca.n_orden = n.n_orden
+	WHERE n.n_orden = p_norden;
+
+END;
+$BODY$
+  LANGUAGE plpgsql
+
+ALTER TABLE accidentes_trabajo
+ADD COLUMN id SERIAL;
+ALTER TABLE accidentes_trabajo
+ADD CONSTRAINT accidentes_trabajo_pkey PRIMARY KEY (id);
+
+alter table panel4d add column user_registro text
+
+INSERT INTO config_general_service_digital ( name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic ) values( 'panel4d', 'Formulario de panel 4d', false, false, true, false, false );
+
+INSERT INTO config_general_service_digital ( name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic ) values( 'con_panel4D', 'Formulario de consentimiento panel 4D', true, true, true, false, false );
+
+
+CREATE OR REPLACE FUNCTION obtener_reporte_panel4d(IN p_norden integer, IN name_service text)
+  RETURNS TABLE(
+ dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", fechanacimientopaciente date, ocupacionpaciente text, 
+ lugarnacimientopaciente text, nivelestudiopaciente text, estadocivilpaciente text, cargopaciente text, areapaciente text, contrata text, norden integer, empresa text, codigoclinica text, 
+ tipoexamen text, edadpaciente text, panel4dId integer, cocaina boolean, marihuana boolean, opiaceos boolean, metanfetamina boolean, nombresede text, sede text, color integer, namejasper text) AS
+$BODY$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    dp.cod_pa,
+	    dp.nombres_pa,
+	    dp.apellidos_pa,
+	    dp.direccion_pa,
+	    dp.sexo_pa,
+	    dp.fecha_nacimiento_pa,
+	    dp.ocupacion_pa,
+	    dp.lugar_nac_pa,
+	    dp.nivel_est_pa,
+	    dp.estado_civil_pa,
+	    noo.cargo_de,
+	    noo.area_o,
+	    noo.razon_contrata,
+	    noo.n_orden,
+	    noo.razon_empresa,
+	    noo.cod_clinica,
+	    noo.nom_examen,
+	    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+	p4d.id,
+	p4d.cocaina,
+	p4d.marihuana,
+	p4d.opiaceos,
+	p4d.metanfetamina,
+	CASE 
+		WHEN UPPER(TRIM(noo.razon_empresa)) = 'CIA MINERA PODEROSA S A' 
+		    THEN 'Huamachuco'
+		ELSE (
+		    SELECT nombre_sede 
+		    FROM sede 
+		    WHERE cod_sede = noo.cod_sede
+		)
+	    END AS nombre_sede,
+	    CASE WHEN UPPER(TRIM(noo.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+	    noo.color,
+	    obtener_name_jasper(p_norden, name_service)
+  FROM datos_paciente dp
+  INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+  INNER JOIN panel4d p4d ON p4d.n_orden = noo.n_orden
+  INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+  WHERE noo.n_orden = p_norden;
+END;
+$BODY$
+  LANGUAGE plpgsql;
+
+
+
 DROP FUNCTION obtener_reporte_anexo16(integer, text);
 
 ALTER TABLE trastornos_personalidad add column usuario_firma text
