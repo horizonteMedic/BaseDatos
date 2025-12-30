@@ -6,62 +6,161 @@ DROP FUNCTION obtener_reporte_anexo16(integer, text);
 -- INSERT de config service
 
 INSERT INTO config_general_service_digital
-( name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic )
-VALUES ( 'analisis_bioquimicos', 'examen de laboratorio analisis bioquimico', false, false, true, true, false );
+(name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic)
+VALUES ('analisis_bioquimicos', 'examen de laboratorio analisis bioquimico', false, false, true, true, false);
 
 INSERT INTO config_general_service_digital
-( name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic )
-VALUES ( 'trastornos_personalidad', 'formulario de trastornos de personalidad', false, false, true, false, false );
+(name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic)
+VALUES ('trastornos_personalidad', 'formulario de trastornos de personalidad', false, false, true, false, false);
 
 INSERT INTO config_general_service_digital
-( name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic )
-VALUES ( 'infor_conductores', 'Formularios de informe de conductores', false, false, true, false, false );
+(name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic)
+VALUES ('infor_conductores', 'Formularios de informe de conductores', false, false, true, false, false);
 
 INSERT INTO config_general_service_digital
-( name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic )
-VALUES ( 'alto_riesgo', 'Formulario para trabajos de alto riesgo', false, false, true, false, false );
+(name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic)
+VALUES ('alto_riesgo', 'Formulario para trabajos de alto riesgo', false, false, true, false, false);
 
 INSERT INTO config_general_service_digital
-( name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic )
-VALUES ( 'especificos', 'Formulario para trabajos especificos', false, false, true, false, false );
+(name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic)
+VALUES ('especificos', 'Formulario para trabajos especificos', false, false, true, false, false);
 
 INSERT INTO config_general_service_digital
-( name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic )
-VALUES ( 'cuestionario_berlin', 'Formulario para Cuestionario de Berlin Psicología', false, false, true, false, false );
+(name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic)
+VALUES ('cuestionario_berlin', 'Formulario para Cuestionario de Berlin Psicología', false, false, true, false, false);
 
 INSERT INTO config_general_service_digital
-( name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic )
-VALUES ( 'exam_complementarios', 'Formulario para Cuestionario de Examen Complementarios', false, false, true, false, false );
+(name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic)
+VALUES ('exam_complementarios', 'Formulario para Cuestionario de Examen Complementarios', false, false, true, false,
+        false);
 
 INSERT INTO config_general_service_digital
-( name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic )
-VALUES ( 'psi_brigadistas', 'Formulario de Informe de Brigadistas', false, false, true, false, false );
+(name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic)
+VALUES ('psi_brigadistas', 'Formulario de Informe de Brigadistas', false, false, true, false, false);
 
 INSERT INTO config_general_service_digital
-( name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic )
-VALUES ( 'bombaelectrica', 'Formulario de Informe de Bomba Electrica', false, false, true, false, false );
+(name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic)
+VALUES ('bombaelectrica', 'Formulario de Informe de Bomba Electrica', false, false, true, false, false);
 
 INSERT INTO config_general_service_digital
-( name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic )
-VALUES ( 'cuadradorvigia', 'Formulario de Informe Psicologico Cuadrador Vigia', false, false, true, false, false );
+(name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic)
+VALUES ('cuadradorvigia', 'Formulario de Informe Psicologico Cuadrador Vigia', false, false, true, false, false);
 
 INSERT INTO config_general_service_digital
-( name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic )
-VALUES ( 'riesgocoronario', 'Informe de laboratorio para Riesgo Coronario', false, false, true, false, false );
+(name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic)
+VALUES ('riesgocoronario', 'Informe de laboratorio para Riesgo Coronario', false, false, true, false, false);
 
 INSERT INTO config_general_service_digital
-( name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic )
-VALUES ( 'fobias', 'Informe de Psicologico de fobias', false, false, true, false, false );
+(name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic)
+VALUES ('fobias', 'Informe de Psicologico de fobias', false, false, true, false, false);
 
 INSERT INTO config_general_service_digital
-( name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic )
-VALUES ( 'aversionalriesgo', 'Formulario de Informe Psicologico Aversion Al riesgo', false, false, true, false, false );
+(name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic)
+VALUES ('aversionalriesgo', 'Formulario de Informe Psicologico Aversion Al riesgo', false, false, true, false, false);
 
 INSERT INTO config_general_service_digital
-( name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic )
-VALUES ( 'glucosatolerancia', 'Informe de laboratorio para Glucosa Tolerancia', false, false, true, false, false );
+(name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic)
+VALUES ('glucosatolerancia', 'Informe de laboratorio para Glucosa Tolerancia', false, false, true, false, false);
+
+INSERT INTO config_general_service_digital
+(name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic)
+VALUES ('inmunologia_vdrl', 'examen de laboratorio inmunologia vdrl', false, false, true, true, false);
 
 
+-- Inmunologia Vdrl
+CREATE
+OR REPLACE FUNCTION obtener_reporte_inmunologia_vdrl(p_norden integer, name_service text)
+    RETURNS TABLE(
+        cod_pa integer,
+        nombres_pa text,
+        apellidos_pa text,
+        direccion_pa text,
+        sexo_pa text,
+        dni_pa integer,
+        fecha_nacimiento_pa date,
+        ocupacion_pa text,
+        lugar_nac_pa text,
+        nivel_est_pa text,
+        estado_civil_pa text,
+        edadpaciente text,
+        n_orden integer,
+        razon_empresa text,
+        cargo_de text,
+        area_o text,
+        razon_contrata text,
+        fecha_apertura_po date,
+        cod_clinica text,
+        tipo_examen text,
+        fecha_examen date,
+        muestra text,
+        examen text,
+        metodo text,
+        vdrl text,
+        user_registro text,
+        usuario_firma text,
+        fecha_registro date,
+        user_actualizacion text,
+        fecha_actualizacion timestamp,
+        color integer,
+        nombre_sede text,
+        sede text,
+        namejasper text
+    )
+    LANGUAGE plpgsql
+AS
+$$
+BEGIN
+RETURN QUERY
+SELECT d.cod_pa,
+       CAST(d.nombres_pa AS TEXT),
+       CAST(d.apellidos_pa AS TEXT),
+       CAST(d.direccion_pa AS TEXT),
+       CAST(d.sexo_pa AS TEXT),
+       d.cod_pa,
+       d.fecha_nacimiento_pa,
+       CAST(d.ocupacion_pa AS TEXT),
+       CAST(d.lugar_nac_pa AS TEXT),
+       CAST(d.nivel_est_pa AS TEXT),
+       CAST(d.estado_civil_pa AS TEXT),
+       CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT), -- edadpaciente
+
+
+       n.n_orden,
+       CAST(n.razon_empresa AS TEXT),
+       CAST(n.cargo_de AS TEXT),
+       CAST(n.area_o AS TEXT),
+       CAST(n.razon_contrata AS TEXT),
+       n.fecha_apertura_po,
+       CAST(n.cod_clinica AS TEXT),
+       CAST(n.nom_examen AS TEXT),
+
+       v.fecha_examen,
+       v.muestra,
+       v.examen,
+       v.metodo,
+       v.vdrl,
+
+
+       v.user_registro,
+       v.usuario_firma,
+       CAST(v.fecha_registro AS DATE),
+       v.user_actualizacion,
+       v.fecha_actualizacion,
+
+
+       n.color,
+       (SELECT s.nombre_sede FROM sede s WHERE s.cod_sede = n.cod_sede LIMIT 1),
+               CAST(sm.descripcion AS TEXT),                  -- sede (ciudad)
+               obtener_name_jasper(p_norden, name_service)
+
+FROM datos_paciente d
+    INNER JOIN n_orden_ocupacional n
+ON d.cod_pa = n.cod_pa
+    INNER JOIN sede_multisucursal sm ON n.cod_sede = sm.id
+    INNER JOIN inmunologia_vdrl v ON v.n_orden = n.n_orden
+WHERE n.n_orden = p_norden;
+END;
+$$;
 
 -- Trastorno de personalidad
 create function obtener_reporte_informe_trastorno_personalidad(p_norden integer, name_service text)
@@ -1245,15 +1344,14 @@ SELECT d.cod_pa,
        d.ocupacion_pa::text, d.lugar_nac_pa::text, d.nivel_est_pa::text, d.estado_civil_pa::text, CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
        n.n_orden,
        n.razon_empresa::text, n.cargo_de::text, n.area_o::text, n.razon_contrata::text, n.fecha_apertura_po,
-       n.n_orden::text AS cod_clinica,  -- Usamos n_orden como código clínica n.nom_examen::text AS tipo_examen, -- <--- CORREGIDO: nom_examen en lugar de tipo_examen r.fecha_examen, r.muestra, r.resultado_riesgocoronario, r.user_registro, r.usuario_firma, r.fecha_registro,
-       n.color,
-       (SELECT s.nombre_sede FROM sede s WHERE s.cod_sede = n.cod_sede)::text, (SELECT CAST(sm.descripcion AS TEXT)
-                                                                                FROM sede_multisucursal sm
-                                                                                WHERE sm.id = n.cod_sede),
+       n.n_orden::text AS cod_clinica,  -- Usamos n_orden como código clínica n.nom_examen::text AS tipo_examen, -- <--- CORREGIDO: nom_examen en lugar de tipo_examen r.fecha_examen, r.muestra, r.resultado_riesgocoronario, r.user_registro, r.usuario_firma, r.fecha_registro, n.color, (SELECT s.nombre_sede FROM sede s WHERE s.cod_sede = n.cod_sede)::text, (SELECT CAST(sm.descripcion AS TEXT)
+FROM sede_multisucursal sm
+WHERE sm.id = n.cod_sede),
        obtener_name_jasper(p_norden, name_service) ::text
 FROM datos_paciente d
-         INNER JOIN n_orden_ocupacional n ON d.cod_pa = n.cod_pa
-         INNER JOIN riesgocoronario r ON r.n_orden = n.n_orden
+    INNER JOIN n_orden_ocupacional n
+ON d.cod_pa = n.cod_pa
+    INNER JOIN riesgocoronario r ON r.n_orden = n.n_orden
 WHERE n.n_orden = p_norden;
 END; $$;
 
@@ -1299,7 +1397,6 @@ $$
 BEGIN
 RETURN QUERY
 SELECT
-    -- 1 a 11: PACIENTE
     d.cod_pa,
     d.nombres_pa,
     d.apellidos_pa,
@@ -1312,7 +1409,6 @@ SELECT
     d.estado_civil_pa,
     CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
 
-    -- 12 a 18: LABORALES
     n.n_orden,
     n.razon_empresa,
     n.cargo_de,
@@ -1321,22 +1417,21 @@ SELECT
     n.cod_clinica,
     n.nom_examen,
 
-    -- 19 a 23: RESULTADOS
+
     gt.fecha_examen,
     gt.muestra,
     gt.serica,
     gt.tolera60,
     gt.tolera120,
 
-    -- 24 a 26: METADATOS (Sincronizado con RETURNS TABLE)
     gt.user_registro,
     gt.fecha_registro,
-    gt.user_actualizacion,    -- Lo usamos como usuario_firma para el reporte
+    gt.user_actualizacion,
 
-    -- 27 a 30: SEDE Y JASPER
+
     (SELECT nombre_sede FROM sede WHERE cod_sede = n.cod_sede) AS nombrespede,
     CAST(sm.descripcion AS TEXT)                               AS sede,
-    CAST(n.color AS INTEGER), -- Columna 29: Aseguramos que sea Integer
+    CAST(n.color AS INTEGER),
     obtener_name_jasper(p_norden, name_service)
 
 FROM datos_paciente d
@@ -1415,10 +1510,7 @@ SELECT d.nombres_pa || ' ' || d.apellidos_pa,
        ab.txtReponsable,
        -- Sedes
        (SELECT direccion FROM sede WHERE cod_sede = 4)::text, (SELECT email FROM sede WHERE cod_sede = 4)::text, (SELECT telefono FROM sede WHERE cod_sede = 4)::text, (SELECT celular FROM sede WHERE cod_sede = 4)::text, (SELECT direccion FROM sede WHERE cod_sede = 3)::text, (SELECT email FROM sede WHERE cod_sede = 3)::text, (SELECT telefono FROM sede WHERE cod_sede = 3)::text, (SELECT direccion FROM sede WHERE cod_sede = 2)::text, (SELECT email FROM sede WHERE cod_sede = 2)::text, (SELECT telefono FROM sede WHERE cod_sede = 2)::text, (SELECT celular FROM sede WHERE cod_sede = 2)::text, (SELECT direccion FROM sede WHERE cod_sede = 1)::text, (SELECT email FROM sede WHERE cod_sede = 1)::text, (SELECT telefono FROM sede WHERE cod_sede = 1)::text,
-               -- Datos adicionales n.color, d.cod_pa, d.sexo_pa, d.fecha_nacimiento_pa, d.ocupacion_pa::text, d.lugar_nac_pa::text, d.nivel_est_pa::text, d.estado_civil_pa::text, n.cargo_de::text, n.area_o::text, n.nom_examen::text, n.cod_clinica::text, CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT), n.razon_empresa::text, n.razon_contrata::text, ab.gluc_basal,
-       ab.fecha_ab,
-       ab.usuario_firma,
-       ab.user_medico_ocup
+               -- Datos adicionales n.color, d.cod_pa, d.sexo_pa, d.fecha_nacimiento_pa, d.ocupacion_pa::text, d.lugar_nac_pa::text, d.nivel_est_pa::text, d.estado_civil_pa::text, n.cargo_de::text, n.area_o::text, n.nom_examen::text, n.cod_clinica::text, CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT), n.razon_empresa::text, n.razon_contrata::text, ab.gluc_basal, ab.fecha_ab, ab.usuario_firma, ab.user_medico_ocup
 FROM analisis_bioquimicos AS ab
          INNER JOIN n_orden_ocupacional AS n ON n.n_orden = ab.n_orden
          INNER JOIN datos_paciente AS d ON n.cod_pa = d.cod_pa
@@ -1629,12 +1721,14 @@ UPPER(name_service_param) = 'DECLA_INFO_APTITUD_MO' THEN
     ELSIF
 name_service_param = 'glucosatolerancia' THEN
         resultado := 'Informe_Lab_Glucosa_Tolerancia';
+    ELSIF
+name_service_param = 'inmunologia_vdrl' THEN
+        resultado := 'Informe_Lab_VRDL';
 END IF;
 RETURN resultado;
 END; $BODY$
 LANGUAGE plpgsql;
 
-ALTER FUNCTION obtener_name_jasper(bigint, text) OWNER TO pierola;
 
 CREATE
 OR REPLACE FUNCTION obtener_reporte_anexo16(IN p_norden integer, IN name_service text) RETURNS TABLE( fechaanexo7c_fecha date, telefonotrabajopaciente_tel_trabajo_pa text, telefonocasapaciente_tel_casa_pa text, celularpaciente_cel_pa text, dni_cod_pa integer, sexo_sexo_pa "char", numerocontacto_num_contacto text, direccionpaciente_direccion text, fechanacimientopaciente_fecha_nacimiento_pa date, lugarnacimientopaciente_lugar_nac_pa text, estadocivilpaciente_estado_civil_pa text, nivelestudiopaciente_nivel_est_pa text, cargo_cargo_de text, fvcfuncionrespiratoria_fvc text, fev1funcionrespiratoria_fev1 text, fev1fvcfuncionrespiratoria_fev1fvc text, fef2575funcionrespiratoria_fef25_75 text, empresa_razon_empresa text, explotacion_nom_ex text, altura_altura_po text, contrata_razon_contrata text, norden_n_orden integer, fechaapertura_fecha_apertura_po date, nombreexamen_nom_examen text, mineral_mineral_po text, nombres_nombres text, edad_edad text, perimetrocuellotriaje_perimetro_cuello text, imctriaje_imc text, pesotriaje_peso text, tallatriaje_talla text, cinturatriaje_cintura text, caderatriaje_cadera text, icctriaje_icc text, temperaturatriaje_temperatura text, frecuenciarespiratoriatriaje_f_respiratoria text, frecuenciacardiacatriaje_f_cardiaca text, saturacionoxigenotriaje_sat_02 text, sistolicatriaje_sistolica text, diastolicatriaje_diastolica text, ruidoanexo7c_chkruido boolean, polvoanexo7c_chkpolvo boolean, vidsegmentarioanexo7c_chkvidsegmentario boolean, vidtotalanexo7c_chkvidtotal boolean, cancerigenosanexo7c_chkcancerigenos boolean, mutagenicosanexo7c_chkmutagenicos boolean, solventesanexo7c_chksolventes boolean, metalesanexo7c_chkmetales boolean, temperaturaanexo7c_chktemperatura boolean, biologicosanexo7c_chkbiologicos boolean, posturasanexo7c_chkposturas boolean, turnosanexo7c_chkturnos boolean, cargasanexo7c_chkcargas boolean, movrepetanexo7c_chkmovrepet boolean, pvdanexo7c_chkpvd boolean, electricosanexo7c_electricos boolean, vibracionesanexo7c_vibraciones boolean, otrosanexo7c_chkotros boolean, alturaestructuraanexo7c_altura_estructura boolean, alturageograficaanexo7c_altura_geog boolean, quimicosanexo7c_quimicos boolean, reubicacionsianexo7c_tbrsi boolean, reubicacionnoanexo7c_rbrno boolean, puestoactualanexo7c_txtpuestoactual text, tiempoanexo7c_txttiempo text, antecedentespersonalesanexo7c_txtantecedentespersonales text, antecedentesfamiliaresanexo7c_txtantecedentesfamiliares text, tetanoanexo7c_tetano boolean, hepatitisbanexo7c_hepatitisb boolean, fiebreamarillaanexo7c_fiebreamarilla boolean, hijosvivosanexo7c_txthijosvivos text, hijosmuertosanexo7c text, tabaconadaaexo7c_chktnada boolean, tabacopocoanexo7c_chktpoco boolean, tabacohabitualanexo7c_chkthabitual boolean, tabacoexcesivoanexo7c_chktexcesivo boolean, alcoholnadaanexo7c_chkanada boolean, alcoholpocoanexo7c_chkapoco boolean, alcoholhabitualanexo7c_chkahabitual boolean, alcoholexcesivoanexo7c_chkaexcesivo boolean, drogasnadaanexo7c_chkdnada boolean, drogaspocoanexo7c_chkdpoco boolean, drogashabitualanexo7c_chkdhabitual boolean, drogasexcesivoanexo7c_chkdexcesivo boolean, conclusionanexo7c_txtconclusion text, cabezaanexo7c_txtcabeza text, narizanexo7c_txtnariz text, cuelloanexo7c_txtcuello text, perimetroanexo7c_txtperimetro text, baflanexo7c_txtb_a_f_l text, visioncoloresanexo7c_txtvisioncolores text, enfermedadesocularesanexo7c_txtenfermedadesoculares text, reflejospupilaresanexo7c_txtreflejospupilares text, binocularanexo7c_txtbinocular text, odanexo7c_txtod text, oianexo7c_txtoi text, toraxanexo7c_txttorax text, corazonanexo7c_txtcorazon text, pulmonesnormalanexo7c_rbnormal boolean, pulmonesanormalanexo7c_rbanormal boolean, pulmonesdescripcionanexo7c_txtpulmones text, miembrossuperioresanexo7c_txtmiembrossuperiores text, miembrosinferioresanexo7c_txtmiembrosinferiores text, ausentesodontograma_txtausentes integer, piezasmalestadoodontograma_txtpiezasmalestado integer, visioncercasincorregirod_v_cerca_s_od text, visioncercasincorregiroi_v_cerca_s_oi text, odcc_odcc text, oicc_oicc text, visionlejossincorregirod_v_lejos_s_od text, visionlejossincorregiroi_v_lejos_s_oi text, odlc_odlc text, oilc_oilc text, vc_vc text, vb_vb text, rp_rp text, enfermedadesocularesoftalmo_e_oculares text, enfermedadesocularesotrosoftalmo_e_oculares1 text, enfermedadesocularesvisionlejos_e_oculvisionlejos text, tecishiharanormal_rbtecishihara_normal boolean, tecishiharaanormal_rbtecishihara_anormal boolean, teccoleresnormal_rbteccoleres_normal boolean, teccoleresanormal_rbteccoleres_anormal boolean, tecestereopsianormal_rbtecestereopsia_normal boolean, tecestereopsiaanormal_rbtecestereopsia_anormal boolean, oidoderecho500audiometria_o_d_500 text, oidoderecho1000audiometria_o_d_1000 text, oidoderecho2000audiometria_o_d_2000 text, oidoderecho3000audiometria_o_d_3000 text, oidoderecho4000audiometria_o_d_4000 text, oidoderecho6000audiometria_o_d_6000 text, oidoderecho8000audiometria_o_d_8000 text, oidoizquierdo500audiometria_o_i_500 text, oidoizquierdo1000audiometria_o_i_1000 text, oidoizquierdo2000audiometria_o_i_2000 text, oidoizquierdo3000audiometria_o_i_3000 text, oidoizquierdo4000audiometria_o_i_4000 text, oidoizquierdo6000audiometria_o_i_6000 text, oidoizquierdo8000audiometria_o_i_8000 text, diagnosticoaudiometricocompleto_diagnostico text, reflejososteotendinososanexo7c_txtreflejososteotendinosos text, marchaanexo7c_txtmarcha text, columnavertebralanexo7c_txtcolumnavertebral text, abdomenanexo7c_txtabdomen text, anillosinguinalesanexo7c_txtanillosinguinales text, organosgenitalesanexo7c_txtorganosgenitales text, tactorectalnohizoanexo7c_rbtnohizo boolean, tactorectalnormalanexo7c_rbtnormal boolean, tactorectalanormalanexo7c_rbtanormal boolean, describirobservacionanexo7c_chkdescribirobservacion boolean, herniasanexo7c_txthernias text, varicesanexo7c_txtvarices text, gangliosanexo7c_txtganglios text, lenguageanexo7c_txtlenguage text, observacionesfichamedicaanexo7c_txtobservacionesfm text, nrx_n_rx integer, fechaexamenradiografico_fecha_exra date, calidadexamenradiografico_txtcalidad text, simbolosexamenradiografico_txtsimbolos text, conclusionmedicoanexo7c_txtconclusionmed text, estadomentalanexo7c_txtestadomental text, anamnesisanexo7c_txtanamnesis text, examenradiografico0_ex_0 boolean, examenradiografico10_ex_10 boolean, examenradiografico11_ex_11 boolean, examenradiografico12_ex_12 boolean, examenradiografico21_ex_21 boolean, examenradiografico22_ex_22 boolean, examenradiografico23_ex_23 boolean, examenradiografico32_ex_32 boolean, examenradiografico33_ex_33 boolean, examenradiografico3mas_ex_3mas boolean, examenradiograficoabc_ex_abc boolean, examenradiograficost_ex_st boolean, examenradiograficosinneumoconiosis_txtsinneumoconiosis text, examenradiograficoconneumoconiosis_txtconneumoconiosis text, examenradiograficoirep_txtirep text, examenradiograficootros_txtotrosex text, examenradiograficoaptosi_apto_si boolean, examenradiograficoaptono_apto_no boolean, examenradiograficoaptore_apto_re boolean, verticesradiografiatorax_txtvertices text, hilosradiografiatorax_txthilios text, senoscostofrenicos_txtsenoscostofrenicos text, meadiastinos_txtmediastinos text, siluetacardiovascular_txtsiluetacardiovascular text, conclusionesradiograficas_txtconclusionesradiograficas text, color integer, gruposanguineoo_chko boolean, gruposanguineoa_chka boolean, gruposanguineob_chkb boolean, gruposanguineoab_chkab boolean, gruposanguineorhpositivo_rbrhpositivo boolean, gruposanguineorhnegativo_rbrhnegativo boolean, hemoglobina_txthemoglobina text, positivolaboratorioclinico_chkpositivo boolean, negativolaboratorioclinico_chknegativo boolean, glucosalaboratorioclinico_txtglucosabio text, creatininalaboratorioclinico_txtcreatininabio text, vsglaboratorioclinico_txtvsg text, cocainalaboratorioclinico_txtcocaina text, marihuanalaboratorioclinico_txtmarihuana text, leucocitos_txtleucocitosematologia text, hematies_txthematiesematologia text, plaquetas_txtplaquetas text, neutrofilos_txtneutrofilos text, abastonados_txtabastonados text, segmentados_txtsegmentadosematologia text, monocitos_txtmonocitosematologia text, eosinofilos_txteosinofiosematologia text, basofilos_txtbasofilosematologia text, linfocitos_txtlinfocitosematologia text, creatininaanalisisbioquimico_txtcreatinina text, colesterolanalisisbioquimico_txtcolesterol text, ldlcolesterolanalisisbioquimico_txtldlcolesterol text, hdlcolesterolanalisisbioquimico_txthdlcolesterol text, vldlcolesterolanalisisbioquimico_txtvldlcolesterol text, trigliceridosanalisisbioquimico_txttrigliceridos text, sede text, nombresede text, numero text, codigoanexo7c_cod_anexo integer, namejasper text, pielanexo7c_piel boolean, pieldescripcionanexo7c_piel_descripcion text, usuariofirma text, interpretacionfuncionrespiratoria_interpretacion text, hematocritoLaboratorioClinico_txthematocrito text, creatininaPerfilRenal_txtcreatinina text, ureaAsericaPerfilRenal_txtureaserica text, acidoUricoPerfilRenal_txtacidourico text ) AS $BODY$
@@ -3214,6 +3308,22 @@ end if;
 select (CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END)
 into v_id_existencia
 from glucosatolerancia
+where n_orden = p_historia_clinica limit 1;
+if
+(v_id_existencia = 0) THEN
+            v_mensaje := 'SIN REGISTROS EN EL SISTEMA';
+else
+            v_mensaje := 'YA FUE REGISTRADO';
+
+end if;
+
+end if;
+
+    if
+(p_examen_med = 'inmunologia_vdrl') THEN
+select (CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END)
+into v_id_existencia
+from inmunologia_vdrl
 where n_orden = p_historia_clinica limit 1;
 if
 (v_id_existencia = 0) THEN
@@ -6119,6 +6229,31 @@ name_servicio_param = 'glucosatolerancia' THEN
 SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
 INTO user_registro_var
 FROM glucosatolerancia
+WHERE n_orden = norden_param;
+select dni_user
+into dni_user_registro_var
+from usuarios
+where UPPER(usuario_user) = UPPER(user_registro_var);
+-- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
+--                 dni_user_registro_var := 42664426;
+--             END IF;
+descripcion
+:= 'SELLO DEL PROFESIONAL DE SALUD';
+            name_digitalizacion
+:= 'SELLOFIRMA';
+            dni
+:= dni_user_registro_var;
+            RETURN
+NEXT;
+END IF;
+END IF;
+
+  IF
+name_servicio_param = 'inmunologia_vdrl' THEN
+        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
+SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
+INTO user_registro_var
+FROM inmunologia_vdrl
 WHERE n_orden = norden_param;
 select dni_user
 into dni_user_registro_var
