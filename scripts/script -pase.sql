@@ -2,6 +2,64 @@ SELECT  n_orden
 FROM n_orden_ocupacional
 LIMIT 1;
 
+alter table panel4d add column fecha date
+
+create function obtener_reporte_panel4d(p_norden integer, name_service text)
+    returns TABLE(dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", fechanacimientopaciente date, ocupacionpaciente text, lugarnacimientopaciente text, nivelestudiopaciente text, estadocivilpaciente text, cargopaciente text, areapaciente text, contrata text, norden integer, empresa text, codigoclinica text, tipoexamen text, edadpaciente text, panel4did integer, cocaina boolean, marihuana boolean, opiaceos boolean, metanfetamina boolean, nombresede text, sede text, color integer, namejasper text, fecha date)
+    language plpgsql
+as
+$$
+BEGIN
+RETURN QUERY
+SELECT
+    dp.cod_pa,
+    dp.nombres_pa,
+    dp.apellidos_pa,
+    dp.direccion_pa,
+    dp.sexo_pa,
+    dp.fecha_nacimiento_pa,
+    dp.ocupacion_pa,
+    dp.lugar_nac_pa,
+    dp.nivel_est_pa,
+    dp.estado_civil_pa,
+    noo.cargo_de,
+    noo.area_o,
+    noo.razon_contrata,
+    noo.n_orden,
+    noo.razon_empresa,
+    noo.cod_clinica,
+    noo.nom_examen,
+    CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+    p4d.id,
+    p4d.cocaina,
+    p4d.marihuana,
+    p4d.opiaceos,
+    p4d.metanfetamina,
+    CASE
+        WHEN UPPER(TRIM(noo.razon_empresa)) = 'CIA MINERA PODEROSA S A'
+            THEN 'Huamachuco'
+        ELSE (
+            SELECT nombre_sede
+            FROM sede
+            WHERE cod_sede = noo.cod_sede
+        )
+        END AS nombre_sede,
+    CASE WHEN UPPER(TRIM(noo.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+    noo.color,
+    obtener_name_jasper(p_norden, name_service),
+    p4d.fecha
+FROM datos_paciente dp
+         INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+         INNER JOIN panel4d p4d ON p4d.n_orden = noo.n_orden
+         INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+WHERE noo.n_orden = p_norden;
+END;
+$$;
+
+alter function obtener_reporte_panel4d(integer, text) owner to pierola;
+
+
+
 CREATE OR REPLACE FUNCTION obtener_reporte_consentimientos(
     IN p_norden integer,
     IN name_service text)
