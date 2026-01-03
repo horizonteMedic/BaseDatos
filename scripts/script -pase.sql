@@ -2,6 +2,157 @@ SELECT  n_orden
 FROM n_orden_ocupacional
 LIMIT 1;
 
+alter table calidad_sueño add column usuario_firma text;
+alter table calidad_sueño add fecha date;
+
+create function obtener_reporte_calidad_sueno(p_norden integer, name_service text)
+    returns TABLE(dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", fechanacimientopaciente date, ocupacionpaciente text, lugarnacimientopaciente text, nivelestudiopaciente text, estadocivilpaciente text, cargopaciente text, areapaciente text, contrata text, norden integer, empresa text, nombreexamen text, codigoclinica text, edadpaciente text, pregunta1 text, pregunta2a boolean, pregunta2b boolean, pregunta2c boolean, pregunta2d boolean, pregunta3 text, pregunta4 text, pregunta5aningunavez boolean, pregunta5amenosunavez boolean, pregunta5aunadosveces boolean, pregunta5atresveces boolean, pregunta5bningunavez boolean, pregunta5bmenosunavez boolean, pregunta5bunadosveces boolean, pregunta5btresveces boolean, pregunta5cningunavez boolean, pregunta5cmenosunavez boolean, pregunta5cunadosveces boolean, pregunta5ctresveces boolean, pregunta5dningunavez boolean, pregunta5dmenosunavez boolean, pregunta5dunadosveces boolean, pregunta5dtresveces boolean, pregunta5eningunavez boolean, pregunta5emenosunavez boolean, pregunta5eunadosveces boolean, pregunta5etresveces boolean, pregunta5fningunavez boolean, pregunta5fmenosunavez boolean, pregunta5funadosveces boolean, pregunta5ftresveces boolean, pregunta5gningunavez boolean, pregunta5gmenosunavez boolean, pregunta5gunadosveces boolean, pregunta5gtresveces boolean, pregunta5hningunavez boolean, pregunta5hmenosunavez boolean, pregunta5hunadosveces boolean, pregunta5htresveces boolean, pregunta5iningunavez boolean, pregunta5imenosunavez boolean, pregunta5iunadosveces boolean, pregunta5itresveces boolean, pregunta5jningunavez boolean, pregunta5jmenosunavez boolean, pregunta5junadosveces boolean, pregunta5jtresveces boolean, pregunta6ningunavez boolean, pregunta6menosunavez boolean, pregunta6unadosveces boolean, pregunta6tresveces boolean, pregunta7ningunavez boolean, pregunta7menosunavez boolean, pregunta7unadosveces boolean, pregunta7tresveces boolean, pregunta8unavez boolean, pregunta8dosveces boolean, pregunta8tresveces boolean, pregunta8cuatroveces boolean, pregunta9muybuena boolean, pregunta9buena boolean, pregunta9mala boolean, pregunta9muymala boolean, pregunta10no boolean, pregunta10sialgo boolean, pregunta10siregular boolean, pregunta10simucho boolean, pregunta11solo boolean, pregunta11soloalado boolean, pregunta11mismocuarto boolean, pregunta11dosmaspersonasmismocuarto boolean, nombresede text, sede text, color integer, namejasper text, fecha date, usuariofirma text)
+    language plpgsql
+as
+$$
+BEGIN
+RETURN QUERY
+SELECT
+    d.cod_pa,
+    d.nombres_pa,
+    d.apellidos_pa,
+    d.direccion_pa,
+    d.sexo_pa,
+    d.fecha_nacimiento_pa,
+    d.ocupacion_pa,
+    d.lugar_nac_pa,
+    d.nivel_est_pa,
+    d.estado_civil_pa,
+    n.cargo_de,
+    n.area_o,
+    n.razon_contrata,
+    n.n_orden,
+    n.razon_empresa,
+    n.nom_examen,
+    n.cod_clinica,
+    CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
+
+    cs.criterio_1,
+    cs.criterio_2_1,
+    cs.criterio_2_2,
+    cs.criterio_2_3,
+    cs.criterio_2_4,
+    cs.criterio_3,
+    cs.criterio_4,
+    cs.criterio_5a1,
+    cs.criterio_5a2,
+    cs.criterio_5a3,
+    cs.criterio_5a4,
+    cs.criterio_5b_1,
+    cs.criterio_5b_2,
+    cs.criterio_5b_3,
+    cs.criterio_5b_4,
+    cs.criterio_5c_1,
+    cs.criterio_5c_2,
+    cs.criterio_5c_3,
+    cs.criterio_5c_4,
+    cs.criterio_5d_1,
+    cs.criterio_5d_2,
+    cs.criterio_5d_3,
+    cs.criterio_5d_4,
+    cs.criterio_5e_1,
+    cs.criterio_5e_2,
+    cs.criterio_5e_3,
+    cs.criterio_5e_4,
+    cs.criterio_5f_1,
+    cs.criterio_5f_2,
+    cs.criterio_5f_3,
+    cs.criterio_5f_4,
+    cs.criterio_5g_1,
+    cs.criterio_5g_2,
+    cs.criterio_5g_3,
+    cs.criterio_5g_4,
+    cs.criterio_5h_1,
+    cs.criterio_5h_2,
+    cs.criterio_5h_3,
+    cs.criterio_5h_4,
+    cs.criterio_5i_1,
+    cs.criterio_5i_2,
+    cs.criterio_5i_3,
+    cs.criterio_5i_4,
+    cs.criterio_5j_1,
+    cs.criterio_5j_2,
+    cs.criterio_5j_3,
+    cs.criterio_5j_4,
+    cs.criterio_6_1,
+    cs.criterio_6_2,
+    cs.criterio_6_3,
+    cs.criterio_6_4,
+    cs.criterio_7_1,
+    cs.criterio_7_2,
+    cs.criterio_7_3,
+    cs.criterio_7_4,
+    cs.criterio_8_1,
+    cs.criterio_8_2,
+    cs.criterio_8_3,
+    cs.criterio_8_4,
+    cs.criterio_9_1,
+    cs.criterio_9_2,
+    cs.criterio_9_3,
+    cs.criterio_9_4,
+    cs.criterio_10_1,
+    cs.criterio_10_2,
+    cs.criterio_10_3,
+    cs.criterio_10_4,
+    cs.criterio_11_1,
+    cs.criterio_11_2,
+    cs.criterio_11_3,
+    cs.criterio_11_4,
+    CASE
+        WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A'
+            THEN 'Huamachuco'
+        ELSE (
+            SELECT nombre_sede
+            FROM sede
+            WHERE cod_sede = n.cod_sede
+        )
+        END AS nombre_sede,
+    CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+    n.color,
+    obtener_name_jasper(p_norden, name_service),
+    cs.fecha,
+    cs.usuario_firma
+FROM datos_paciente AS d
+         INNER JOIN n_orden_ocupacional AS n
+                    ON d.cod_pa = n.cod_pa
+         INNER JOIN sede_multisucursal AS sm
+                    ON n.cod_sede = sm.id
+         INNER JOIN calidad_sueño AS cs
+                    ON cs.n_orden = n.n_orden
+WHERE n.n_orden = p_norden;
+
+END;
+$$;
+
+alter function obtener_reporte_calidad_sueno(integer, text) owner to pierola;
+
+
+
+ALTER TABLE composicion_familiar_fdp
+    ADD COLUMN id SERIAL;
+ALTER TABLE composicion_familiar_fdp
+    ADD CONSTRAINT composicion_familiar_pkey PRIMARY KEY (id);
+
+ALTER TABLE instruccion_adquirida_fdp
+    ADD COLUMN id SERIAL;
+ALTER TABLE instruccion_adquirida_fdp
+    ADD CONSTRAINT instruccion_adquirida_pkey PRIMARY KEY (id);
+
+ALTER TABLE experiencia_laboral_fdp
+    ADD COLUMN id SERIAL;
+ALTER TABLE experiencia_laboral_fdp
+    ADD CONSTRAINT experiencia_laboral_pkey PRIMARY KEY (id);
+
+ALTER TABLE referncias_personales_fdp
+    ADD COLUMN id SERIAL;
+ALTER TABLE referncias_personales_fdp
+    ADD CONSTRAINT referncias_personales_pkey PRIMARY KEY (id);
+
 alter table panel4d add column fecha date
 
 create function obtener_reporte_panel4d(p_norden integer, name_service text)
