@@ -2,6 +2,70 @@ SELECT  n_orden
 FROM n_orden_ocupacional
 LIMIT 1;
 
+alter table consentimientos_admision alter column tipo_reporte TYPE VARCHAR(50);
+
+create function obtener_reporte_consentimientos(p_norden integer, name_service text)
+    returns TABLE(dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", fechanacimientopaciente date, ocupacionpaciente text, lugarnacimientopaciente text, nivelestudiopaciente text, estadocivilpaciente text, cargopaciente text, areapaciente text, contrata text, norden integer, empresa text, codigoclinica text, tipoexamen text, edadpaciente text, idconsentimiento integer, tiporeporte character varying, nombrereporte character varying, antecedentespatologicos boolean, detalleantecedentes text, fechafirma timestamp without time zone, horareporte time without time zone, usuarioregistro character varying, fecharegistro timestamp without time zone, nombresede text, sede text, color integer, namejasper text)
+    language plpgsql
+as
+$$
+BEGIN
+    RETURN QUERY
+    SELECT 
+	    d.cod_pa,
+	    d.nombres_pa,
+	    d.apellidos_pa,
+	    d.direccion_pa,
+	    d.sexo_pa,
+	    d.fecha_nacimiento_pa,
+	    d.ocupacion_pa,
+	    d.lugar_nac_pa,
+	    d.nivel_est_pa,
+	    d.estado_civil_pa,
+	    n.cargo_de,
+	    n.area_o,
+	    n.razon_contrata,
+	    n.n_orden,
+	    n.razon_empresa,
+	    n.cod_clinica,
+	    n.nom_examen,
+	    CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
+	    ca.id_consentimiento,
+	    ca.tipo_reporte,
+	    ca.nombre_reporte,
+	    ca.antecedentes_patologicos,
+	    ca.detalle_antecedentes,
+	    ca.fecha_firma,
+	    ca.hora_reporte,
+	    ca.user_registro,
+	    ca.fecha_registro,
+	    CASE 
+		WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A' 
+		    THEN 'Huamachuco'
+		ELSE (
+		    SELECT nombre_sede 
+		    FROM sede 
+		    WHERE cod_sede = n.cod_sede
+		)
+	    END AS nombre_sede,
+	    CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+	    n.color,
+	    obtener_name_jasper(p_norden, name_service)
+	FROM datos_paciente AS d
+	INNER JOIN n_orden_ocupacional AS n 
+	    ON d.cod_pa = n.cod_pa
+	INNER JOIN sede_multisucursal AS sm 
+	    ON n.cod_sede = sm.id
+	INNER JOIN consentimientos_admision AS ca
+	    ON ca.n_orden = n.n_orden
+	WHERE n.n_orden = p_norden
+	    AND UPPER(tipo_reporte) = UPPER(name_service);
+
+END;
+$$;
+
+alter function obtener_reporte_consentimientos(integer, text) owner to pierola;
+
 alter table calidad_sueño add column usuario_firma text;
 alter table calidad_sueño add fecha date;
 
