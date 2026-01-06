@@ -5,6 +5,11 @@ LIMIT 1;
 alter table funcion_abs add column usuario_firma text;
 alter table funcion_abs add column user_registro text;
 
+INSERT INTO config_general_service_digital
+(name_service, descripcion, firma_p, huella_p, sello_prof_s, sello_doc_asig, sello_doc_adic)
+VALUES ('funcion_abs', 'examen de espirometria', false, false, true, false, false);
+
+
 
 ------------------------------------------------------------------------------------------------------
 CREATE TABLE n_orden_examen_adicional ( id SERIAL PRIMARY KEY, n_orden BIGINT NOT NULL, id_examen_adicional_protocolo BIGINT NOT NULL, version_registro INTEGER, usuario_registro text, fecha_registro date, hora_registro TIME, CONSTRAINT fk_n_orden FOREIGN KEY (n_orden) REFERENCES n_orden_ocupacional(n_orden) );
