@@ -2,6 +2,73 @@ SELECT  n_orden
 FROM n_orden_ocupacional
 LIMIT 1;
 
+create function obtener_datos_generales(p_norden integer, name_service text)
+    returns TABLE(dnipaciente integer, nombrespaciente text, apellidospaciente text, direccionpaciente text, sexopaciente "char", fechanacimientopaciente date, ocupacionpaciente text, lugarnacimientopaciente text, nivelestudiopaciente text, estadocivilpaciente text, cargopaciente text, areapaciente text, contrata text, norden integer, empresa text, codigoclinica text, tipoexamen text, edadpaciente text, departamento text, provincia text, distrito text, talla text, peso text, gruposanguineo text, nombresede text, sede text, color integer, namejasper text)
+    language plpgsql
+as
+$$
+BEGIN
+    RETURN QUERY
+        SELECT
+            d.cod_pa,
+            d.nombres_pa,
+            d.apellidos_pa,
+            d.direccion_pa,
+            d.sexo_pa,
+            d.fecha_nacimiento_pa,
+            d.ocupacion_pa,
+            d.lugar_nac_pa,
+            d.nivel_est_pa,
+            d.estado_civil_pa,
+            n.cargo_de,
+            n.area_o,
+            n.razon_contrata,
+            n.n_orden,
+            n.razon_empresa,
+            n.cod_clinica,
+            n.nom_examen,
+            CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
+            d.departamento_pa,
+            d.provincia_pa,
+            d.distrito_pa,
+            t.talla,
+            t.peso,
+            CASE WHEN l.chko = 'TRUE' THEN 'O'
+                 WHEN l.chka = 'TRUE' THEN 'A'
+                 WHEN l.chkb = 'TRUE' THEN 'B'
+                 WHEN l.chkab = 'TRUE' THEN 'AB' ELSE '.' END ||''||
+            CASE WHEN l.rbrhpositivo ='TRUE' THEN '+'
+                 WHEN l.rbrhnegativo = 'TRUE' THEN '-' END AS Grupoyfactor,
+            CASE
+                WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A'
+                    THEN 'Huamachuco'
+                ELSE (
+                    SELECT nombre_sede
+                    FROM sede
+                    WHERE cod_sede = n.cod_sede
+                )
+                END AS nombre_sede,
+            CASE WHEN UPPER(TRIM(n.razon_empresa))= 'CIA MINERA PODEROSA S A' THEN 'Huamachuco' else (CAST(sm.descripcion AS TEXT)) end,
+            n.color,
+            obtener_name_jasper(p_norden, name_service)
+        FROM datos_paciente AS d
+                 INNER JOIN n_orden_ocupacional AS n
+                            ON d.cod_pa = n.cod_pa
+                 INNER JOIN sede_multisucursal AS sm
+                            ON n.cod_sede = sm.id
+                 LEFT JOIN lab_clinico AS l
+                            ON l.n_orden = n.n_orden
+                 LEFT JOIN triaje  AS t
+                            ON t.n_orden = n.n_orden
+        WHERE n.n_orden = p_norden;
+
+END;
+$$;
+
+alter function obtener_datos_generales(integer, text) owner to pierola;
+
+
+
 create function obetner_reporte_espirometria(p_norden integer)
     returns TABLE(nombres text, edad text, cod_abs integer, n_orden integer, fecha_examen date, cod_exam integer, fvc text, fev1 text, fev1fvc text, fef25_75 text, interpretacion text, fvc_teorico text, fev1_teorico text, talla text, peso text, usuario_firma text, dnipaciente integer, direccionpaciente text, sexopaciente "char", fechanacimientopaciente date, ocupacionpaciente text, lugarnacimientopaciente text, nivelestudiopaciente text, estadocivilpaciente text, cargopaciente text, areapaciente text, contrata text, empresa text, codigoclinica text, tipoexamen text, departamento text, provincia text, distrito text, edadpaciente text)
     language plpgsql
@@ -2291,6 +2358,112 @@ FROM certificado_aptitud_medico_resumen
 WHERE n_orden = norden_param;
 -----------------------------------------------------------------------------
 --PGADMIN 4
+CREATE OR REPLACE FUNCTION obtener_examenes_hoja_ruta(
+    p_id_protocolo INTEGER,
+    p_ids_adicionales INTEGER[]
+)
+    RETURNS JSONB
+    LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_resultado JSONB;
+BEGIN
+    WITH
+        -- 1. Exámenes Regulares con sus sub-exámenes
+        examenes_regulares AS (
+            SELECT
+                a.id_area,
+                jsonb_agg(
+                        jsonb_build_object(
+                                'id_examen', ex.id_examen,
+                                'nombre', ex.nombre,
+                                'sub_examenes', COALESCE(
+                                        (
+                                            SELECT jsonb_agg(
+                                                           jsonb_build_object(
+                                                                   'id_sub_examen', se.id_sub_examen,
+                                                                   'nombre', se.descripcion
+                                                           )
+                                                   )
+                                            FROM sub_examen se
+                                                     INNER JOIN protocolo_sub_examenes pse
+                                                                ON pse.id_sub_examen = se.id_sub_examen
+                                                                    AND pse.estado = true
+                                            WHERE se.id_examen = ex.id_examen
+                                              AND se.estado = true
+                                              AND pse.id_protocolo = p_id_protocolo
+                                        ),
+                                        '[]'::jsonb
+                                                )
+                        )
+                ) AS lista_examenes
+            FROM examen ex
+                     INNER JOIN protocolo_examenes pe ON ex.id_examen = pe.id_examen
+                     INNER JOIN area a ON ex.id_area = a.id_area
+            WHERE pe.id_protocolo = p_id_protocolo
+              AND ex.estado = true
+            GROUP BY a.id_area
+        ),
+
+        -- 2. Exámenes Adicionales con sus sub-exámenes
+        examenes_adicionales AS (
+            SELECT
+                a.id_area,
+                jsonb_agg(
+                        jsonb_build_object(
+                                'id_examen', ex.id_examen,
+                                'nombre', ex.nombre,
+                                'id_examen_adicional_protocolo', pea.id_examen_adicional_protocolo,
+                                'sub_examenes', COALESCE(
+                                        (
+                                            SELECT jsonb_agg(
+                                                           jsonb_build_object(
+                                                                   'id_sub_examen', se.id_sub_examen,
+                                                                   'nombre', se.descripcion
+                                                           )
+                                                   )
+                                            FROM sub_examen se
+                                                     INNER JOIN protocolo_sub_examenes pse
+                                                                ON pse.id_sub_examen = se.id_sub_examen
+                                                                    AND pse.estado = true
+                                            WHERE se.id_examen = ex.id_examen
+                                              AND se.estado = true
+                                              AND pse.id_protocolo = p_id_protocolo
+                                        ),
+                                        '[]'::jsonb
+                                                )
+                        )
+                ) AS lista_adicionales
+            FROM examen ex
+                     INNER JOIN protocolo_examen_adicional pea ON ex.id_examen = pea.id_examen
+                     INNER JOIN area a ON ex.id_area = a.id_area
+            WHERE pea.id_protocolo = p_id_protocolo
+              AND pea.id_examen_adicional_protocolo = ANY(p_ids_adicionales) -- Filtrado correcto por array
+              AND ex.estado = true
+            GROUP BY a.id_area
+        )
+
+    -- 3. Todo por Área
+    SELECT
+        jsonb_agg(
+                jsonb_build_object(
+                        'id_area', a.id_area,
+                        'nombre_area', a.descripcion,
+                        'examenes', COALESCE(er.lista_examenes, '[]'::jsonb),
+                        'examenes_adicionales', COALESCE(ea.lista_adicionales, '[]'::jsonb)
+                )
+        ) INTO v_resultado
+    FROM area a
+             LEFT JOIN examenes_regulares er ON a.id_area = er.id_area
+             LEFT JOIN examenes_adicionales ea ON a.id_area = ea.id_area
+    WHERE er.id_area IS NOT NULL OR ea.id_area IS NOT NULL;
+
+    -- Devolvemos array vacío si no hay resultados en lugar de NULL
+    RETURN COALESCE(v_resultado, '[]'::jsonb);
+END;
+$$;
+
+
 --verificar el id porque no es autoincremental 
 INSERT INTO lista_parametros values (54, 'Acuerdos de pago') --verificar el id porque no es autoincremental 
 INSERT INTO detalle_parametro values (49052, 'Credito', 54)
