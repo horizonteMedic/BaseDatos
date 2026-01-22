@@ -587,25 +587,33 @@ descripcion
 NEXT;
 END IF;
 
-        IF
-(
-SELECT sello_doc_asig
-FROM config_general_service_digital
-WHERE name_service = name_servicio_param) THEN
+IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
 
-            IF (empresa_var = 'OBRASCÓN HUARTE LAIN S.A') THEN
-                dni_user_registro_var := 42664426;
+            IF EXISTS (
+                SELECT 1
+                FROM panel2d
+                WHERE n_orden = norden_param
+                  AND doctor_asignado IS NOT NULL
+            ) THEN
+SELECT doctor_asignado
+INTO user_registro_var
+FROM panel2d
+WHERE n_orden = norden_param;
+SELECT dni_user
+INTO dni_user_registro_var
+FROM usuarios
+WHERE UPPER(usuario_user) = UPPER(user_registro_var);
 ELSE
-                dni_user_registro_var := 1;
-end if;
-            descripcion
-:= 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion
-:= 'SELLOFIRMADOCASIG';
-            dni
-:= dni_user_registro_var;
-            RETURN
-NEXT;
+                IF (empresa_var = 'OBRASCÓN HUARTE LAIN S.A') THEN
+                    dni_user_registro_var := 42664426;
+ELSE
+                    dni_user_registro_var := 1;
+END IF;
+END IF;
+            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
+            name_digitalizacion := 'SELLOFIRMADOCASIG';
+            dni := dni_user_registro_var;
+            RETURN NEXT;
 END IF;
 
 END IF;

@@ -1,3 +1,134 @@
+
+
+alter table panel3d add column doctor_asignado text;
+
+create function obetner_reporte_panel3d(p_norden integer)
+    returns TABLE(nombres text, edad text, norden integer, dni integer, fecha_examen date, txtmetodo text, txtcocaina text, txtmarihuana text, txtextasis text, color integer, sede_descripcion text, dir_sede4 text, email_sede4 text, tel_sede4 text, cel_sede4 text, dir_sede3 text, email_sede3 text, tel_sede3 text, dir_sede2 text, email_sede2 text, tel_sede2 text, cel_sede2 text, dir_sede1 text, email_sede1 text, tel_sede1 text, sexopaciente "char", fechanacimientopaciente date, ocupacionpaciente text, lugarnacimientopaciente text, nivelestudiopaciente text, estadocivilpaciente text, cargopaciente text, areapaciente text, nombreexamen text, codigoclinica text, empresa text, contrata text, usuario_firma text, doctor_asignado text)
+    language plpgsql
+as
+$$
+BEGIN
+RETURN QUERY
+SELECT dp.nombres_pa || ' ' || dp.apellidos_pa,
+       CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+       p3d.n_orden,
+       noo.cod_pa,
+       p3d.fecha_examen,
+       p3d.txtmetodo,
+       p3d.txtcocaina,
+       p3d.txtmarihuana,
+       p3d.txtextasis,
+       noo.color,
+       CAST(sm.descripcion AS TEXT),
+
+       (SELECT direccion FROM sede WHERE cod_sede = 4),
+       (SELECT email FROM sede WHERE cod_sede = 4),
+       (SELECT telefono FROM sede WHERE cod_sede = 4),
+       (SELECT celular FROM sede WHERE cod_sede = 4),
+
+       (SELECT direccion FROM sede WHERE cod_sede = 3),
+       (SELECT email FROM sede WHERE cod_sede = 3),
+       (SELECT telefono FROM sede WHERE cod_sede = 3),
+
+       (SELECT direccion FROM sede WHERE cod_sede = 2),
+       (SELECT email FROM sede WHERE cod_sede = 2),
+       (SELECT telefono FROM sede WHERE cod_sede = 2),
+       (SELECT celular FROM sede WHERE cod_sede = 2),
+
+       (SELECT direccion FROM sede WHERE cod_sede = 1),
+       (SELECT email FROM sede WHERE cod_sede = 1),
+       (SELECT telefono FROM sede WHERE cod_sede = 1),
+       dp.sexo_pa,
+       dp.fecha_nacimiento_pa,
+       dp.ocupacion_pa,
+       dp.lugar_nac_pa,
+       dp.nivel_est_pa,
+       dp.estado_civil_pa,
+       noo.cargo_de,
+       noo.area_o,
+       noo.nom_examen,
+       noo.cod_clinica,
+       noo.razon_empresa,
+       noo.razon_contrata,
+       p3d.usuario_firma,
+       p3d.doctor_asignado
+
+FROM datos_paciente dp
+         INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+         INNER JOIN panel3d p3d ON p3d.n_orden = noo.n_orden
+         INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+WHERE noo.n_orden = p_norden;
+END;
+$$;
+
+alter function obetner_reporte_panel3d(integer) owner to pierola;
+
+
+
+alter table panel2d add column doctor_asignado text;
+
+create function obetner_reporte_panel2d(p_norden integer)
+    returns TABLE(nombres text, edad text, norden integer, dni integer, fecha_examen date, re_marihuana text, re_cocaina text, txtmetodo text, color integer, sede_descripcion text, dir_sede4 text, email_sede4 text, tel_sede4 text, cel_sede4 text, dir_sede3 text, email_sede3 text, tel_sede3 text, dir_sede2 text, email_sede2 text, tel_sede2 text, cel_sede2 text, dir_sede1 text, email_sede1 text, tel_sede1 text, sexopaciente "char", fechanacimientopaciente date, ocupacionpaciente text, lugarnacimientopaciente text, nivelestudiopaciente text, estadocivilpaciente text, cargopaciente text, areapaciente text, nombreexamen text, codigoclinica text, empresa text, contrata text, usuario_firma text, doctorasignado text)
+    language plpgsql
+as
+$$
+BEGIN
+RETURN QUERY
+SELECT dp.nombres_pa || ' ' || dp.apellidos_pa,
+       CAST(obtener_edad(dp.fecha_nacimiento_pa, current_date) AS TEXT),
+       p2d.n_orden,
+       noo.cod_pa,
+       p2d.fecha_examen,
+       p2d.re_marihuana,
+       p2d.re_cocaina,
+       p2d.txtmetodo,
+       noo.color,
+       CAST(sm.descripcion AS TEXT),
+
+       (SELECT direccion FROM sede WHERE cod_sede = 4),
+       (SELECT email FROM sede WHERE cod_sede = 4),
+       (SELECT telefono FROM sede WHERE cod_sede = 4),
+       (SELECT celular FROM sede WHERE cod_sede = 4),
+
+       (SELECT direccion FROM sede WHERE cod_sede = 3),
+       (SELECT email FROM sede WHERE cod_sede = 3),
+       (SELECT telefono FROM sede WHERE cod_sede = 3),
+
+       (SELECT direccion FROM sede WHERE cod_sede = 2),
+       (SELECT email FROM sede WHERE cod_sede = 2),
+       (SELECT telefono FROM sede WHERE cod_sede = 2),
+       (SELECT celular FROM sede WHERE cod_sede = 2),
+
+       (SELECT direccion FROM sede WHERE cod_sede = 1),
+       (SELECT email FROM sede WHERE cod_sede = 1),
+       (SELECT telefono FROM sede WHERE cod_sede = 1),
+       dp.sexo_pa,
+       dp.fecha_nacimiento_pa,
+       dp.ocupacion_pa,
+       dp.lugar_nac_pa,
+       dp.nivel_est_pa,
+       dp.estado_civil_pa,
+       noo.cargo_de,
+       noo.area_o,
+       noo.nom_examen,
+       noo.cod_clinica,
+       noo.razon_empresa,
+       noo.razon_contrata,
+       p2d.usuario_firma,
+       p2d.doctor_asignado
+
+FROM datos_paciente dp
+         INNER JOIN n_orden_ocupacional noo ON noo.cod_pa = dp.cod_pa
+         INNER JOIN panel2d p2d ON p2d.n_orden = noo.n_orden
+         INNER JOIN sede_multisucursal sm ON noo.cod_sede = sm.id
+WHERE noo.n_orden = p_norden;
+END;
+$$;
+
+alter function obetner_reporte_panel2d(integer) owner to pierola;
+
+
+
 create function sp_mostrar_info_paciente_filtros(norden_p integer, sucursal_p text)
     returns TABLE(n_orden integer, nombres_apellidos text, dni integer, fecha_examen date, nombres text, apellidos text, fecha_nac date, edad integer, empresa text, contrata text, nom_examen text, talla text, peso text, sexo_pa "char", area text, cargo text, direccion_pa text, estado_civil text, estudio_paciente text, lugar_nacimiento text, explotacion text, diastolica text, sistolica text, departamento text, provincia text,
                   distrito text)

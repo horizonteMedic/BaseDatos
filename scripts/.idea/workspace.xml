@@ -5,12 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f72e96db-1394-404e-bf3c-7f499d061c27" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/ocupacional.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
-    <list id="3a3642c5-c4d1-42da-ab19-6318e88a5b6c" name="Changes by FACUNDO" comment="">
       <change beforePath="$PROJECT_DIR$/compartido.sql" beforeDir="false" afterPath="$PROJECT_DIR$/compartido.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ocupacional.sql" beforeDir="false" afterPath="$PROJECT_DIR$/ocupacional.sql" afterDir="false" />
     </list>
+    <list id="3a3642c5-c4d1-42da-ab19-6318e88a5b6c" name="Changes by FACUNDO" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -116,7 +115,7 @@
       <workItem from="1769009743755" duration="432000" />
       <workItem from="1769010204160" duration="558000" />
       <workItem from="1769010788184" duration="184000" />
-      <workItem from="1769010998333" duration="9965000" />
+      <workItem from="1769010998333" duration="15247000" />
     </task>
     <servers />
   </component>
