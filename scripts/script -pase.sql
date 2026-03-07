@@ -1,3 +1,795 @@
+create function obtener_reporte_hoja_ruta_emo(p_norden integer, name_service text)
+    returns TABLE(norden integer, dnipaciente integer, nombrecompletopaciente text, sexopaciente "char", fechanacimientopaciente date, edadpaciente text, nivelestudiopaciente text, estadocivilpaciente text, lugarnacimientopaciente text, ocupacionpaciente text, usuarioevaluacionmedica text, observacionesevaluacionmedica text, usuarioinformebrigadista text, observacioninformebrigadista text, usuarioevaluacionoftalmologica text, usuarioagudezavisual text, observacionesevaluacionvisual text, usuarioaudiometria text, observacionaudiometria text, usuarioespirometria text, observacionespirometria text, usuariotoraxconvencional text, usuariotoraxoit text, observacionradiografiatorax text, usuarioelectrocardiograma text, observacioneselectrocardiograma text, usuarioexamenlaboratorio text, observacionesexamenlaboratorio text, usuarioexamenmedicobrigadista text, usuariocertificadoaptitudbrigadista text, usuarioconsultaexterna text, observacionbrigadista text, tipoexamen text, empresa text, contrata text, cargopaciente text, areapaciente text, fechaapertura date, fechaexamen date, usuariofirma text, doctorasignado text, userregistro text, nombresede text, sede text, color integer, namejasper text, codigoclinica text, peso text, talla text, pa text, sat02 text, cintura text, cadera text, fc text, fr text, cuello text, observaciones_generales text, hora_salida time without time zone, hora_entrada time without time zone)
+    language plpgsql
+as
+$$
+BEGIN
+
+    RETURN QUERY
+        SELECT n.n_orden,
+
+               d.cod_pa,
+               (d.nombres_pa || ' ' || d.apellidos_pa),
+               d.sexo_pa,
+               d.fecha_nacimiento_pa,
+               CAST(obtener_edad(d.fecha_nacimiento_pa, CURRENT_DATE) AS TEXT),
+               d.nivel_est_pa,
+               d.estado_civil_pa,
+               d.lugar_nac_pa,
+               d.ocupacion_pa,
+
+               -- Medicina
+               CASE
+                   WHEN NULLIF(a.user_registro, '') IS NOT NULL
+                       THEN (
+                       SELECT nombre_user || ' ' || apellido_user
+                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(a.user_registro)
+                       LIMIT 1
+                   )
+                   WHEN NULLIF(a.usuario_firma, '') IS NOT NULL
+                       THEN (
+                       SELECT nombre_user || ' ' || apellido_user
+                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(a.usuario_firma)
+                       LIMIT 1
+                   )
+                   ELSE 'SIN REGISTRO'
+                   END,
+               --COALESCE(a.user_registro::text, a.usuario_firma::text, 'SIN REGISTRO'::text),
+               a.txtobservacionesfm::text,
+
+               -- Psicologia
+               CASE
+                   WHEN NULLIF(pb.user_registro, '') IS NOT NULL
+                       THEN (
+                       SELECT nombre_user || ' ' || apellido_user
+                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(pb.user_registro)
+                       LIMIT 1
+                   )
+                   WHEN NULLIF(pb.usuario_firma, '') IS NOT NULL
+                       THEN (
+                       SELECT nombre_user || ' ' || apellido_user
+                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(pb.usuario_firma)
+                       LIMIT 1
+                   )
+                   ELSE 'SIN REGISTRO'
+                   END,
+               --COALESCE(pb.user_registro::text, pb.usuario_firma::text, 'SIN REGISTRO'::text),
+               pb.observacion::text,
+
+               -- Visual
+               CASE
+                   WHEN NULLIF(oft2021.user_registro, '') IS NOT NULL
+                       THEN (
+                       SELECT nombre_user || ' ' || apellido_user
+                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(oft2021.user_registro)
+                       LIMIT 1
+                   )
+                   WHEN NULLIF(oft2021.usuario_firma, '') IS NOT NULL
+                       THEN (
+                       SELECT nombre_user || ' ' || apellido_user
+                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(oft2021.usuario_firma)
+                       LIMIT 1
+                   )
+                   ELSE 'SIN REGISTRO'
+                   END,
+               --COALESCE(oft2021.user_registro::text, oft2021.usuario_firma::text, 'SIN REGISTRO'::text),
+               CASE
+                   WHEN NULLIF(oft.user_registro, '') IS NOT NULL
+                       THEN (
+                       SELECT nombre_user || ' ' || apellido_user
+                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(oft.user_registro)
+                       LIMIT 1
+                   )
+                   WHEN NULLIF(oft.usuario_firma, '') IS NOT NULL
+                       THEN (
+                       SELECT nombre_user || ' ' || apellido_user
+                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(oft.usuario_firma)
+                       LIMIT 1
+                   )
+                   ELSE 'SIN REGISTRO'
+                   END,
+               --COALESCE(oft.user_registro::text, oft.usuario_firma::text, 'SIN REGISTRO'::text),
+               (TRIM(oft2021.txtfohallazgos)::text || ' - ' || TRIM(oft2021.txtdiagnostico)::text),
+
+               -- Audiometria
+               CASE
+                   WHEN NULLIF(audio.user_registro, '') IS NOT NULL
+                       THEN (
+                       SELECT nombre_user || ' ' || apellido_user
+                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(audio.user_registro)
+                       LIMIT 1
+                   )
+                   WHEN NULLIF(audio.usuario_firma, '') IS NOT NULL
+                       THEN (
+                       SELECT nombre_user || ' ' || apellido_user
+                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(audio.usuario_firma)
+                       LIMIT 1
+                   )
+                   ELSE 'SIN REGISTRO'
+                   END,
+               --COALESCE(audio.user_registro::text, audio.usuario_firma::text, 'SIN REGISTRO'::text),
+               audio.txtcomentarios::text,
+
+               -- Espirometrica
+               CASE
+                   WHEN NULLIF(ab.usuario_firma, '') IS NOT NULL
+                       THEN (
+                       SELECT nombre_user || ' ' || apellido_user
+                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(ab.usuario_firma)
+                       LIMIT 1
+                   )
+                   WHEN NULLIF(ab.user_registro, '') IS NOT NULL
+                       THEN (
+                       SELECT nombre_user || ' ' || apellido_user
+                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(ab.user_registro)
+                       LIMIT 1
+                   )
+                   ELSE 'SIN REGISTRO'
+                   END,
+               --COALESCE(ab.usuario_firma::text, ab.user_registro::text, 'SIN REGISTRO'::text),
+               ab.interpretacion::text,
+
+               -- Radiografia
+               CASE
+                   WHEN NULLIF(rxt.user_registro, '') IS NOT NULL
+                       THEN (
+                       SELECT nombre_user || ' ' || apellido_user
+                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(rxt.user_registro)
+                       LIMIT 1
+                   )
+                   WHEN NULLIF(rxt.usuario_firma, '') IS NOT NULL
+                       THEN (
+                       SELECT nombre_user || ' ' || apellido_user
+                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(rxt.usuario_firma)
+                       LIMIT 1
+                   )
+                   ELSE 'SIN REGISTRO'
+                   END,
+               --COALESCE(rxt.user_registro::text, rxt.usuario_firma::text, 'SIN REGISTRO'::text),
+               'N/A'::text,
+               rxt.txtobservacionesrt::text,
+
+               -- Cardiologia
+               CASE
+                   WHEN NULLIF(ie.user_registro, '') IS NOT NULL
+                       THEN (
+                       SELECT nombre_user || ' ' || apellido_user
+                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(ie.user_registro)
+                       LIMIT 1
+                   )
+                   WHEN NULLIF(ie.usuario_firma, '') IS NOT NULL
+                       THEN (
+                       SELECT nombre_user || ' ' || apellido_user
+                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(ie.usuario_firma)
+                       LIMIT 1
+                   )
+                   ELSE 'SIN REGISTRO'
+                   END,
+               --COALESCE(ie.user_registro::text, ie.usuario_firma::text, 'SIN REGISTRO'::text),
+               ie.hallazgo::text,
+
+               -- Examenes lab
+               CASE
+                   WHEN NULLIF(lb.user_registro, '') IS NOT NULL
+                       THEN (
+                       SELECT nombre_user || ' ' || apellido_user
+                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(lb.user_registro)
+                       LIMIT 1
+                   )
+                   WHEN NULLIF(lb.usuario_firma, '') IS NOT NULL
+                       THEN (
+                       SELECT nombre_user || ' ' || apellido_user
+                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(lb.usuario_firma)
+                       LIMIT 1
+                   )
+                   ELSE 'SIN REGISTRO'
+                   END,
+               --COALESCE(lb.user_registro::text, lb.usuario_firma::text, 'SIN REGISTRO'::text),
+               lb.txtobservacioneslb::text,
+
+               -- Brigadista
+               CASE
+                   WHEN NULLIF(cb.user_registro, '') IS NOT NULL
+                       THEN (
+                       SELECT nombre_user || ' ' || apellido_user
+                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(cb.user_registro)
+                       LIMIT 1
+                   )
+                   WHEN NULLIF(cb.usuario_firma, '') IS NOT NULL
+                       THEN (
+                       SELECT nombre_user || ' ' || apellido_user
+                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(cb.usuario_firma)
+                       LIMIT 1
+                   )
+                   ELSE 'SIN REGISTRO'
+                   END,
+               --COALESCE(cb.user_registro::text, cb.usuario_firma::text, 'SIN REGISTRO'::text),
+               CASE
+                   WHEN NULLIF(cab.user_registro, '') IS NOT NULL
+                       THEN (
+                       SELECT nombre_user || ' ' || apellido_user
+                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(cab.user_registro)
+                       LIMIT 1
+                   )
+                   WHEN NULLIF(cab.usuario_firma, '') IS NOT NULL
+                       THEN (
+                       SELECT nombre_user || ' ' || apellido_user
+                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(cab.usuario_firma)
+                       LIMIT 1
+                   )
+                   ELSE 'SIN REGISTRO'
+                   END,
+               --COALESCE(cab.user_registro::text, cab.usuario_firma::text, 'SIN REGISTRO'::text),
+               CASE
+                   WHEN NULLIF(hce.user_registro, '') IS NOT NULL
+                       THEN (
+                       SELECT nombre_user || ' ' || apellido_user
+                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(hce.user_registro)
+                       LIMIT 1
+                   )
+                   WHEN NULLIF(hce.usuario_firma, '') IS NOT NULL
+                       THEN (
+                       SELECT nombre_user || ' ' || apellido_user
+                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(hce.usuario_firma)
+                       LIMIT 1
+                   )
+                   ELSE 'SIN REGISTRO'
+                   END,
+               --COALESCE(hce.user_registro::text, hce.usuario_firma::text, 'SIN REGISTRO'::text),
+               CONCAT_WS(' / ', TRIM(cab.recomendaciones), TRIM(hce.txtobservaciones))::text,
+
+               n.nom_examen,
+               n.razon_empresa,
+               n.razon_contrata,
+               n.cargo_de,
+               n.area_o,
+               n.fecha_apertura_po,
+
+               hr.fecha_examen,
+               hr.usuario_firma,
+               hr.doctor_asignado,
+               hr.user_registro,
+
+               (SELECT s.nombre_sede
+                FROM sede s
+                WHERE s.cod_sede = n.cod_sede
+                LIMIT 1),
+               CAST(sm.descripcion AS TEXT),
+               n.color,
+               obtener_name_jasper(p_norden, name_service),
+               n.cod_clinica,
+               -- Triaje
+               t.peso,
+               t.talla,
+               t.sistolica || '/' || t.diastolica,
+               t.sat_02,
+               t.cintura,
+               t.cadera,
+               t.f_cardiaca,
+               t.f_respiratoria,
+               t.perimetro_cuello,
+               hr.observaciones_generales::text,
+               hr.hora_salida,
+               n.n_hora
+        FROM datos_paciente d
+                 INNER JOIN n_orden_ocupacional n
+                            ON d.cod_pa = n.cod_pa
+
+                 INNER JOIN sede_multisucursal sm
+                            ON n.cod_sede = sm.id
+
+                 LEFT JOIN hoja_ruta_emo hr
+                           ON hr.n_orden = n.n_orden
+                 LEFT JOIN anexo7c a ON a.n_orden = n.n_orden
+                 LEFT JOIN psi_brigadistas pb ON pb.n_orden = n.n_orden
+                 LEFT JOIN audiometria_2023 audio ON audio.n_orden = n.n_orden
+                 LEFT JOIN funcion_abs ab ON ab.n_orden = n.n_orden
+                 LEFT JOIN radiografia_torax rxt ON rxt.n_orden = n.n_orden
+                 LEFT JOIN informe_electrocardiograma ie ON ie.n_orden = n.n_orden
+                 LEFT JOIN lab_clinico lb ON lb.n_orden = n.n_orden
+                 LEFT JOIN certificado_aptitud_brigadista cab ON cab.n_orden = n.n_orden
+                 LEFT JOIN oftalmologia oft ON oft.n_orden = n.n_orden
+                 LEFT JOIN oftalmologia2021 oft2021 ON oft2021.n_orden = n.n_orden
+                 LEFT JOIN hoja_consulta_externa hce ON hce.n_orden = n.n_orden
+                 LEFT JOIN consta_brigadista cb ON cb.n_orden = n.n_orden
+                 LEFT JOIN triaje t ON t.n_orden = n.n_orden
+
+        WHERE n.n_orden = p_norden;
+
+END;
+$$;
+
+alter function obtener_reporte_hoja_ruta_emo(integer, text) owner to pierola;
+
+
+
+
+alter table certificado_aptitud_herramientas_manuales add column titulo_examen text
+
+create function obtener_reporte_certificado_aptitud_herramientas_manuales(p_norden integer, name_service text)
+    returns TABLE
+            (
+                dnipaciente             integer,
+                nombrespaciente         text,
+                apellidospaciente       text,
+                direccionpaciente       text,
+                sexopaciente            "char",
+                fechanacimientopaciente date,
+                ocupacionpaciente       text,
+                cargopaciente           text,
+                areapaciente            text,
+                contrata                text,
+                norden                  integer,
+                empresa                 text,
+                nombreexamen            text,
+                codigoclinica           text,
+                edadpaciente            text,
+                explotacion             text,
+                idcertificado           integer,
+                apto                    boolean,
+                aptorestriccion         boolean,
+                aptotemporal            boolean,
+                observacion             text,
+                fechacertificado        date,
+                fechacaducidad          date,
+                nombremedico            text,
+                nombresede              text,
+                numerosede              text,
+                sede                    text,
+                color                   integer,
+                namejasper              text,
+                usuariofirma            text,
+                lugarnacimiento         text,
+                nivelestudio            text,
+                estadocivil             text,
+                tituloExamen            text
+            )
+    language plpgsql
+as
+$$
+BEGIN
+    RETURN QUERY
+        SELECT d.cod_pa,
+               d.nombres_pa,
+               d.apellidos_pa,
+               d.direccion_pa,
+               d.sexo_pa,
+               d.fecha_nacimiento_pa,
+               d.ocupacion_pa,
+               n.cargo_de,
+               n.area_o,
+               n.razon_contrata,
+               n.n_orden,
+               n.razon_empresa,
+               n.nom_examen,
+               n.cod_clinica,
+               CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
+               n.nom_ex,
+               c.id_certificado,
+               c.apto,
+               c.apto_restriccion,
+               c.apto_temporal,
+               c.observacion,
+               c.fecha_certificado,
+               c.fecha_caducidad,
+               u.nombre_user || ' ' || u.apellido_user AS nom_medico,
+               CASE
+                   WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A'
+                       THEN 'Huamachuco'
+                   ELSE (SELECT nombre_sede
+                         FROM sede
+                         WHERE cod_sede = n.cod_sede)
+                   END                                 AS nombre_sede,
+               CASE
+                   WHEN n.cod_sede = 1
+                       THEN CONCAT(n.n_orden, '-T')
+                   WHEN n.cod_sede = 4
+                       THEN CONCAT(n.n_orden, '-TP')
+                   ELSE CONCAT(n.n_orden, '-H')
+                   END                                 AS numero,
+               CASE
+                   WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A' THEN 'Huamachuco'
+                   else (CAST(sm.descripcion AS TEXT)) end,
+               n.color,
+               obtener_name_jasper(p_norden, name_service),
+               c.usuario_firma,
+               d.lugar_nac_pa,
+               d.nivel_est_pa,
+               d.estado_civil_pa,
+               c.titulo_examen
+        FROM datos_paciente AS d
+                 INNER JOIN n_orden_ocupacional AS n
+                            ON d.cod_pa = n.cod_pa
+                 INNER JOIN sede_multisucursal AS sm
+                            ON n.cod_sede = sm.id
+                 INNER JOIN certificado_aptitud_herramientas_manuales AS c
+                            ON c.n_orden = n.n_orden
+                 INNER JOIN usuarios AS u
+                            ON LOWER(u.usuario_user) = LOWER(c.user_registro)
+        WHERE n.n_orden = p_norden;
+
+END;
+$$;
+
+alter function obtener_reporte_certificado_aptitud_herramientas_manuales(integer, text) owner to pierola;
+
+
+
+
+alter table certificacion_medica_altura add column titulo_examen text
+
+create function obtener_reporte_certificado_altura_1_8(p_norden integer, name_service text)
+    returns TABLE
+            (
+                dnipaciente                                 integer,
+                nombrespaciente                             text,
+                apellidospaciente                           text,
+                direccionpaciente                           text,
+                sexopaciente                                "char",
+                fechanacimientopaciente                     date,
+                ocupacionpaciente                           text,
+                lugarnacimientopaciente                     text,
+                nivelestudiopaciente                        text,
+                estadocivilpaciente                         text,
+                cargopaciente                               text,
+                areapaciente                                text,
+                contrata                                    text,
+                norden                                      integer,
+                empresa                                     text,
+                codigoclinica                               text,
+                tipoexamen                                  text,
+                edadpaciente                                text,
+                altura                                      text,
+                frecuenciacardiaca                          text,
+                sistolica                                   text,
+                diastolica                                  text,
+                frecuenciarespiratoriatriaje_f_respiratoria text,
+                imctriaje                                   text,
+                saturacionoxigenotriaje_sat_02              text,
+                temperatura                                 text,
+                peso                                        text,
+                tallatriaje                                 text,
+                codigocertificadoaltura                     integer,
+                fechacertificacion                          date,
+                primeraactitud                              boolean,
+                revalidacion                                boolean,
+                dni                                         integer,
+                tienefobiano                                boolean,
+                epilepsiano                                 boolean,
+                alcoholismono                               boolean,
+                tienefobiasi                                boolean,
+                epilepsiasi                                 boolean,
+                alcoholismosi                               boolean,
+                portadorpsiquiatricasi                      boolean,
+                diabetesmellitussi                          boolean,
+                miagranasi                                  boolean,
+                insuficienciacardiacasi                     boolean,
+                asmabronquialsi                             boolean,
+                hipertensionarterialsi                      boolean,
+                hipoacusiaseverasi                          boolean,
+                alteracionagudezavisualsi                   boolean,
+                declaronoaptosi                             boolean,
+                portadorpsiquiatricano                      boolean,
+                diabetesmellitusno                          boolean,
+                miagranano                                  boolean,
+                insuficienciacardiacano                     boolean,
+                asmabronquialno                             boolean,
+                hipertensionarterialno                      boolean,
+                hipoacusiaseverano                          boolean,
+                alteracionagudezavisualno                   boolean,
+                declaronoaptono                             boolean,
+                resfriadosi                                 boolean,
+                vertigomareosi                              boolean,
+                consumiolicorsi                             boolean,
+                frecuenciacefaleassi                        boolean,
+                resfriadono                                 boolean,
+                vertigomareono                              boolean,
+                consumiolicorno                             boolean,
+                frecuenciacefaleasno                        boolean,
+                limitacionfuerzasi                          boolean,
+                alteracionequilibriosi                      boolean,
+                anormalidadmarchasi                         boolean,
+                anormalidadfuerzasi                         boolean,
+                lenguajeanormalsi                           boolean,
+                alteracioncoordinacionpresentesi            boolean,
+                presencianisfagmussi                        boolean,
+                anormalidadmovimientosocularessi            boolean,
+                pupilascirlasi                              boolean,
+                asimetriafacialsi                           boolean,
+                otroshallazgossi                            boolean,
+                hallazgoanormaltobillosi                    boolean,
+                hallazgoanormalrodillasi                    boolean,
+                hallazgoanormalcodosi                       boolean,
+                hallazgoanormalhombrosi                     boolean,
+                limitacionfuerzano                          boolean,
+                alteracionequilibriono                      boolean,
+                anormalidadmarchano                         boolean,
+                anormalidadfuerzano                         boolean,
+                lenguajeanormalno                           boolean,
+                alteracioncoordinacionpresenteno            boolean,
+                presencianisfagmusno                        boolean,
+                anormalidadmovimientosocularesno            boolean,
+                pupilascirlano                              boolean,
+                asimetriafacialno                           boolean,
+                otroshallazgosno                            boolean,
+                hallazgoanormaltobillono                    boolean,
+                hallazgoanormalrodillano                    boolean,
+                hallazgoanormalcodono                       boolean,
+                hallazgoanormalhombrono                     boolean,
+                aptotrabajar18metrossi                      boolean,
+                usolentescorrectoressi                      boolean,
+                usoaudifonossi                              boolean,
+                aptotrabajar18metrosno                      boolean,
+                usolentescorrectoresno                      boolean,
+                usoaudifonosno                              boolean,
+                comentarios                                 text,
+                detallemedicinas                            text,
+                detalleinformacionactual                    text,
+                otrarestriccion                             text,
+                observaciones                               text,
+                edad                                        text,
+                tiempoexperiencia                           text,
+                visioncercasincorregirod_v_cerca_s_od       text,
+                visioncercasincorregiroi_v_cerca_s_oi       text,
+                oftalodccmologia_odcc                       text,
+                oiccoftalmologia_oicc                       text,
+                visionlejossincorregirod_v_lejos_s_od       text,
+                visionlejossincorregiroi_v_lejos_s_oi       text,
+                odlcoftalmologia_odlc                       text,
+                oilcoftalmologia_oilc                       text,
+                vcoftalmologia_vc                           text,
+                vboftalmologia_vb                           text,
+                rpoftalmologia_rp                           text,
+                enfermedadesocularesoftalmo_e_oculares      text,
+                nombremedico                                text,
+                cmpusuario                                  text,
+                nombresede                                  text,
+                sede                                        text,
+                color                                       integer,
+                namejasper                                  text,
+                usuariofirma                                text,
+                doctorasignado                              text,
+                tituloexamen                                text
+            )
+    language plpgsql
+as
+$$
+BEGIN
+    RETURN QUERY
+        SELECT d.cod_pa,
+               d.nombres_pa,
+               d.apellidos_pa,
+               d.direccion_pa,
+               d.sexo_pa,
+               d.fecha_nacimiento_pa,
+               d.ocupacion_pa,
+               d.lugar_nac_pa,
+               d.nivel_est_pa,
+               d.estado_civil_pa,
+               n.cargo_de,
+               n.area_o,
+               n.razon_contrata,
+               n.n_orden,
+               n.razon_empresa,
+               n.cod_clinica,
+               n.nom_examen,
+               CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
+               n.altura_po,
+               t.f_cardiaca,
+               t.sistolica,
+               t.diastolica,
+               t.f_respiratoria,
+               t.imc,
+               t.sat_02,
+               t.temperatura,
+               t.peso,
+               t.talla,
+               cma.cod_cma,
+               cma.fecha_certificacion,
+               cma.p_actitud,
+               cma.revalidacion,
+               cma.dni_user,
+               cma.r_no1,
+               cma.r_no2,
+               cma.r_no3,
+               cma.r_si1,
+               cma.r_si2,
+               cma.r_si3,
+               cma.r_si4,
+               cma.r_si5,
+               cma.r_si6,
+               cma.r_si7,
+               cma.r_si8,
+               cma.r_si9,
+               cma.r_si10,
+               cma.r_si11,
+               cma.r_si12,
+               cma.r_no4,
+               cma.r_no5,
+               cma.r_no6,
+               cma.r_no7,
+               cma.r_no8,
+               cma.r_no9,
+               cma.r_no10,
+               cma.r_no11,
+               cma.r_no12,
+               cma.e_si1,
+               cma.e_si2,
+               cma.e_si3,
+               cma.e_si4,
+               cma.e_no1,
+               cma.e_no2,
+               cma.e_no3,
+               cma.e_no4,
+               cma.a_si1,
+               cma.a_si2,
+               cma.a_si3,
+               cma.a_si4,
+               cma.a_si5,
+               cma.a_si6,
+               cma.a_si7,
+               cma.a_si8,
+               cma.a_si9,
+               cma.a_si10,
+               cma.a_si11,
+               cma.a_si12,
+               cma.a_si13,
+               cma.a_si14,
+               cma.a_si15,
+               cma.a_no1,
+               cma.a_no2,
+               cma.a_no3,
+               cma.a_no4,
+               cma.a_no5,
+               cma.a_no6,
+               cma.a_no7,
+               cma.a_no8,
+               cma.a_no9,
+               cma.a_no10,
+               cma.a_no11,
+               cma.a_no12,
+               cma.a_no13,
+               cma.a_no14,
+               cma.a_no15,
+               cma.p_si1,
+               cma.p_si2,
+               cma.p_si3,
+               cma.p_no1,
+               cma.p_no2,
+               cma.p_no3,
+               cma.comentariosrm,
+               cma.detallemedicinas,
+               cma.detalleinformacionactual,
+               cma.otrarestriccion,
+               cma.observaciones,
+               cma.edad_cma,
+               cma.tiempo_experiencia,
+               CASE
+                   WHEN oft.txtcercasincorregirod IS NOT NULL THEN oft.txtcercasincorregirod
+                   ELSE o.v_cerca_s_od
+                   END                                 AS v_cerca_s_od,
+
+               CASE
+                   WHEN oft.txtcercasincorregiroi IS NOT NULL THEN oft.txtcercasincorregiroi
+                   ELSE o.v_cerca_s_oi
+                   END                                 AS v_cerca_s_oi,
+
+               CASE
+                   WHEN oft.txtcercacorregidaod IS NOT NULL THEN oft.txtcercacorregidaod
+                   WHEN ol.v_cerca_c_od IS NULL THEN o.v_cerca_c_od
+                   ELSE ol.v_cerca_c_od
+                   END                                 AS ODCC,
+
+               CASE
+                   WHEN oft.txtcercacorregidaoi IS NOT NULL THEN oft.txtcercacorregidaoi
+                   WHEN ol.v_cerca_c_oi IS NULL THEN o.v_cerca_c_oi
+                   ELSE ol.v_cerca_c_oi
+                   END                                 AS OICC,
+
+               CASE
+                   WHEN oft.txtlejossincorregirod IS NOT NULL THEN oft.txtlejossincorregirod
+                   ELSE o.v_lejos_s_od
+                   END                                 AS v_lejos_s_od,
+
+               CASE
+                   WHEN oft.txtlejossincorregiroi IS NOT NULL THEN oft.txtlejossincorregiroi
+                   ELSE o.v_lejos_s_oi
+                   END                                 AS v_lejos_s_oi,
+
+               CASE
+                   WHEN oft.txtlejoscorregidaod IS NOT NULL THEN oft.txtlejoscorregidaod
+                   WHEN ol.v_lejos_c_od IS NULL THEN o.v_lejos_c_od
+                   ELSE ol.v_lejos_c_od
+                   END                                 AS ODLC,
+
+               CASE
+                   WHEN oft.txtlejoscorregidaoi IS NOT NULL THEN oft.txtlejoscorregidaoi
+                   WHEN ol.v_lejos_c_oi IS NULL THEN o.v_lejos_c_oi
+                   ELSE ol.v_lejos_c_oi
+                   END                                 AS OILC,
+
+               CASE
+                   WHEN oft.rbtecishihara_normal = 'TRUE' THEN 'NORMAL'
+                   WHEN oft.rbtecishihara_anormal = 'TRUE' THEN 'ANORMAL'
+                   WHEN ol.v_colores IS NULL THEN o.v_colores
+                   ELSE ol.v_colores
+                   END                                 AS VC,
+
+               CASE
+                   WHEN oft.txtbinocularsincorregir IS NOT NULL THEN oft.txtbinocularsincorregir
+                   WHEN ol.v_binocular IS NULL THEN o.v_binocular
+                   ELSE ol.v_binocular
+                   END                                 AS VB,
+
+               CASE
+                   WHEN oft.txtrp IS NOT NULL THEN oft.txtrp
+                   WHEN ol.r_pupilares IS NULL THEN o.r_pupilares
+                   ELSE ol.r_pupilares
+                   END                                 AS RP,
+
+               CASE
+                   WHEN oft.txtdiagnostico IS NOT NULL THEN oft.txtdiagnostico
+                   ELSE o.e_oculares
+                   END                                 AS e_oculares,
+               u.nombre_user || ' ' || u.apellido_user as nombremedico,
+               u.cmp_user,
+               CASE
+                   WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A'
+                       THEN 'Huamachuco'
+                   ELSE (SELECT nombre_sede
+                         FROM sede
+                         WHERE cod_sede = n.cod_sede)
+                   END                                 AS nombre_sede,
+               CASE
+                   WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A' THEN 'Huamachuco'
+                   else (CAST(sm.descripcion AS TEXT)) end,
+               n.color,
+               obtener_name_jasper(p_norden, name_service),
+               cma.usuario_firma,
+               cma.doctor_asignado,
+               cma.titulo_examen
+        FROM datos_paciente AS d
+                 INNER JOIN n_orden_ocupacional AS n
+                            ON d.cod_pa = n.cod_pa
+                 INNER JOIN sede_multisucursal AS sm
+                            ON n.cod_sede = sm.id
+                 LEFT JOIN certificacion_medica_altura AS cma
+                           ON cma.n_orden = n.n_orden
+                 INNER JOIN triaje AS t
+                            ON t.n_orden = n.n_orden
+                 LEFT JOIN usuarios AS u
+                           ON cma.dni_user = u.dni_user
+                 LEFT JOIN
+             oftalmologia AS o ON n.n_orden = o.n_orden
+                 LEFT JOIN
+             oftalmologia_lo AS ol ON n.n_orden = ol.n_orden
+                 LEFT JOIN
+             oftalmologia2021 AS oft ON n.n_orden = oft.n_orden
+        WHERE n.n_orden = p_norden;
+
+END;
+$$;
+
+alter function obtener_reporte_certificado_altura_1_8(integer, text) owner to pierola;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 create function obtener_parametros_digitalizados(norden_param bigint, name_servicio_param text)
     returns TABLE(descripcion text, name_digitalizacion text, dni integer)
     language plpgsql
