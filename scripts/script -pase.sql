@@ -1,5417 +1,673 @@
-create function obtener_reporte_hoja_ruta_emo(p_norden integer, name_service text)
-    returns TABLE(norden integer, dnipaciente integer, nombrecompletopaciente text, sexopaciente "char", fechanacimientopaciente date, edadpaciente text, nivelestudiopaciente text, estadocivilpaciente text, lugarnacimientopaciente text, ocupacionpaciente text, usuarioevaluacionmedica text, observacionesevaluacionmedica text, usuarioinformebrigadista text, observacioninformebrigadista text, usuarioevaluacionoftalmologica text, usuarioagudezavisual text, observacionesevaluacionvisual text, usuarioaudiometria text, observacionaudiometria text, usuarioespirometria text, observacionespirometria text, usuariotoraxconvencional text, usuariotoraxoit text, observacionradiografiatorax text, usuarioelectrocardiograma text, observacioneselectrocardiograma text, usuarioexamenlaboratorio text, observacionesexamenlaboratorio text, usuarioexamenmedicobrigadista text, usuariocertificadoaptitudbrigadista text, usuarioconsultaexterna text, observacionbrigadista text, tipoexamen text, empresa text, contrata text, cargopaciente text, areapaciente text, fechaapertura date, fechaexamen date, usuariofirma text, doctorasignado text, userregistro text, nombresede text, sede text, color integer, namejasper text, codigoclinica text, peso text, talla text, pa text, sat02 text, cintura text, cadera text, fc text, fr text, cuello text, observaciones_generales text, hora_salida time without time zone, hora_entrada time without time zone)
-    language plpgsql
-as
-$$
-BEGIN
-
-    RETURN QUERY
-        SELECT n.n_orden,
-
-               d.cod_pa,
-               (d.nombres_pa || ' ' || d.apellidos_pa),
-               d.sexo_pa,
-               d.fecha_nacimiento_pa,
-               CAST(obtener_edad(d.fecha_nacimiento_pa, CURRENT_DATE) AS TEXT),
-               d.nivel_est_pa,
-               d.estado_civil_pa,
-               d.lugar_nac_pa,
-               d.ocupacion_pa,
-
-               -- Medicina
-               CASE
-                   WHEN NULLIF(a.user_registro, '') IS NOT NULL
-                       THEN (
-                       SELECT nombre_user || ' ' || apellido_user
-                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(a.user_registro)
-                       LIMIT 1
-                   )
-                   WHEN NULLIF(a.usuario_firma, '') IS NOT NULL
-                       THEN (
-                       SELECT nombre_user || ' ' || apellido_user
-                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(a.usuario_firma)
-                       LIMIT 1
-                   )
-                   ELSE 'SIN REGISTRO'
-                   END,
-               --COALESCE(a.user_registro::text, a.usuario_firma::text, 'SIN REGISTRO'::text),
-               a.txtobservacionesfm::text,
-
-               -- Psicologia
-               CASE
-                   WHEN NULLIF(pb.user_registro, '') IS NOT NULL
-                       THEN (
-                       SELECT nombre_user || ' ' || apellido_user
-                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(pb.user_registro)
-                       LIMIT 1
-                   )
-                   WHEN NULLIF(pb.usuario_firma, '') IS NOT NULL
-                       THEN (
-                       SELECT nombre_user || ' ' || apellido_user
-                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(pb.usuario_firma)
-                       LIMIT 1
-                   )
-                   ELSE 'SIN REGISTRO'
-                   END,
-               --COALESCE(pb.user_registro::text, pb.usuario_firma::text, 'SIN REGISTRO'::text),
-               pb.observacion::text,
-
-               -- Visual
-               CASE
-                   WHEN NULLIF(oft2021.user_registro, '') IS NOT NULL
-                       THEN (
-                       SELECT nombre_user || ' ' || apellido_user
-                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(oft2021.user_registro)
-                       LIMIT 1
-                   )
-                   WHEN NULLIF(oft2021.usuario_firma, '') IS NOT NULL
-                       THEN (
-                       SELECT nombre_user || ' ' || apellido_user
-                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(oft2021.usuario_firma)
-                       LIMIT 1
-                   )
-                   ELSE 'SIN REGISTRO'
-                   END,
-               --COALESCE(oft2021.user_registro::text, oft2021.usuario_firma::text, 'SIN REGISTRO'::text),
-               CASE
-                   WHEN NULLIF(oft.user_registro, '') IS NOT NULL
-                       THEN (
-                       SELECT nombre_user || ' ' || apellido_user
-                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(oft.user_registro)
-                       LIMIT 1
-                   )
-                   WHEN NULLIF(oft.usuario_firma, '') IS NOT NULL
-                       THEN (
-                       SELECT nombre_user || ' ' || apellido_user
-                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(oft.usuario_firma)
-                       LIMIT 1
-                   )
-                   ELSE 'SIN REGISTRO'
-                   END,
-               --COALESCE(oft.user_registro::text, oft.usuario_firma::text, 'SIN REGISTRO'::text),
-               (TRIM(oft2021.txtfohallazgos)::text || ' - ' || TRIM(oft2021.txtdiagnostico)::text),
-
-               -- Audiometria
-               CASE
-                   WHEN NULLIF(audio.user_registro, '') IS NOT NULL
-                       THEN (
-                       SELECT nombre_user || ' ' || apellido_user
-                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(audio.user_registro)
-                       LIMIT 1
-                   )
-                   WHEN NULLIF(audio.usuario_firma, '') IS NOT NULL
-                       THEN (
-                       SELECT nombre_user || ' ' || apellido_user
-                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(audio.usuario_firma)
-                       LIMIT 1
-                   )
-                   ELSE 'SIN REGISTRO'
-                   END,
-               --COALESCE(audio.user_registro::text, audio.usuario_firma::text, 'SIN REGISTRO'::text),
-               audio.txtcomentarios::text,
-
-               -- Espirometrica
-               CASE
-                   WHEN NULLIF(ab.usuario_firma, '') IS NOT NULL
-                       THEN (
-                       SELECT nombre_user || ' ' || apellido_user
-                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(ab.usuario_firma)
-                       LIMIT 1
-                   )
-                   WHEN NULLIF(ab.user_registro, '') IS NOT NULL
-                       THEN (
-                       SELECT nombre_user || ' ' || apellido_user
-                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(ab.user_registro)
-                       LIMIT 1
-                   )
-                   ELSE 'SIN REGISTRO'
-                   END,
-               --COALESCE(ab.usuario_firma::text, ab.user_registro::text, 'SIN REGISTRO'::text),
-               ab.interpretacion::text,
-
-               -- Radiografia
-               CASE
-                   WHEN NULLIF(rxt.user_registro, '') IS NOT NULL
-                       THEN (
-                       SELECT nombre_user || ' ' || apellido_user
-                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(rxt.user_registro)
-                       LIMIT 1
-                   )
-                   WHEN NULLIF(rxt.usuario_firma, '') IS NOT NULL
-                       THEN (
-                       SELECT nombre_user || ' ' || apellido_user
-                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(rxt.usuario_firma)
-                       LIMIT 1
-                   )
-                   ELSE 'SIN REGISTRO'
-                   END,
-               --COALESCE(rxt.user_registro::text, rxt.usuario_firma::text, 'SIN REGISTRO'::text),
-               'N/A'::text,
-               rxt.txtobservacionesrt::text,
-
-               -- Cardiologia
-               CASE
-                   WHEN NULLIF(ie.user_registro, '') IS NOT NULL
-                       THEN (
-                       SELECT nombre_user || ' ' || apellido_user
-                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(ie.user_registro)
-                       LIMIT 1
-                   )
-                   WHEN NULLIF(ie.usuario_firma, '') IS NOT NULL
-                       THEN (
-                       SELECT nombre_user || ' ' || apellido_user
-                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(ie.usuario_firma)
-                       LIMIT 1
-                   )
-                   ELSE 'SIN REGISTRO'
-                   END,
-               --COALESCE(ie.user_registro::text, ie.usuario_firma::text, 'SIN REGISTRO'::text),
-               ie.hallazgo::text,
-
-               -- Examenes lab
-               CASE
-                   WHEN NULLIF(lb.user_registro, '') IS NOT NULL
-                       THEN (
-                       SELECT nombre_user || ' ' || apellido_user
-                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(lb.user_registro)
-                       LIMIT 1
-                   )
-                   WHEN NULLIF(lb.usuario_firma, '') IS NOT NULL
-                       THEN (
-                       SELECT nombre_user || ' ' || apellido_user
-                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(lb.usuario_firma)
-                       LIMIT 1
-                   )
-                   ELSE 'SIN REGISTRO'
-                   END,
-               --COALESCE(lb.user_registro::text, lb.usuario_firma::text, 'SIN REGISTRO'::text),
-               lb.txtobservacioneslb::text,
-
-               -- Brigadista
-               CASE
-                   WHEN NULLIF(cb.user_registro, '') IS NOT NULL
-                       THEN (
-                       SELECT nombre_user || ' ' || apellido_user
-                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(cb.user_registro)
-                       LIMIT 1
-                   )
-                   WHEN NULLIF(cb.usuario_firma, '') IS NOT NULL
-                       THEN (
-                       SELECT nombre_user || ' ' || apellido_user
-                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(cb.usuario_firma)
-                       LIMIT 1
-                   )
-                   ELSE 'SIN REGISTRO'
-                   END,
-               --COALESCE(cb.user_registro::text, cb.usuario_firma::text, 'SIN REGISTRO'::text),
-               CASE
-                   WHEN NULLIF(cab.user_registro, '') IS NOT NULL
-                       THEN (
-                       SELECT nombre_user || ' ' || apellido_user
-                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(cab.user_registro)
-                       LIMIT 1
-                   )
-                   WHEN NULLIF(cab.usuario_firma, '') IS NOT NULL
-                       THEN (
-                       SELECT nombre_user || ' ' || apellido_user
-                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(cab.usuario_firma)
-                       LIMIT 1
-                   )
-                   ELSE 'SIN REGISTRO'
-                   END,
-               --COALESCE(cab.user_registro::text, cab.usuario_firma::text, 'SIN REGISTRO'::text),
-               CASE
-                   WHEN NULLIF(hce.user_registro, '') IS NOT NULL
-                       THEN (
-                       SELECT nombre_user || ' ' || apellido_user
-                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(hce.user_registro)
-                       LIMIT 1
-                   )
-                   WHEN NULLIF(hce.usuario_firma, '') IS NOT NULL
-                       THEN (
-                       SELECT nombre_user || ' ' || apellido_user
-                       FROM usuarios WHERE UPPER(usuario_user) = UPPER(hce.usuario_firma)
-                       LIMIT 1
-                   )
-                   ELSE 'SIN REGISTRO'
-                   END,
-               --COALESCE(hce.user_registro::text, hce.usuario_firma::text, 'SIN REGISTRO'::text),
-               CONCAT_WS(' / ', TRIM(cab.recomendaciones), TRIM(hce.txtobservaciones))::text,
-
-               n.nom_examen,
-               n.razon_empresa,
-               n.razon_contrata,
-               n.cargo_de,
-               n.area_o,
-               n.fecha_apertura_po,
-
-               hr.fecha_examen,
-               hr.usuario_firma,
-               hr.doctor_asignado,
-               hr.user_registro,
-
-               (SELECT s.nombre_sede
-                FROM sede s
-                WHERE s.cod_sede = n.cod_sede
-                LIMIT 1),
-               CAST(sm.descripcion AS TEXT),
-               n.color,
-               obtener_name_jasper(p_norden, name_service),
-               n.cod_clinica,
-               -- Triaje
-               t.peso,
-               t.talla,
-               t.sistolica || '/' || t.diastolica,
-               t.sat_02,
-               t.cintura,
-               t.cadera,
-               t.f_cardiaca,
-               t.f_respiratoria,
-               t.perimetro_cuello,
-               hr.observaciones_generales::text,
-               hr.hora_salida,
-               n.n_hora
-        FROM datos_paciente d
-                 INNER JOIN n_orden_ocupacional n
-                            ON d.cod_pa = n.cod_pa
-
-                 INNER JOIN sede_multisucursal sm
-                            ON n.cod_sede = sm.id
-
-                 LEFT JOIN hoja_ruta_emo hr
-                           ON hr.n_orden = n.n_orden
-                 LEFT JOIN anexo7c a ON a.n_orden = n.n_orden
-                 LEFT JOIN psi_brigadistas pb ON pb.n_orden = n.n_orden
-                 LEFT JOIN audiometria_2023 audio ON audio.n_orden = n.n_orden
-                 LEFT JOIN funcion_abs ab ON ab.n_orden = n.n_orden
-                 LEFT JOIN radiografia_torax rxt ON rxt.n_orden = n.n_orden
-                 LEFT JOIN informe_electrocardiograma ie ON ie.n_orden = n.n_orden
-                 LEFT JOIN lab_clinico lb ON lb.n_orden = n.n_orden
-                 LEFT JOIN certificado_aptitud_brigadista cab ON cab.n_orden = n.n_orden
-                 LEFT JOIN oftalmologia oft ON oft.n_orden = n.n_orden
-                 LEFT JOIN oftalmologia2021 oft2021 ON oft2021.n_orden = n.n_orden
-                 LEFT JOIN hoja_consulta_externa hce ON hce.n_orden = n.n_orden
-                 LEFT JOIN consta_brigadista cb ON cb.n_orden = n.n_orden
-                 LEFT JOIN triaje t ON t.n_orden = n.n_orden
-
-        WHERE n.n_orden = p_norden;
-
-END;
-$$;
-
-alter function obtener_reporte_hoja_ruta_emo(integer, text) owner to pierola;
-
-
-
-
-alter table certificado_aptitud_herramientas_manuales add column titulo_examen text
-
-create function obtener_reporte_certificado_aptitud_herramientas_manuales(p_norden integer, name_service text)
-    returns TABLE
-            (
-                dnipaciente             integer,
-                nombrespaciente         text,
-                apellidospaciente       text,
-                direccionpaciente       text,
-                sexopaciente            "char",
-                fechanacimientopaciente date,
-                ocupacionpaciente       text,
-                cargopaciente           text,
-                areapaciente            text,
-                contrata                text,
-                norden                  integer,
-                empresa                 text,
-                nombreexamen            text,
-                codigoclinica           text,
-                edadpaciente            text,
-                explotacion             text,
-                idcertificado           integer,
-                apto                    boolean,
-                aptorestriccion         boolean,
-                aptotemporal            boolean,
-                observacion             text,
-                fechacertificado        date,
-                fechacaducidad          date,
-                nombremedico            text,
-                nombresede              text,
-                numerosede              text,
-                sede                    text,
-                color                   integer,
-                namejasper              text,
-                usuariofirma            text,
-                lugarnacimiento         text,
-                nivelestudio            text,
-                estadocivil             text,
-                tituloExamen            text
-            )
+create function obtener_existencias_examenes(norden integer)
+    returns TABLE(existe boolean, nameservice text, nombre text)
     language plpgsql
 as
 $$
 BEGIN
     RETURN QUERY
-        SELECT d.cod_pa,
-               d.nombres_pa,
-               d.apellidos_pa,
-               d.direccion_pa,
-               d.sexo_pa,
-               d.fecha_nacimiento_pa,
-               d.ocupacion_pa,
-               n.cargo_de,
-               n.area_o,
-               n.razon_contrata,
-               n.n_orden,
-               n.razon_empresa,
-               n.nom_examen,
-               n.cod_clinica,
-               CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
-               n.nom_ex,
-               c.id_certificado,
-               c.apto,
-               c.apto_restriccion,
-               c.apto_temporal,
-               c.observacion,
-               c.fecha_certificado,
-               c.fecha_caducidad,
-               u.nombre_user || ' ' || u.apellido_user AS nom_medico,
-               CASE
-                   WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A'
-                       THEN 'Huamachuco'
-                   ELSE (SELECT nombre_sede
-                         FROM sede
-                         WHERE cod_sede = n.cod_sede)
-                   END                                 AS nombre_sede,
-               CASE
-                   WHEN n.cod_sede = 1
-                       THEN CONCAT(n.n_orden, '-T')
-                   WHEN n.cod_sede = 4
-                       THEN CONCAT(n.n_orden, '-TP')
-                   ELSE CONCAT(n.n_orden, '-H')
-                   END                                 AS numero,
-               CASE
-                   WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A' THEN 'Huamachuco'
-                   else (CAST(sm.descripcion AS TEXT)) end,
-               n.color,
-               obtener_name_jasper(p_norden, name_service),
-               c.usuario_firma,
-               d.lugar_nac_pa,
-               d.nivel_est_pa,
-               d.estado_civil_pa,
-               c.titulo_examen
-        FROM datos_paciente AS d
-                 INNER JOIN n_orden_ocupacional AS n
-                            ON d.cod_pa = n.cod_pa
-                 INNER JOIN sede_multisucursal AS sm
-                            ON n.cod_sede = sm.id
-                 INNER JOIN certificado_aptitud_herramientas_manuales AS c
-                            ON c.n_orden = n.n_orden
-                 INNER JOIN usuarios AS u
-                            ON LOWER(u.usuario_user) = LOWER(c.user_registro)
-        WHERE n.n_orden = p_norden;
+        SELECT EXISTS(SELECT 1 FROM certificado_aptitud_medico_ocupacional WHERE n_orden = nOrden),
+               'certificado_aptitud_medico_ocupacional',
+               'fichaAnexo16'
 
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM anexo7c WHERE n_orden = nOrden and cerrado = TRUE), 'anexo7c', 'anexo16'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM antece_enfermedades_altura WHERE n_orden = nOrden),
+               'antece_enfermedades_altura',
+               'antecedentesEfermedadesAltura'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM anexo16a WHERE n_orden = nOrden),
+               'anexo16a',
+               'anexo16A'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM b_uso_respiradores WHERE n_orden = nOrden),
+               'b_uso_respiradores',
+               'usoRespiradores'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM historia_oc_info WHERE n_orden = nOrden),
+               'historia_oc_info',
+               'historiaOcupacional'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM antecedentes_patologicos WHERE n_orden = nOrden),
+               'antecedentes_patologicos',
+               'antecedentesPatologicos'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM cuestionario_nordico WHERE n_orden = nOrden),
+               'cuestionario_nordico',
+               'cuestionarioNordico'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM evaluacion_musculo_esqueletica WHERE n_orden = nOrden),
+               'evaluacion_musculo_esqueletica',
+               'evaluacionMusculoEsqueletica'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM lab_clinico WHERE n_orden = nOrden),
+               'lab_clinico',
+               'hematologia'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1
+                      FROM lab_clinico
+                      WHERE n_orden = nOrden
+                        AND esorina IS NOT NULL
+                        AND esorina = TRUE),
+               'lab_clinico_examen_orina',
+               'examenOrina'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1
+                      FROM lab_clinico
+                      WHERE n_orden = nOrden
+                        AND eshemoblobina IS NOT NULL
+                        AND eshemoblobina = TRUE),
+               'lab_clinico_hemoglobina',
+               'hemoglobina'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM analisis_bioquimicos WHERE n_orden = nOrden),
+               'analisis_bioquimicos',
+               'perfilLipidico'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM analisis_bioquimicos WHERE n_orden = nOrden AND esglucosabasal = TRUE),
+               'analisis_bioquimicos_glucosa_basal',
+               'glucosaBasal'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM radiografia_torax WHERE n_orden = nOrden),
+               'radiografia_torax',
+               'radiografiaTorax'
+
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM audiometria_po WHERE n_orden = nOrden),
+               'audiometria_po',
+               'audiometriaPo'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM ficha_audiologica WHERE n_orden = nOrden),
+               'ficha_audiologica',
+               'fichaAudiologica'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM informe_psicologico WHERE n_orden = nOrden),
+               'informe_psicologico',
+               'informePsicologico'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM oftalmologia WHERE n_orden = nOrden),
+               'oftalmologia',
+               'oftalmologia'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM consentimientoInformado WHERE n_orden = nOrden),
+               'consentimientoInformado',
+               'consentimientoInformado'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM triaje WHERE n_orden = nOrden),
+               'triaje',
+               'triaje'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM informe_electrocardiograma WHERE n_orden = nOrden),
+               'informe_electrocardiograma',
+               'ekg'
+
+        --         UNION ALL
+--         SELECT EXISTS(SELECT 1 FROM informe_electrocardiograma WHERE n_orden = nOrden AND informe_completo = TRUE),
+--                'informe_electrocardiograma',
+--                'ekgCompleto'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM funcion_abs WHERE n_orden = nOrden),
+               'funcion_abs',
+               'espirometria'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM odontograma WHERE n_orden = nOrden),
+               'odontograma',
+               'odontograma'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM certificacion_medica_altura WHERE n_orden = nOrden),
+               'certificacion_medica_altura',
+               'altura1.8'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM ficha_sas WHERE n_orden = nOrden),
+               'ficha_sas',
+               'fichaSas'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM consentimiento_dosaje WHERE n_orden = nOrden),
+               'consentimiento_dosaje',
+               'consentimientoDosaje'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM perimetro_toracico WHERE n_orden = nOrden),
+               'perimetro_toracico',
+               'perimetroToracico'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM ex_radiograficos_sanguineos WHERE n_orden = nOrden),
+               'ex_radiograficos_sanguineos',
+               'examenRadiograficoSanguineo'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM b_certificado_altura WHERE n_orden = nOrden),
+               'b_certificado_altura',
+               'fichaCertificadoAltura'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM b_certificado_conduccion WHERE n_orden = nOrden),
+               'b_certificado_conduccion',
+               'fichaConduccionVehiculos'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM oit WHERE n_orden = nOrden),
+               'oit',
+               'oit'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM cuestionario_audiometria WHERE n_orden = nOrden),
+               'cuestionario_audiometria',
+               'CuestionarioAudiometria'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM informe_audiometria WHERE n_orden = nOrden),
+               'informe_audiometria',
+               'informeAudiometria'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM consent_laboratorios WHERE n_orden = nOrden AND name_conset = 'consent_marihuana'),
+               'consent_marihuana',
+               'consentimientoMarihuana'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM consent_laboratorios WHERE n_orden = nOrden AND name_conset = 'con_panel2D'),
+               'con_panel2D',
+               'consentimientoPanel2D'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM consent_laboratorios WHERE n_orden = nOrden AND name_conset = 'con_panel10D'),
+               'con_panel10D',
+               'consentimientoPanel10D'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM aptitud_medico_ocupacional_agro WHERE n_orden = nOrden),
+               'aptitud_medico_ocupacional_agro',
+               'fichaAnexo2'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM anexo_agroindustrial WHERE n_orden = nOrden and cerrado = TRUE),
+               'anexo_agroindustrial',
+               'anexo2'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM hoja_consulta_externa WHERE n_orden = nOrden),
+               'hoja_consulta_externa',
+               'hojaConsultaExterna'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM aptitud_licencia_conduciri WHERE n_orden = nOrden),
+               'aptitud_licencia_conduciri',
+               'licenciaConducirInternaPoderosa'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1
+                      FROM consentimientos_admision
+                      WHERE n_orden = nOrden
+                        AND UPPER(tipo_reporte) = 'ADM'),
+               'ADM',
+               'admision'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1
+                      FROM consentimientos_admision
+                      WHERE n_orden = nOrden
+                        AND UPPER(tipo_reporte) = 'CONSENT_SINTOMATICO'),
+               'CONSENT_SINTOMATICO',
+               'consentimientoSintomatico'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1
+                      FROM consentimientos_admision
+                      WHERE n_orden = nOrden
+                        AND UPPER(tipo_reporte) = 'CONSENT_INFORMADO_MEDICA'),
+               'CONSENT_INFORMADO_MEDICA',
+               'consentimientoInformadoMedica'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1
+                      FROM consentimientos_admision
+                      WHERE n_orden = nOrden
+                        AND UPPER(tipo_reporte) = 'CONSENT_RECOM_MEDIC'),
+               'CONSENT_RECOM_MEDIC',
+               'consentimientoRecomendacionesMedicas'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1
+                      FROM consentimientos_admision
+                      WHERE n_orden = nOrden
+                        AND UPPER(tipo_reporte) = 'DECLA_INFO_APTITUD_MO'),
+               'DECLA_INFO_APTITUD_MO',
+               'declaracionInformacionAptitudMedicoOcup'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1
+                      FROM consentimientos_admision
+                      WHERE n_orden = nOrden
+                        AND UPPER(tipo_reporte) = 'DECLA_JURA_ANTECE_PERSON_FAM'),
+               'DECLA_JURA_ANTECE_PERSON_FAM',
+               'declaracionJuradaAntecedentesPatologicos'
+
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM evaluacion_musculo_esqueletica2021 WHERE n_orden = nOrden),
+               'evaluacion_musculo_esqueletica2021',
+               'evaluacionMusculoEsqueleticaBooro'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1
+                      FROM consent_laboratorios
+                      WHERE n_orden = nOrden
+                        AND name_conset = 'consent_Muestra_Sangre'),
+               'consent_Muestra_Sangre',
+               'consentimientoMuestraSangre'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM test_fatiga_somnolencia WHERE n_orden = nOrden),
+               'test_fatiga_somnolencia',
+               'testFatiga'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM lgonadotropina WHERE n_orden = nOrden),
+               'lgonadotropina',
+               'inmunologiaGenodotropina'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM certificado_manipuladores_barrick WHERE n_orden = nOrden),
+               'certificado_manipuladores_barrick',
+               'certificadoManipuladoresAlimentos'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM certificado_aptitud_medico_ocupacional WHERE n_orden = nOrden),
+               'resumen_medico_poderosa',
+               'resumenMedico'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM certificado_aptitud_medico_resumen WHERE n_orden = nOrden),
+               'certificado_aptitud_medico_resumen',
+               'constanciaCertificadoMedicoOcupacional'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM aptitud_altura_poderosa WHERE n_orden = nOrden),
+               'aptitud_altura_poderosa',
+               'aptitudAlturaPoderosa'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM consent_boro WHERE n_orden = nOrden),
+               'consent_Boro',
+               'consentimientoDrogasBoro'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM radiografia WHERE n_orden = nOrden),
+               'radiografia',
+               'informeRadiografico'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM audiometria_2023 WHERE n_orden = nOrden),
+               'audiometria_2023',
+               'fichaAudiometria'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM cuestionario_audiometria WHERE n_orden = nOrden),
+               'cuestionario_audiometria',
+               'cuestionarioAudiometria'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM ficha_psicologica_anexo03 WHERE n_orden = nOrden),
+               'ficha_psicologica_anexo03',
+               'psicologiaAnexo03'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM informe_psicologico_estres WHERE n_orden = nOrden),
+               'informe_psicologico_estres',
+               'testFatigaSomnolencia'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1
+                      FROM evaluacion_psicologica_poderosa
+                      WHERE n_orden = nOrden
+                        AND (chktrabcalientes IS DISTINCT FROM true
+                          AND chklicencia IS DISTINCT FROM true)),
+               'evaluacion_psicologica_poderosa_normal',
+               'informePsicologicoPoderosaNormal'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1
+                      FROM evaluacion_psicologica_poderosa
+                      WHERE n_orden = nOrden
+                        AND chklicencia = true),
+               'evaluacion_psicologica_poderosa_licencia',
+               'informePsicologicoPoderosaLicencia'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1
+                      FROM evaluacion_psicologica_poderosa
+                      WHERE n_orden = nOrden
+                        AND chktrabcalientes = true),
+               'evaluacion_psicologica_poderosa_caliente',
+               'informePsicologicoPoderosaCaliente'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM ficha_psicologica_anexo02 WHERE n_orden = nOrden),
+               'ficha_psicologica_anexo02',
+               'psicologiaAnexo02'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM fobias WHERE n_orden = nOrden),
+               'fobias',
+               'informePsicologiaFobias'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM informe_psicolaboral WHERE n_orden = nOrden),
+               'informe_psicolaboral',
+               'informePsicolaboral'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM Especificos WHERE n_orden = nOrden),
+               'especificos',
+               'trabajoEspecifico'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM psicologiafobias WHERE n_orden = nOrden),
+               'psicologiafobias',
+               'trabajoAltura'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM oftalmologia2021 WHERE n_orden = nOrden),
+               'oftalmologia2021',
+               'oftalmologia2021'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1
+                      FROM consentimientos_admision
+                      WHERE n_orden = nOrden
+                        AND tipo_reporte = 'CONSENT_SINTOMATICO'),
+               'CONSENT_SINTOMATICO',
+               'declaracionSintomaticoRespiratorio'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1
+                      FROM consentimientos_admision
+                      WHERE n_orden = nOrden
+                        AND tipo_reporte = 'CONSENT_INFORMADO_MEDICA'),
+               'CONSENT_INFORMADO_MEDICA',
+               'consentimientoEvaluacionMedica'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM consentimientobuenasalud WHERE n_orden = nOrden),
+               'consentimientobuenasalud',
+               'consentimientoBuenaSalud'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM consentimientoInformado WHERE n_orden = nOrden),
+               'consentimientoInformado',
+               'consentimientoAutorizarMedicoOcupacional'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM consen_digit WHERE n_orden = nOrden),
+               'consen_digit',
+               'declaracionFirma'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM l_bioquimica WHERE n_orden = nOrden),
+               'l_bioquimica',
+               'perfilRenal'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM perfil_hepatico WHERE n_orden = nOrden),
+               'perfil_hepatico',
+               'perfilHepatico'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM cuestionario_berlin WHERE n_orden = nOrden),
+               'cuestionario_berlin',
+               'cuestionarioBerlin'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM toxicologia WHERE n_orden = nOrden),
+               'toxicologia',
+               'toxicologia'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM exam_complementarios WHERE n_orden = nOrden),
+               'exam_complementarios',
+               'examenComplementario'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM psicologia_espacios_confinados WHERE n_orden = nOrden),
+               'psicologia_espacios_confinados',
+               'psicologiaEspaciosConfinados'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM certificado_altura_poderosa WHERE n_orden = nOrden),
+               'certificado_altura_poderosa',
+               'certificadoAlturaPoderosa'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM calidad_sueño WHERE n_orden = nOrden),
+               'calidad_sueño',
+               'calidadSueno'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM hemograma_autom WHERE n_orden = nOrden),
+               'hemograma_autom',
+               'hemogramaAutomatizado'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM ac_bioquimica2022 WHERE n_orden = nOrden),
+               'ac_bioquimica2022',
+               'acidoUrico'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM consent_laboratorios WHERE n_orden = nOrden AND name_conset = 'con_panel5D'),
+               'con_panel5D',
+               'consentimientoPanel5D'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM microbiologia WHERE n_orden = nOrden),
+               'microbiologia',
+               'microbiologia'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM koh WHERE n_orden = nOrden),
+               'koh',
+               'koh'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM inmunologia WHERE n_orden = nOrden),
+               'inmunologia',
+               'inmunologia'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM lhepatitis WHERE n_orden = nOrden),
+               'lhepatitis',
+               'lhepatitis'
+        UNION ALL
+        SELECT EXISTS (SELECT 1
+                       FROM hepatitis_b
+                       WHERE n_orden = nOrden)
+                   OR
+               EXISTS (SELECT 1
+                       FROM lhepatitis
+                       WHERE n_orden = nOrden
+                         AND NULLIF(TRIM(txthepatitisb), '') IS NOT NULL),
+               'hepatitis_b',
+               'hepatitisB'
+        UNION ALL
+        SELECT EXISTS (SELECT 1
+                       FROM hepatitis_c
+                       WHERE n_orden = nOrden)
+                   OR
+               EXISTS (SELECT 1
+                       FROM lhepatitis
+                       WHERE n_orden = nOrden
+                         AND NULLIF(TRIM(hepatitisc), '') IS NOT NULL),
+               'hepatitis_c',
+               'hepatitisC'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM inmunologia_vdrl WHERE n_orden = nOrden),
+               'inmunologia_vdrl',
+               'InmunologiaVdrl'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM panel2d WHERE n_orden = nOrden),
+               'panel2d',
+               'Panel2D'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM panel3d WHERE n_orden = nOrden),
+               'panel3d',
+               'Panel3D'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM panel4d WHERE n_orden = nOrden),
+               'panel4d',
+               'Panel4D'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM panel10d WHERE n_orden = nOrden),
+               'panel10d',
+               'Panel10D'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM ac_coprocultivo WHERE n_orden = nOrden),
+               'ac_coprocultivo',
+               'Coprocultivo'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM ac_coproparasitologico WHERE n_orden = nOrden),
+               'ac_coproparasitologico',
+               'Parasitologia'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM examen_inmunologico WHERE n_orden = nOrden),
+               'examen_inmunologico',
+               'ExamenInmunologico'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM consent_laboratorios WHERE n_orden = nOrden AND name_conset = 'con_panel3D'),
+               'con_panel3D',
+               'consentimientoPanel3D'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM consent_laboratorios WHERE n_orden = nOrden AND name_conset = 'con_panel4D'),
+               'con_panel4D',
+               'consentimientoPanel4D'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM consent_laboratorios WHERE n_orden = nOrden AND name_conset = 'consent_marihuana'),
+               'consent_marihuana',
+               'consentimientoMarihuana'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM consent_boro WHERE n_orden = nOrden),
+               'consent_boro',
+               'consentimientoBoro'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM informe_riesgos_psicosociales WHERE n_orden = nOrden),
+               'informe_riesgos_psicosociales',
+               'InformeRiesgosPsicosociales'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM informe_burnout WHERE n_orden = nOrden),
+               'informe_burnout',
+               'InformeBurnout'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM informe_psicologico_estres WHERE n_orden = nOrden),
+               'informe_psicologico_estres',
+               'InformePsicologicoEstres'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM trastornos_personalidad WHERE n_orden = nOrden),
+               'trastornos_personalidad',
+               'TrastornosDePersonalidad'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM alto_riesgo WHERE n_orden = nOrden),
+               'alto_riesgo',
+               'AltoRiesgo'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM psi_brigadistas WHERE n_orden = nOrden),
+               'psi_brigadistas',
+               'InformePsicologicoBrigadistas'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM bombaelectrica WHERE n_orden = nOrden),
+               'bombaelectrica',
+               'BombaElectrica'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM cuadradorvigia WHERE n_orden = nOrden),
+               'cuadradorvigia',
+               'CuadradorVigia'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM aversionalriesgo WHERE n_orden = nOrden),
+               'aversionalriesgo',
+               'AversionAlRiesgo'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM vih WHERE n_orden = nOrden),
+               'vih',
+               'vih'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM glucosatolerancia WHERE n_orden = nOrden),
+               'glucosatolerancia',
+               'glucosaTolerancia'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM riesgocoronario WHERE n_orden = nOrden),
+               'riesgocoronario',
+               'riesgoCoronario'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM thevenon WHERE n_orden = nOrden),
+               'thevenon',
+               'thevenon'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM infor_conductores WHERE n_orden = nOrden),
+               'infor_conductores',
+               'informeConductores'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM certificado_aptitud_herramientas_manuales WHERE n_orden = nOrden),
+               'certificado_aptitud_herramientas_manuales',
+               'CertificadoAptitudHerramientasManuales'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM etanol_saliva WHERE n_orden = nOrden),
+               'etanol_saliva',
+               'EtanolEnSaliva'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM pcr_ultrasensible WHERE n_orden = nOrden),
+               'pcr_ultrasensible',
+               'PcrUltrasensible'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM certificado_aptitud_brigadista WHERE n_orden = nOrden),
+               'certificado_aptitud_brigadista',
+               'CertificadoAptitudBrigadista'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM ministerio_energia_minas WHERE n_orden = nOrden),
+               'ministerio_energia_minas',
+               'MinisterioEnergiaMinas'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM hoja_ruta_emo WHERE n_orden = nOrden),
+               'hoja_ruta_emo',
+               'HojaRutaEmo'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM hoja_ruta_emo WHERE n_orden = nOrden),
+               'ficha_datos_paciente',
+               'FichaDatosPaciente'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM examen_inmunologico WHERE n_orden = nOrden),
+               'examen_inmunologico',
+               'ExamenInmunologico'
+
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM consta_brigadista WHERE n_orden = nOrden),
+               'consta_brigadista',
+               'ConstaBrigadista'
+        UNION ALL
+        SELECT EXISTS(SELECT 1 FROM registro_conformidad_emo WHERE n_orden = nOrden),
+               'conformidad_emo',
+               'RegistroConformidadEmo';
 END;
 $$;
 
-alter function obtener_reporte_certificado_aptitud_herramientas_manuales(integer, text) owner to pierola;
-
-
-
-
-alter table certificacion_medica_altura add column titulo_examen text
-
-create function obtener_reporte_certificado_altura_1_8(p_norden integer, name_service text)
-    returns TABLE
-            (
-                dnipaciente                                 integer,
-                nombrespaciente                             text,
-                apellidospaciente                           text,
-                direccionpaciente                           text,
-                sexopaciente                                "char",
-                fechanacimientopaciente                     date,
-                ocupacionpaciente                           text,
-                lugarnacimientopaciente                     text,
-                nivelestudiopaciente                        text,
-                estadocivilpaciente                         text,
-                cargopaciente                               text,
-                areapaciente                                text,
-                contrata                                    text,
-                norden                                      integer,
-                empresa                                     text,
-                codigoclinica                               text,
-                tipoexamen                                  text,
-                edadpaciente                                text,
-                altura                                      text,
-                frecuenciacardiaca                          text,
-                sistolica                                   text,
-                diastolica                                  text,
-                frecuenciarespiratoriatriaje_f_respiratoria text,
-                imctriaje                                   text,
-                saturacionoxigenotriaje_sat_02              text,
-                temperatura                                 text,
-                peso                                        text,
-                tallatriaje                                 text,
-                codigocertificadoaltura                     integer,
-                fechacertificacion                          date,
-                primeraactitud                              boolean,
-                revalidacion                                boolean,
-                dni                                         integer,
-                tienefobiano                                boolean,
-                epilepsiano                                 boolean,
-                alcoholismono                               boolean,
-                tienefobiasi                                boolean,
-                epilepsiasi                                 boolean,
-                alcoholismosi                               boolean,
-                portadorpsiquiatricasi                      boolean,
-                diabetesmellitussi                          boolean,
-                miagranasi                                  boolean,
-                insuficienciacardiacasi                     boolean,
-                asmabronquialsi                             boolean,
-                hipertensionarterialsi                      boolean,
-                hipoacusiaseverasi                          boolean,
-                alteracionagudezavisualsi                   boolean,
-                declaronoaptosi                             boolean,
-                portadorpsiquiatricano                      boolean,
-                diabetesmellitusno                          boolean,
-                miagranano                                  boolean,
-                insuficienciacardiacano                     boolean,
-                asmabronquialno                             boolean,
-                hipertensionarterialno                      boolean,
-                hipoacusiaseverano                          boolean,
-                alteracionagudezavisualno                   boolean,
-                declaronoaptono                             boolean,
-                resfriadosi                                 boolean,
-                vertigomareosi                              boolean,
-                consumiolicorsi                             boolean,
-                frecuenciacefaleassi                        boolean,
-                resfriadono                                 boolean,
-                vertigomareono                              boolean,
-                consumiolicorno                             boolean,
-                frecuenciacefaleasno                        boolean,
-                limitacionfuerzasi                          boolean,
-                alteracionequilibriosi                      boolean,
-                anormalidadmarchasi                         boolean,
-                anormalidadfuerzasi                         boolean,
-                lenguajeanormalsi                           boolean,
-                alteracioncoordinacionpresentesi            boolean,
-                presencianisfagmussi                        boolean,
-                anormalidadmovimientosocularessi            boolean,
-                pupilascirlasi                              boolean,
-                asimetriafacialsi                           boolean,
-                otroshallazgossi                            boolean,
-                hallazgoanormaltobillosi                    boolean,
-                hallazgoanormalrodillasi                    boolean,
-                hallazgoanormalcodosi                       boolean,
-                hallazgoanormalhombrosi                     boolean,
-                limitacionfuerzano                          boolean,
-                alteracionequilibriono                      boolean,
-                anormalidadmarchano                         boolean,
-                anormalidadfuerzano                         boolean,
-                lenguajeanormalno                           boolean,
-                alteracioncoordinacionpresenteno            boolean,
-                presencianisfagmusno                        boolean,
-                anormalidadmovimientosocularesno            boolean,
-                pupilascirlano                              boolean,
-                asimetriafacialno                           boolean,
-                otroshallazgosno                            boolean,
-                hallazgoanormaltobillono                    boolean,
-                hallazgoanormalrodillano                    boolean,
-                hallazgoanormalcodono                       boolean,
-                hallazgoanormalhombrono                     boolean,
-                aptotrabajar18metrossi                      boolean,
-                usolentescorrectoressi                      boolean,
-                usoaudifonossi                              boolean,
-                aptotrabajar18metrosno                      boolean,
-                usolentescorrectoresno                      boolean,
-                usoaudifonosno                              boolean,
-                comentarios                                 text,
-                detallemedicinas                            text,
-                detalleinformacionactual                    text,
-                otrarestriccion                             text,
-                observaciones                               text,
-                edad                                        text,
-                tiempoexperiencia                           text,
-                visioncercasincorregirod_v_cerca_s_od       text,
-                visioncercasincorregiroi_v_cerca_s_oi       text,
-                oftalodccmologia_odcc                       text,
-                oiccoftalmologia_oicc                       text,
-                visionlejossincorregirod_v_lejos_s_od       text,
-                visionlejossincorregiroi_v_lejos_s_oi       text,
-                odlcoftalmologia_odlc                       text,
-                oilcoftalmologia_oilc                       text,
-                vcoftalmologia_vc                           text,
-                vboftalmologia_vb                           text,
-                rpoftalmologia_rp                           text,
-                enfermedadesocularesoftalmo_e_oculares      text,
-                nombremedico                                text,
-                cmpusuario                                  text,
-                nombresede                                  text,
-                sede                                        text,
-                color                                       integer,
-                namejasper                                  text,
-                usuariofirma                                text,
-                doctorasignado                              text,
-                tituloexamen                                text
-            )
-    language plpgsql
-as
-$$
-BEGIN
-    RETURN QUERY
-        SELECT d.cod_pa,
-               d.nombres_pa,
-               d.apellidos_pa,
-               d.direccion_pa,
-               d.sexo_pa,
-               d.fecha_nacimiento_pa,
-               d.ocupacion_pa,
-               d.lugar_nac_pa,
-               d.nivel_est_pa,
-               d.estado_civil_pa,
-               n.cargo_de,
-               n.area_o,
-               n.razon_contrata,
-               n.n_orden,
-               n.razon_empresa,
-               n.cod_clinica,
-               n.nom_examen,
-               CAST(obtener_edad(d.fecha_nacimiento_pa, current_date) AS TEXT),
-               n.altura_po,
-               t.f_cardiaca,
-               t.sistolica,
-               t.diastolica,
-               t.f_respiratoria,
-               t.imc,
-               t.sat_02,
-               t.temperatura,
-               t.peso,
-               t.talla,
-               cma.cod_cma,
-               cma.fecha_certificacion,
-               cma.p_actitud,
-               cma.revalidacion,
-               cma.dni_user,
-               cma.r_no1,
-               cma.r_no2,
-               cma.r_no3,
-               cma.r_si1,
-               cma.r_si2,
-               cma.r_si3,
-               cma.r_si4,
-               cma.r_si5,
-               cma.r_si6,
-               cma.r_si7,
-               cma.r_si8,
-               cma.r_si9,
-               cma.r_si10,
-               cma.r_si11,
-               cma.r_si12,
-               cma.r_no4,
-               cma.r_no5,
-               cma.r_no6,
-               cma.r_no7,
-               cma.r_no8,
-               cma.r_no9,
-               cma.r_no10,
-               cma.r_no11,
-               cma.r_no12,
-               cma.e_si1,
-               cma.e_si2,
-               cma.e_si3,
-               cma.e_si4,
-               cma.e_no1,
-               cma.e_no2,
-               cma.e_no3,
-               cma.e_no4,
-               cma.a_si1,
-               cma.a_si2,
-               cma.a_si3,
-               cma.a_si4,
-               cma.a_si5,
-               cma.a_si6,
-               cma.a_si7,
-               cma.a_si8,
-               cma.a_si9,
-               cma.a_si10,
-               cma.a_si11,
-               cma.a_si12,
-               cma.a_si13,
-               cma.a_si14,
-               cma.a_si15,
-               cma.a_no1,
-               cma.a_no2,
-               cma.a_no3,
-               cma.a_no4,
-               cma.a_no5,
-               cma.a_no6,
-               cma.a_no7,
-               cma.a_no8,
-               cma.a_no9,
-               cma.a_no10,
-               cma.a_no11,
-               cma.a_no12,
-               cma.a_no13,
-               cma.a_no14,
-               cma.a_no15,
-               cma.p_si1,
-               cma.p_si2,
-               cma.p_si3,
-               cma.p_no1,
-               cma.p_no2,
-               cma.p_no3,
-               cma.comentariosrm,
-               cma.detallemedicinas,
-               cma.detalleinformacionactual,
-               cma.otrarestriccion,
-               cma.observaciones,
-               cma.edad_cma,
-               cma.tiempo_experiencia,
-               CASE
-                   WHEN oft.txtcercasincorregirod IS NOT NULL THEN oft.txtcercasincorregirod
-                   ELSE o.v_cerca_s_od
-                   END                                 AS v_cerca_s_od,
-
-               CASE
-                   WHEN oft.txtcercasincorregiroi IS NOT NULL THEN oft.txtcercasincorregiroi
-                   ELSE o.v_cerca_s_oi
-                   END                                 AS v_cerca_s_oi,
-
-               CASE
-                   WHEN oft.txtcercacorregidaod IS NOT NULL THEN oft.txtcercacorregidaod
-                   WHEN ol.v_cerca_c_od IS NULL THEN o.v_cerca_c_od
-                   ELSE ol.v_cerca_c_od
-                   END                                 AS ODCC,
-
-               CASE
-                   WHEN oft.txtcercacorregidaoi IS NOT NULL THEN oft.txtcercacorregidaoi
-                   WHEN ol.v_cerca_c_oi IS NULL THEN o.v_cerca_c_oi
-                   ELSE ol.v_cerca_c_oi
-                   END                                 AS OICC,
-
-               CASE
-                   WHEN oft.txtlejossincorregirod IS NOT NULL THEN oft.txtlejossincorregirod
-                   ELSE o.v_lejos_s_od
-                   END                                 AS v_lejos_s_od,
-
-               CASE
-                   WHEN oft.txtlejossincorregiroi IS NOT NULL THEN oft.txtlejossincorregiroi
-                   ELSE o.v_lejos_s_oi
-                   END                                 AS v_lejos_s_oi,
-
-               CASE
-                   WHEN oft.txtlejoscorregidaod IS NOT NULL THEN oft.txtlejoscorregidaod
-                   WHEN ol.v_lejos_c_od IS NULL THEN o.v_lejos_c_od
-                   ELSE ol.v_lejos_c_od
-                   END                                 AS ODLC,
-
-               CASE
-                   WHEN oft.txtlejoscorregidaoi IS NOT NULL THEN oft.txtlejoscorregidaoi
-                   WHEN ol.v_lejos_c_oi IS NULL THEN o.v_lejos_c_oi
-                   ELSE ol.v_lejos_c_oi
-                   END                                 AS OILC,
-
-               CASE
-                   WHEN oft.rbtecishihara_normal = 'TRUE' THEN 'NORMAL'
-                   WHEN oft.rbtecishihara_anormal = 'TRUE' THEN 'ANORMAL'
-                   WHEN ol.v_colores IS NULL THEN o.v_colores
-                   ELSE ol.v_colores
-                   END                                 AS VC,
-
-               CASE
-                   WHEN oft.txtbinocularsincorregir IS NOT NULL THEN oft.txtbinocularsincorregir
-                   WHEN ol.v_binocular IS NULL THEN o.v_binocular
-                   ELSE ol.v_binocular
-                   END                                 AS VB,
-
-               CASE
-                   WHEN oft.txtrp IS NOT NULL THEN oft.txtrp
-                   WHEN ol.r_pupilares IS NULL THEN o.r_pupilares
-                   ELSE ol.r_pupilares
-                   END                                 AS RP,
-
-               CASE
-                   WHEN oft.txtdiagnostico IS NOT NULL THEN oft.txtdiagnostico
-                   ELSE o.e_oculares
-                   END                                 AS e_oculares,
-               u.nombre_user || ' ' || u.apellido_user as nombremedico,
-               u.cmp_user,
-               CASE
-                   WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A'
-                       THEN 'Huamachuco'
-                   ELSE (SELECT nombre_sede
-                         FROM sede
-                         WHERE cod_sede = n.cod_sede)
-                   END                                 AS nombre_sede,
-               CASE
-                   WHEN UPPER(TRIM(n.razon_empresa)) = 'CIA MINERA PODEROSA S A' THEN 'Huamachuco'
-                   else (CAST(sm.descripcion AS TEXT)) end,
-               n.color,
-               obtener_name_jasper(p_norden, name_service),
-               cma.usuario_firma,
-               cma.doctor_asignado,
-               cma.titulo_examen
-        FROM datos_paciente AS d
-                 INNER JOIN n_orden_ocupacional AS n
-                            ON d.cod_pa = n.cod_pa
-                 INNER JOIN sede_multisucursal AS sm
-                            ON n.cod_sede = sm.id
-                 LEFT JOIN certificacion_medica_altura AS cma
-                           ON cma.n_orden = n.n_orden
-                 INNER JOIN triaje AS t
-                            ON t.n_orden = n.n_orden
-                 LEFT JOIN usuarios AS u
-                           ON cma.dni_user = u.dni_user
-                 LEFT JOIN
-             oftalmologia AS o ON n.n_orden = o.n_orden
-                 LEFT JOIN
-             oftalmologia_lo AS ol ON n.n_orden = ol.n_orden
-                 LEFT JOIN
-             oftalmologia2021 AS oft ON n.n_orden = oft.n_orden
-        WHERE n.n_orden = p_norden;
-
-END;
-$$;
-
-alter function obtener_reporte_certificado_altura_1_8(integer, text) owner to pierola;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-create function obtener_parametros_digitalizados(norden_param bigint, name_servicio_param text)
-    returns TABLE(descripcion text, name_digitalizacion text, dni integer)
-    language plpgsql
-as
-$$
-DECLARE
-    dni_paciente_var         INTEGER;
-    dni_user_registro_var    INTEGER;
-    dni_user_doctor_asig_var INTEGER;
-    dni_user_doc_adic_var    INTEGER;
-    empresa_var              TEXT;
-    user_registro_var        TEXT;
-    sede_var                 INTEGER;
-    completo_electro_var     BOOLEAN;
-BEGIN
-    -- Obtener DNI del paciente
-    IF name_servicio_param = 'ficha_interconsulta' THEN
-        SELECT cod_pa
-        INTO dni_paciente_var
-        FROM n_orden_ocupacional n
-                 INNER JOIN ficha_interconsulta f ON n.n_orden = f.n_orden
-        WHERE f.cod_fichaint = norden_param;
-    ELSE
-        SELECT cod_pa INTO dni_paciente_var FROM n_orden_ocupacional WHERE n_orden = norden_param;
-    END IF;
-
-    IF name_servicio_param = 'ficha_interconsulta' THEN
-        SELECT trim(razon_empresa)
-        INTO empresa_var
-        FROM n_orden_ocupacional n
-                 INNER JOIN ficha_interconsulta f ON n.n_orden = f.n_orden
-        WHERE f.cod_fichaint = norden_param;
-    ELSE
-        SELECT trim(razon_empresa) INTO empresa_var FROM n_orden_ocupacional WHERE n_orden = norden_param;
-    END IF;
-
-    SELECT COALESCE(informe_completo, FALSE)
-    INTO completo_electro_var
-    FROM informe_electrocardiograma
-    WHERE n_orden = norden_param;
-
-    -- Primera condición
-    IF name_servicio_param = 'con_panel10D' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(cms.usuario_firma, ''),
-                           NULLIF(cms.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM consent_laboratorios cms
-            WHERE cms.n_orden = norden_param
-              AND cms.name_conset = name_servicio_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(cms.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM consent_laboratorios cms
-                     LEFT JOIN n_orden_firma nof ON cms.n_orden = nof.n_orden
-                AND cms.name_conset = name_servicio_param
-            WHERE nof.n_orden = norden_param
-               OR (cms.n_orden = norden_param AND cms.name_conset = name_servicio_param)
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var END;
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    -- Segunda condición
-    IF name_servicio_param = 'con_panel5D' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(cms.usuario_firma, ''),
-                           NULLIF(cms.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM consent_laboratorios cms
-            WHERE cms.n_orden = norden_param
-              AND cms.name_conset = name_servicio_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(cms.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM consent_laboratorios cms
-                     LEFT JOIN n_orden_firma nof ON cms.n_orden = nof.n_orden
-                AND cms.name_conset = name_servicio_param
-            WHERE nof.n_orden = norden_param
-               OR (cms.n_orden = norden_param AND cms.name_conset = name_servicio_param)
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var END;
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'con_panel4D' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(cms.usuario_firma, ''),
-                           NULLIF(cms.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM consent_laboratorios cms
-            WHERE cms.n_orden = norden_param
-              AND cms.name_conset = name_servicio_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(cms.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM consent_laboratorios cms
-                     LEFT JOIN n_orden_firma nof ON cms.n_orden = nof.n_orden
-                AND cms.name_conset = name_servicio_param
-            WHERE nof.n_orden = norden_param
-               OR (cms.n_orden = norden_param AND cms.name_conset = name_servicio_param)
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var END;
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-    END IF;
-
-    -- Tercera condicion
-    IF name_servicio_param = 'con_panel3D' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(cms.usuario_firma, ''),
-                           NULLIF(cms.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM consent_laboratorios cms
-            WHERE cms.n_orden = norden_param
-              AND cms.name_conset = name_servicio_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(cms.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM consent_laboratorios cms
-                     LEFT JOIN n_orden_firma nof ON cms.n_orden = nof.n_orden
-                AND cms.name_conset = name_servicio_param
-            WHERE nof.n_orden = norden_param
-               OR (cms.n_orden = norden_param AND cms.name_conset = name_servicio_param)
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    -- Cuarta condición
-    IF name_servicio_param = 'con_panel2D' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(cms.usuario_firma, ''),
-                           NULLIF(cms.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM consent_laboratorios cms
-            WHERE cms.n_orden = norden_param
-              AND cms.name_conset = name_servicio_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(cms.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM consent_laboratorios cms
-                     LEFT JOIN n_orden_firma nof ON cms.n_orden = nof.n_orden
-                AND cms.name_conset = name_servicio_param
-            WHERE nof.n_orden = norden_param
-               OR (cms.n_orden = norden_param AND cms.name_conset = name_servicio_param)
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-    -- Quinta condición
-
-    IF name_servicio_param = 'consent_Muestra_Sangre' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(cms.usuario_firma, ''),
-                           NULLIF(cms.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM consent_laboratorios cms
-            WHERE cms.n_orden = norden_param
-              AND cms.name_conset = name_servicio_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(cms.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM consent_laboratorios cms
-                     LEFT JOIN n_orden_firma nof ON cms.n_orden = nof.n_orden
-                AND cms.name_conset = name_servicio_param
-            WHERE nof.n_orden = norden_param
-               OR (cms.n_orden = norden_param AND cms.name_conset = name_servicio_param)
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-
-    END IF;
-
-    -- Sexta condición
-    IF name_servicio_param = 'consent_marihuana' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(cms.usuario_firma, ''),
-                           NULLIF(cms.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM consent_laboratorios cms
-            WHERE cms.n_orden = norden_param
-              AND cms.name_conset = name_servicio_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(cms.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM consent_laboratorios cms
-                     LEFT JOIN n_orden_firma nof ON cms.n_orden = nof.n_orden
-                AND cms.name_conset = name_servicio_param
-            WHERE nof.n_orden = norden_param
-               OR (cms.n_orden = norden_param AND cms.name_conset = name_servicio_param)
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    -- Septima condición
-    IF name_servicio_param = 'consent_Boro' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(cb.usuario_firma, ''),
-                           NULLIF(cb.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM consent_Boro cb
-            WHERE cb.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(cms.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM consent_boro cms
-                     LEFT JOIN n_orden_firma nof ON cms.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR cms.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-
-    IF name_servicio_param = 'analisis_bioquimicos' THEN
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(ab.usuario_firma, ''),
-                           NULLIF(ab.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM analisis_bioquimicos ab
-            WHERE ab.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            IF EXISTS (SELECT 1
-                       FROM n_orden_ocupacional n
-                                INNER JOIN analisis_bioquimicos h ON n.n_orden = h.n_orden
-                       WHERE n.cod_sede = 5
-                         AND h.fecha_ab BETWEEN DATE '2025-12-05' AND DATE '2026-01-06'
-                         AND h.n_orden = norden_param) THEN
-                dni_user_registro_var := 72537588;
-            ELSE
-                SELECT COALESCE(
-                               NULLIF(nof.profesional, ''),
-                               NULLIF(ab.doctor_asignado, '')
-                       )
-                INTO user_registro_var
-                FROM analisis_bioquimicos ab
-                         LEFT JOIN n_orden_firma nof ON ab.n_orden = nof.n_orden
-                WHERE nof.n_orden = norden_param
-                   OR ab.n_orden = norden_param
-                LIMIT 1;
-                SELECT dni_user
-                INTO dni_user_registro_var
-                FROM usuarios
-                WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-                dni_user_registro_var := CASE
-                                             WHEN sede_var = 3 AND empresa_var = 'MONARCA GOLD S.A.C.' THEN
-                                                 88888888
-                                             WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
-                                                 42664426
-                                             WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN
-                                                 66666666
-                                             ELSE dni_user_registro_var
-                    END;
-            END IF;
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-    END IF;
-
-    IF name_servicio_param = 'analisis_bioquimicos_glucosa_basal' THEN
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(ab.usuario_firma, ''),
-                           NULLIF(ab.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM analisis_bioquimicos ab
-            WHERE ab.n_orden = norden_param
-              AND ab.esglucosabasal = TRUE
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            IF EXISTS (SELECT 1
-                       FROM n_orden_ocupacional n
-                                INNER JOIN analisis_bioquimicos h ON n.n_orden = h.n_orden
-                       WHERE n.cod_sede = 5
-                         AND h.fecha_ab BETWEEN DATE '2025-12-05' AND DATE '2026-01-06'
-                         AND h.n_orden = norden_param) THEN
-                dni_user_registro_var := 72537588;
-            ELSE
-                SELECT COALESCE(
-                               NULLIF(nof.profesional, ''),
-                               NULLIF(ab.doctor_asignado, '')
-                       )
-                INTO user_registro_var
-                FROM analisis_bioquimicos ab
-                         LEFT JOIN n_orden_firma nof ON ab.n_orden = nof.n_orden AND ab.esglucosabasal = TRUE
-                WHERE nof.n_orden = norden_param
-                   OR ab.n_orden = norden_param
-                LIMIT 1;
-                SELECT dni_user
-                INTO dni_user_registro_var
-                FROM usuarios
-                WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-                dni_user_registro_var := CASE
-                                             WHEN sede_var = 3 AND empresa_var = 'MONARCA GOLD S.A.C.' THEN 88888888
-                                             WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
-                                                 42664426
-                                             WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN
-                                                 66666666
-                                             ELSE dni_user_registro_var
-                    END;
-            END IF;
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-    END IF;
-
-
-    IF (name_servicio_param = 'lab_clinico' OR
-        name_servicio_param = 'lab_clinico_examen_orina' OR
-        name_servicio_param = 'lab_clinico_hemoglobina') THEN
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(lc.usuario_firma, ''),
-                           NULLIF(lc.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM lab_clinico lc
-            WHERE lc.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-
-            IF EXISTS (SELECT 1
-                       FROM n_orden_ocupacional n
-                                INNER JOIN lab_clinico h ON n.n_orden = h.n_orden
-                       WHERE n.cod_sede = 5
-                         AND h.fecha_lab BETWEEN DATE '2025-12-05' AND DATE '2026-01-06'
-                         AND h.n_orden = norden_param) THEN
-                dni_user_registro_var := 72537588;
-            ELSE
-                SELECT COALESCE(
-                               NULLIF(nof.profesional, ''),
-                               NULLIF(lc.doctor_asignado, '')
-                       )
-                INTO user_registro_var
-                FROM lab_clinico lc
-                         LEFT JOIN n_orden_firma nof ON lc.n_orden = nof.n_orden
-                WHERE nof.n_orden = norden_param
-                   OR lc.n_orden = norden_param
-                LIMIT 1;
-                SELECT dni_user
-                INTO dni_user_registro_var
-                FROM usuarios
-                WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-                dni_user_registro_var := CASE
-                                             WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                             WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                             ELSE dni_user_registro_var
-                    END;
-            END IF;
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-    END IF;
-
-
-    IF name_servicio_param = 'hemograma_autom' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(ha.usuario_firma, ''),
-                           NULLIF(ha.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM hemograma_autom ha
-            WHERE ha.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(ha.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM hemograma_autom ha
-                     LEFT JOIN n_orden_firma nof ON ha.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR ha.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-    END IF;
-
-
-    IF name_servicio_param = 'lgonadotropina' THEN
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(lg.usuario_firma, ''),
-                           NULLIF(lg.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM lgonadotropina lg
-            WHERE lg.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(lg.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM lgonadotropina lg
-                     LEFT JOIN n_orden_firma nof ON lg.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR lg.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
-                                             42664426
-                                         ELSE dni_user_registro_var
-                END;
-
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-    END IF;
-
-
-    IF name_servicio_param = 'panel2d' THEN
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(p2d.usuario_firma, ''),
-                           NULLIF(p2d.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM panel2d p2d
-            WHERE p2d.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(p2d.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM panel2d p2d
-                     LEFT JOIN n_orden_firma nof ON p2d.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR p2d.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-    END IF;
-
-
-    IF name_servicio_param = 'panel3d' THEN
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(p3d.usuario_firma, ''),
-                           NULLIF(p3d.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM panel3d p3d
-            WHERE p3d.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(p3d.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM panel3d p3d
-                     LEFT JOIN n_orden_firma nof ON p3d.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR p3d.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-    END IF;
-
-    IF name_servicio_param = 'panel4d' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(p4d.usuario_firma, ''),
-                           NULLIF(p4d.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM panel4d p4d
-            WHERE p4d.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(p4d.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM panel4d p4d
-                     LEFT JOIN n_orden_firma nof ON p4d.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR p4d.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'toxicologia' THEN
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(t.usuario_firma, ''),
-                           NULLIF(t.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM toxicologia t
-            WHERE t.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN t.usuario_firma IS NULL THEN t.user_registro
-                               ELSE t.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM toxicologia t
-                     LEFT JOIN n_orden_firma nof ON t.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR t.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-    END IF;
-
-
-    IF name_servicio_param = 'panel10d' THEN
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(p10d.usuario_firma, ''),
-                           NULLIF(p10d.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM panel10d p10d
-            WHERE p10d.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(p10d.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM panel10d p10d
-                     LEFT JOIN n_orden_firma nof ON p10d.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR p10d.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-
-    END IF;
-
-
-    IF name_servicio_param = 'inmunologia' THEN
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(i.usuario_firma, ''),
-                           NULLIF(i.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM inmunologia i
-            WHERE i.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(i.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM inmunologia i
-                     LEFT JOIN n_orden_firma nof ON i.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR i.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-    END IF;
-
-
-    IF name_servicio_param = 'microbiologia' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(mb.usuario_firma, ''),
-                           NULLIF(mb.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM microbiologia mb
-            WHERE mb.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(mb.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM microbiologia mb
-                     LEFT JOIN n_orden_firma nof ON mb.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR mb.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'koh' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(mb.usuario_firma, ''),
-                           NULLIF(mb.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM koh mb
-            WHERE mb.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(mb.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM koh mb
-                     LEFT JOIN n_orden_firma nof ON mb.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR mb.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'lhepatitis' THEN
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(lh.usuario_firma, ''),
-                           NULLIF(lh.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM lhepatitis lh
-            WHERE lh.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(lh.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM lhepatitis lh
-                     LEFT JOIN n_orden_firma nof ON lh.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR lh.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'hepatitis_b' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(lb.usuario_firma, ''),
-                           NULLIF(lb.user_registro, ''),
-                           NULLIF(lh.usuario_firma, ''),
-                           NULLIF(lh.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM hepatitis_b lb
-                     FULL JOIN lhepatitis lh
-                               ON lb.n_orden = lh.n_orden
-            WHERE
-                (
-                    -- Prioridad 1: existe en hepatitis_c
-                    lb.n_orden = 96639
-                    )
-               OR
-                (
-                    -- Prioridad 2: NO existe en hepatitis_c
-                    lb.n_orden IS NULL
-                        AND lh.n_orden = 96639
-                        AND NULLIF(TRIM(lh.hepatitisc), '') IS NOT NULL
-                    )
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-
-            SELECT COALESCE(
-                           (SELECT NULLIF(profesional, '')
-                            FROM n_orden_firma
-                            WHERE n_orden = norden_param
-                            LIMIT 1),
-                           (SELECT NULLIF(doctor_asignado, '')
-                            FROM hepatitis_b
-                            WHERE n_orden = norden_param
-                            LIMIT 1),
-                           (SELECT NULLIF(doctor_asignado, '')
-                            FROM lhepatitis
-                            WHERE n_orden = norden_param
-                              AND NULLIF(TRIM(txthepatitisb), '') IS NOT NULL
-                            LIMIT 1)
-                   )
-            INTO user_registro_var;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'hepatitis_c' THEN
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(lb.usuario_firma, ''),
-                           NULLIF(lb.user_registro, ''),
-                           NULLIF(lh.usuario_firma, ''),
-                           NULLIF(lh.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM hepatitis_c lb
-                     FULL JOIN lhepatitis lh
-                               ON lb.n_orden = lh.n_orden
-            WHERE
-                (
-                    -- Prioridad 1: existe en hepatitis_c
-                    lb.n_orden = 96639
-                    )
-               OR
-                (
-                    -- Prioridad 2: NO existe en hepatitis_c
-                    lb.n_orden IS NULL
-                        AND lh.n_orden = 96639
-                        AND NULLIF(TRIM(lh.hepatitisc), '') IS NOT NULL
-                    )
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-
-            SELECT COALESCE(
-                           (SELECT NULLIF(profesional, '')
-                            FROM n_orden_firma
-                            WHERE n_orden = norden_param
-                            LIMIT 1),
-                           (SELECT NULLIF(doctor_asignado, '')
-                            FROM hepatitis_c
-                            WHERE n_orden = norden_param
-                            LIMIT 1),
-                           (SELECT NULLIF(doctor_asignado, '')
-                            FROM lhepatitis
-                            WHERE n_orden = norden_param
-                              AND NULLIF(TRIM(hepatitisc), '') IS NOT NULL
-                            LIMIT 1)
-                   )
-            INTO user_registro_var;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
--- perfil renal
-    IF name_servicio_param = 'l_bioquimica' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(lb.usuario_firma, ''),
-                           NULLIF(lb.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM l_bioquimica lb
-            WHERE lb.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(lb.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM l_bioquimica lb
-                     LEFT JOIN n_orden_firma nof ON lb.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR lb.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-
--- acido urino
-    IF name_servicio_param = 'ac_bioquimica2022' THEN
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(ab22.usuario_firma, ''),
-                           NULLIF(ab22.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM ac_bioquimica2022 ab22
-            WHERE ab22.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(ab22.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM ac_bioquimica2022 ab22
-                     LEFT JOIN n_orden_firma nof ON ab22.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR ab22.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-    END IF;
-
-
--- perfil hepatico
-    IF name_servicio_param = 'perfil_hepatico' THEN
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(ph.usuario_firma, ''),
-                           NULLIF(ph.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM perfil_hepatico ph
-            WHERE ph.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN ph.usuario_firma IS NULL THEN ph.user_registro
-                               ELSE ph.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM perfil_hepatico ph
-                     LEFT JOIN n_orden_firma nof ON ph.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR ph.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-    END IF;
-
-
--- coprocultivo
-    IF name_servicio_param = 'ac_coprocultivo' THEN
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(acc.usuario_firma, ''),
-                           NULLIF(acc.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM ac_coprocultivo acc
-            WHERE acc.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(acc.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM ac_coprocultivo acc
-                     LEFT JOIN n_orden_firma nof ON acc.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR acc.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         ELSE dni_user_registro_var END;
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-
-    END IF;
-
--- coproparasitologico
-
-    IF name_servicio_param = 'ac_coproparasitologico' THEN
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(acco.usuario_firma, ''),
-                           NULLIF(acco.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM ac_coproparasitologico acco
-            WHERE acco.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(acc.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM ac_coprocultivo acc
-                     LEFT JOIN n_orden_firma nof ON acc.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR acc.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-    END IF;
-
--- examen inmunologico
-
-    IF name_servicio_param = 'examen_inmunologico' THEN
-
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(ei.usuario_firma, ''),
-                           NULLIF(ei.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM examen_inmunologico ei
-            WHERE ei.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(ei.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM examen_inmunologico ei
-                     LEFT JOIN n_orden_firma nof ON ei.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR ei.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-    END IF;
-
-
-    IF name_servicio_param = 'audiometria_2023' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(a23.usuario_firma, ''),
-                           NULLIF(a23.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM audiometria_2023 a23
-            WHERE a23.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(fa.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM audiometria_2023 fa
-                     LEFT JOIN n_orden_firma nof ON fa.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR fa.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         ELSE dni_user_registro_var
-                END;
-        END IF;
-        descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-        name_digitalizacion := 'SELLOFIRMADOCASIG';
-        dni := dni_user_registro_var;
-        RETURN NEXT;
-    END IF;
-
-    IF name_servicio_param = 'historia_oc_info' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN hoi.usuario_firma IS NULL THEN hoi.user_registro
-                               ELSE hoi.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM historia_oc_info hoi
-                     LEFT JOIN n_orden_firma nof ON hoi.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR hoi.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'audiometria_po' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(fa.usuario_firma, ''),
-                           NULLIF(fa.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM ficha_audiologica fa
-            WHERE fa.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 74723311
-                                         ELSE dni_user_registro_var
-                END;
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            IF EXISTS (SELECT 1
-                       FROM n_orden_ocupacional n
-                                INNER JOIN ficha_audiologica h ON n.n_orden = h.n_orden
-                       WHERE n.cod_sede = 5
-                         AND h.fecha_examen BETWEEN DATE '2025-12-05' AND DATE '2026-01-06'
-                         AND h.n_orden = norden_param) THEN
-                dni_user_registro_var := 72537588;
-            ELSE
-                SELECT COALESCE(
-                               NULLIF(nof.profesional, ''),
-                               NULLIF(fa.doctor_asignado, '')
-                       )
-                INTO user_registro_var
-                FROM ficha_audiologica fa
-                         LEFT JOIN n_orden_firma nof ON fa.n_orden = nof.n_orden
-                WHERE nof.n_orden = norden_param
-                   OR fa.n_orden = norden_param
-                LIMIT 1;
-                SELECT dni_user
-                INTO dni_user_registro_var
-                FROM usuarios
-                WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-                dni_user_registro_var := CASE
-                                             WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                             WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                             ELSE dni_user_registro_var
-                    END;
-
-            END IF;
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_adic FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            IF EXISTS (SELECT 1
-                       FROM ficha_audiologica
-                       WHERE n_orden = norden_param
-                         AND doctor_extra IS NOT NULL) THEN
-                SELECT doctor_extra
-                INTO user_registro_var
-                FROM ficha_audiologica
-                WHERE n_orden = norden_param;
-                SELECT dni_user
-                INTO dni_user_registro_var
-                FROM usuarios
-                WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            ELSE
-                IF (empresa_var = 'OBRASCÓN HUARTE LAIN S.A') THEN
-                    dni_user_registro_var := 55555555;
-                ELSE
-                    dni_user_registro_var := 1;
-                end if;
-            END IF;
-            descripcion := 'SELLO DEL DOCTOR ADICIONAL';
-            name_digitalizacion := 'SELLOFIRMADOCASIG-EXTRA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'cuestionario_audiometria' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT ca.user_registro
-            INTO user_registro_var
-            FROM cuestionario_audiometria ca
-            WHERE ca.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'oftalmologia' THEN
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE
-                       WHEN a7c.usuario_firma IS NULL THEN a7c.user_registro
-                       ELSE a7c.usuario_firma
-                       END
-            INTO user_registro_var
-            FROM oftalmologia a7c
-            WHERE a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            IF EXISTS (SELECT 1
-                       FROM n_orden_ocupacional n
-                                INNER JOIN oftalmologia h ON n.n_orden = h.n_orden
-                       WHERE n.cod_sede = 5
-                         AND h.fecha_of BETWEEN DATE '2025-12-05' AND DATE '2026-01-06'
-                         AND h.n_orden = norden_param) THEN
-                dni_user_registro_var := 72537588;
-            ELSE
-                SELECT COALESCE(
-                               NULLIF(nof.profesional, ''),
-                               NULLIF(fa.doctor_asignado, '')
-                       )
-                INTO user_registro_var
-                FROM oftalmologia fa
-                         LEFT JOIN n_orden_firma nof ON fa.n_orden = nof.n_orden
-                WHERE nof.n_orden = norden_param
-                   OR fa.n_orden = norden_param
-                LIMIT 1;
-                SELECT dni_user
-                INTO dni_user_registro_var
-                FROM usuarios
-                WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-                dni_user_registro_var := CASE
-                                             WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                             WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                             ELSE dni_user_registro_var
-                    END;
-            END IF;
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-    IF name_servicio_param = 'oftalmologia_lo' THEN
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT user_registro
-            INTO user_registro_var
-            FROM oftalmologia_lo
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-
-            IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
-                dni_user_registro_var := 42664426;
-            ELSIF empresa_var = 'MONARCA GOLD S.A.C.' THEN
-                dni_user_registro_var := 66666666;
-            ELSE
-                dni_user_registro_var := 1;
-            END IF;
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'oftalmologia2021' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(a7c.usuario_firma, ''),
-                           NULLIF(a7c.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM oftalmologia2021 a7c
-            WHERE a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(fa.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM oftalmologia2021 fa
-                     LEFT JOIN n_orden_firma nof ON fa.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR fa.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'odontograma' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM odontograma
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'odontograma_lo' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT o.user_registro
-            INTO user_registro_var
-            FROM odontograma_lo olo
-                     INNER JOIN odontograma o on olo.n_orden = o.n_orden
-            WHERE olo.n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'radiografia_torax' THEN
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(a7c.usuario_firma, ''),
-                           NULLIF(a7c.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM radiografia_torax a7c
-            WHERE a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'radiografia' THEN
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(a7c.usuario_firma, ''),
-                           NULLIF(a7c.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM radiografia a7c
-            WHERE a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'oit' THEN
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(a7c.usuario_firma, ''),
-                           NULLIF(a7c.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM oit a7c
-            WHERE a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'evaluacion_musculo_esqueletica' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN eme.usuario_firma IS NULL THEN eme.user_registro
-                               ELSE eme.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM evaluacion_musculo_esqueletica eme
-                     LEFT JOIN n_orden_firma nof ON eme.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR eme.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'evaluacion_musculo_esqueletica2021' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN eme.usuario_firma IS NULL THEN eme.user_registro
-                               ELSE eme.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM evaluacion_musculo_esqueletica2021 eme
-                     LEFT JOIN n_orden_firma nof ON eme.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR eme.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'consentimientoInformado' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'cuestionario_nordico' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN eme.usuario_firma IS NULL THEN eme.user_registro
-                               ELSE eme.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM cuestionario_nordico eme
-                     LEFT JOIN n_orden_firma nof ON eme.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR eme.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'consentimiento_rayosx' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-
-    IF name_servicio_param = 'test_fatiga_somnolencia' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN tfs.usuario_firma IS NULL THEN tfs.user_registro
-                               ELSE tfs.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM test_fatiga_somnolencia tfs
-                     LEFT JOIN n_orden_firma nof ON tfs.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR tfs.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'informe_electrocardiograma' THEN
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(a7c.usuario_firma, ''),
-                           NULLIF(a7c.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM informe_electrocardiograma a7c
-            WHERE a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN completo_electro_var = TRUE THEN 70436528
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'antece_enfermedades_altura' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN aea.usuario_firma IS NULL THEN aea.user_registro
-                               ELSE aea.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM antece_enfermedades_altura aea
-                     LEFT JOIN n_orden_firma nof ON aea.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR aea.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT doctor_asignado
-            INTO user_registro_var
-            FROM antece_enfermedades_altura
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'anexo_agroindustrial' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN aa.usuario_firma IS NULL THEN aa.user_registro
-                               ELSE aa.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM anexo_agroindustrial aa
-                     LEFT JOIN n_orden_firma nof ON aa.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR aa.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'consentimientobuenasalud' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'anexo7c' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN a7c.usuario_firma IS NULL THEN a7c.user_registro
-                               ELSE a7c.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM anexo7c a7c
-                     LEFT JOIN n_orden_firma nof ON a7c.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'anexo16a' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN a7c.usuario_firma IS NULL THEN a7c.user_registro
-                               ELSE a7c.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM anexo16a a7c
-                     LEFT JOIN n_orden_firma nof ON a7c.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'antecedentes_patologicos' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN a7c.usuario_firma IS NULL THEN a7c.user_registro
-                               ELSE a7c.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM antecedentes_patologicos a7c
-                     LEFT JOIN n_orden_firma nof ON a7c.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'aptitud_medico_ocupacional_agro' THEN ---cambios por sede, por hacer
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            --             SELECT COALESCE(
---                            NULLIF(a7c.usuario_firma, ''),
---                            NULLIF(a7c.user_registro, '')
---                    )
---             INTO user_registro_var
---             FROM aptitud_medico_ocupacional_agro a7c
---             WHERE a7c.n_orden = norden_param
---             LIMIT 1;
---             SELECT dni_user
---             INTO dni_user_registro_var
---             FROM usuarios
---             WHERE UPPER(usuario_user) = UPPER(user_registro_var);
---             SELECT cod_sede INTO sede_var FROM n_orden_ocupacional WHERE n_orden = norden_param;
-            dni_user_registro_var := CASE
-                                         WHEN sede_var = 3 THEN 88888888
-                --                                          WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 88888888
---                                          WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE
-                                             CASE
-                                                 WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
-                                                     88888888
-                                                 ELSE
-                                                     66666666
-                                                 END
-                END;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'certificado_aptitud_medico_ocupacional' THEN ---cambios por sede, por hacer
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            --             SELECT COALESCE(
---                            NULLIF(a7c.usuario_firma, ''),
---                            NULLIF(a7c.user_registro, '')
---                    )
---             INTO user_registro_var
---             FROM anexo7c a7c
---             WHERE a7c.n_orden = norden_param
---             LIMIT 1;
---             SELECT dni_user
---             INTO dni_user_registro_var
---             FROM usuarios
---             WHERE UPPER(usuario_user) = UPPER(user_registro_var);
---             SELECT cod_sede INTO sede_var FROM n_orden_ocupacional WHERE n_orden = norden_param;
-            dni_user_registro_var := CASE
-                                         WHEN sede_var = 3 THEN 88888888
-                --                                          WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 88888888
---                                          WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE
-                                             CASE
-                                                 WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
-                                                     88888888
-                                                 ELSE
-                                                     66666666
-                                                 END
-                END;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'ficha_sas' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN a7c.usuario_firma IS NULL THEN a7c.user_registro
-                               ELSE a7c.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM ficha_sas a7c
-                     LEFT JOIN n_orden_firma nof ON a7c.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'certificado_aptitud_medico_resumen' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN a7c.usuario_firma IS NULL THEN a7c.user_registro
-                               ELSE a7c.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM certificado_aptitud_medico_resumen a7c
-                     LEFT JOIN n_orden_firma nof ON a7c.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            SELECT cod_sede INTO sede_var FROM n_orden_ocupacional WHERE n_orden = norden_param;
-            dni_user_registro_var := CASE
-                                         WHEN sede_var = 3 THEN 88888888
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'b_certificado_conduccion' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN a7c.usuario_firma IS NULL THEN a7c.user_registro
-                               ELSE a7c.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM b_certificado_conduccion a7c
-                     LEFT JOIN n_orden_firma nof ON a7c.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'ficha_interconsulta' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM ficha_interconsulta
-            WHERE cod_fichaint = norden_param;
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'b_certificado_altura' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN a7c.usuario_firma IS NULL THEN a7c.user_registro
-                               ELSE a7c.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM b_certificado_altura a7c
-                     LEFT JOIN n_orden_firma nof ON a7c.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'informe_psicologico' THEN
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT user_registro
-            INTO user_registro_var
-            FROM informe_psicologico
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
-            -- IF empresa_var = 'MONARCA GOLD S.A.C.' THEN
---                 dni_user_registro_var := 66666666;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'b_uso_respiradores' THEN
-
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN a7c.usuario_firma IS NULL THEN a7c.user_registro
-                               ELSE a7c.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM b_uso_respiradores a7c
-                     LEFT JOIN n_orden_firma nof ON a7c.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'ficha_psicologica_anexo02' THEN
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM ficha_psicologica_anexo02
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
-            -- IF empresa_var = 'MONARCA GOLD S.A.C.' THEN
---                 dni_user_registro_var := 66666666;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'ficha_psicologica_anexo03' THEN
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM ficha_psicologica_anexo03
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
-            -- IF empresa_var = 'MONARCA GOLD S.A.C.' THEN
---                 dni_user_registro_var := 66666666;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-
-    IF name_servicio_param = 'certificado_altura_poderosa' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN a7c.usuario_firma IS NULL THEN a7c.user_registro
-                               ELSE a7c.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM certificado_altura_poderosa a7c
-                     LEFT JOIN n_orden_firma nof ON a7c.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT doctor_asignado
-            INTO user_registro_var
-            FROM certificado_altura_poderosa
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'aptitud_altura_poderosa' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN a7c.usuario_firma IS NULL THEN a7c.user_registro
-                               ELSE a7c.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM aptitud_altura_poderosa a7c
-                     LEFT JOIN n_orden_firma nof ON a7c.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT doctor_asignado
-            INTO user_registro_var
-            FROM aptitud_altura_poderosa
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'aptitud_trabajos_encaliente' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN a7c.usuario_firma IS NULL THEN a7c.user_registro
-                               ELSE a7c.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM aptitud_trabajos_encaliente a7c
-                     LEFT JOIN n_orden_firma nof ON a7c.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'aptitud_licencia_conduciri' THEN
-
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN a7c.usuario_firma IS NULL THEN a7c.user_registro
-                               ELSE a7c.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM aptitud_licencia_conduciri a7c
-                     LEFT JOIN n_orden_firma nof ON a7c.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'hoja_consulta_externa' THEN
-
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN a7c.usuario_firma IS NULL THEN a7c.user_registro
-                               ELSE a7c.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM hoja_consulta_externa a7c
-                     LEFT JOIN n_orden_firma nof ON a7c.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'certificado_aptitud_herramientas_manuales' THEN
-
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN a7c.usuario_firma IS NULL THEN a7c.user_registro
-                               ELSE a7c.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM certificado_aptitud_herramientas_manuales a7c
-                     LEFT JOIN n_orden_firma nof ON a7c.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'resumen_medico_poderosa' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN a7c.usuario_firma IS NULL THEN a7c.user_registro
-                               ELSE a7c.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM anexo7c a7c
-                     LEFT JOIN n_orden_firma nof ON a7c.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN sede_var = 3 AND empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 88888888
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 88888888
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'informe_psicolaboral' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT user_registro
-            INTO user_registro_var
-            FROM informe_psicolaboral
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
-            -- IF empresa_var = 'MONARCA GOLD S.A.C.' THEN
---                 dni_user_registro_var := 66666666;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'certificado_manipuladores_barrick' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN a7c.usuario_firma IS NULL THEN a7c.user_registro
-                               ELSE a7c.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM anexo7c a7c
-                     LEFT JOIN n_orden_firma nof ON a7c.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'informe_psicologico_estres' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM informe_psicologico_estres
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'evaluacion_psicologica_poderosa_normal' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM evaluacion_psicologica_poderosa
-            WHERE n_orden = norden_param
-              AND (chktrabcalientes IS DISTINCT FROM true
-                AND chklicencia IS DISTINCT FROM true);
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
-            -- IF empresa_var = 'MONARCA GOLD S.A.C.' THEN
---                 dni_user_registro_var := 66666666;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'evaluacion_psicologica_poderosa_licencia' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM evaluacion_psicologica_poderosa
-            WHERE n_orden = norden_param
-              AND chklicencia = true;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
-            -- IF empresa_var = 'MONARCA GOLD S.A.C.' THEN
---                 dni_user_registro_var := 66666666;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'evaluacion_psicologica_poderosa_caliente' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM evaluacion_psicologica_poderosa
-            WHERE n_orden = norden_param
-              AND chktrabcalientes = true;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
-            -- IF empresa_var = 'MONARCA GOLD S.A.C.' THEN
---                 dni_user_registro_var := 66666666;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'psicologia_espacios_confinados' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM psicologia_espacios_confinados
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
-            -- IF empresa_var = 'MONARCA GOLD S.A.C.' THEN
---                 dni_user_registro_var := 66666666;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'informe_riesgos_psicosociales' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM informe_riesgos_psicosociales
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
-            -- IF empresa_var = 'MONARCA GOLD S.A.C.' THEN
---                 dni_user_registro_var := 66666666;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'informe_burnout' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM informe_burnout
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
-            -- IF empresa_var = 'MONARCA GOLD S.A.C.' THEN
---                 dni_user_registro_var := 66666666;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'psicologiafobias' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM psicologiafobias
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
-            -- IF empresa_var = 'MONARCA GOLD S.A.C.' THEN
---                 dni_user_registro_var := 66666666;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-    IF name_servicio_param = 'trastornos_personalidad' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM trastornos_personalidad
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'infor_conductores' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM infor_conductores
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'alto_riesgo' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM alto_riesgo
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'certificacion_medica_altura' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN a7c.usuario_firma IS NULL THEN a7c.user_registro
-                               ELSE a7c.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM certificacion_medica_altura a7c
-                     LEFT JOIN n_orden_firma nof ON a7c.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            dni_user_registro_var := CASE
-                                         WHEN empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN 42664426
-                                         WHEN empresa_var = 'MONARCA GOLD S.A.C.' THEN 66666666
-                                         ELSE dni_user_registro_var
-                END;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-
-    IF name_servicio_param = 'especificos' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM especificos
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-    IF name_servicio_param = 'cuestionario_berlin' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM cuestionario_berlin
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-
-    IF name_servicio_param = 'exam_complementarios' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM exam_complementarios
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'psi_brigadistas' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM psi_brigadistas
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-    IF name_servicio_param = 'bombaelectrica' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM bombaelectrica
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-    IF name_servicio_param = 'cuadradorvigia' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM cuadradorvigia
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-
-    IF name_servicio_param = 'riesgocoronario' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM riesgocoronario
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(a7c.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM riesgocoronario a7c
-                     LEFT JOIN n_orden_firma nof ON a7c.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-    IF name_servicio_param = 'fobias' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM fobias
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-    IF name_servicio_param = 'aversionalriesgo' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM aversionalriesgo
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF UPPER(name_servicio_param) = 'CONSENT_SINTOMATICO' THEN
-        IF (SELECT firma_p
-            FROM config_general_service_digital
-            WHERE UPPER(name_service) = UPPER(name_servicio_param)) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p
-            FROM config_general_service_digital
-            WHERE UPPER(name_service) = UPPER(name_servicio_param)) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF UPPER(name_servicio_param) = 'CONSENT_INFORMADO_MEDICA' THEN
-        IF (SELECT firma_p
-            FROM config_general_service_digital
-            WHERE UPPER(name_service) = UPPER(name_servicio_param)) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p
-            FROM config_general_service_digital
-            WHERE UPPER(name_service) = UPPER(name_servicio_param)) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF UPPER(name_servicio_param) = 'CONSENT_RECOM_MEDIC' THEN
-        IF (SELECT firma_p
-            FROM config_general_service_digital
-            WHERE UPPER(name_service) = UPPER(name_servicio_param)) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p
-            FROM config_general_service_digital
-            WHERE UPPER(name_service) = UPPER(name_servicio_param)) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF UPPER(name_servicio_param) = 'DECLA_JURA_ANTECE_PERSON_FAM' THEN
-        IF (SELECT firma_p
-            FROM config_general_service_digital
-            WHERE UPPER(name_service) = UPPER(name_servicio_param)) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p
-            FROM config_general_service_digital
-            WHERE UPPER(name_service) = UPPER(name_servicio_param)) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF UPPER(name_servicio_param) = 'DECLA_INFO_APTITUD_MO' THEN
-        IF (SELECT firma_p
-            FROM config_general_service_digital
-            WHERE UPPER(name_service) = UPPER(name_servicio_param)) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p
-            FROM config_general_service_digital
-            WHERE UPPER(name_service) = UPPER(name_servicio_param)) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'glucosatolerancia' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM glucosatolerancia
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'inmunologia_vdrl' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(iv.usuario_firma, ''),
-                           NULLIF(iv.user_registro, '')
-                   )
-            INTO user_registro_var
-            FROM inmunologia_vdrl iv
-            WHERE iv.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(iv.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM inmunologia_vdrl iv
-                     LEFT JOIN n_orden_firma nof ON iv.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR iv.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-
-    IF name_servicio_param = 'vih' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM vih
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(a7c.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM vih a7c
-                     LEFT JOIN n_orden_firma nof ON a7c.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-    IF name_servicio_param = 'thevenon' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM thevenon
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(a7c.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM vih a7c
-                     LEFT JOIN n_orden_firma nof ON a7c.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-
-    IF name_servicio_param = 'calidad_sueño' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM calidad_sueño
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-    IF name_servicio_param = 'registro_conformidad_emo' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN rce.usuario_firma IS NULL THEN rce.user_registro
-                               ELSE rce.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM registro_conformidad_emo rce
-                     LEFT JOIN n_orden_firma nof ON rce.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR rce.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-    IF name_servicio_param = 'consta_brigadista' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN cb.usuario_firma IS NULL THEN cb.user_registro
-                               ELSE cb.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM consta_brigadista cb
-                     LEFT JOIN n_orden_firma nof ON cb.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR cb.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-    IF name_servicio_param = 'funcion_abs' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM funcion_abs
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(fa.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM funcion_abs fa
-                     LEFT JOIN n_orden_firma nof ON fa.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR fa.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            dni_user_registro_var := dni_user_registro_var;
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-        IF (SELECT sello_doc_adic FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT doctor_extra
-            INTO user_registro_var
-            FROM funcion_abs
-            WHERE n_orden = norden_param;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL DOCTOR ADICIONAL';
-            name_digitalizacion := 'SELLOFIRMADOCASIG-EXTRA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-    
-
- IF name_servicio_param = 'etanol_saliva' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM etanol_saliva
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-       IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(fa.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM etanol_saliva fa
-                     LEFT JOIN n_orden_firma nof ON fa.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR fa.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            dni_user_registro_var := dni_user_registro_var;
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-    IF name_servicio_param = 'pcr_ultrasensible' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM pcr_ultrasensible
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-     IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(fa.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM etanol_saliva fa
-                     LEFT JOIN n_orden_firma nof ON fa.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR fa.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            dni_user_registro_var := dni_user_registro_var;
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-    IF name_servicio_param = 'certificado_aptitud_brigadista' THEN
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT CASE WHEN usuario_firma IS NULL THEN user_registro ELSE usuario_firma END
-            INTO user_registro_var
-            FROM certificado_aptitud_brigadista
-            WHERE n_orden = norden_param;
-            select dni_user
-            into dni_user_registro_var
-            from usuarios
-            where UPPER(usuario_user) = UPPER(user_registro_var);
-            -- IF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
---             END IF;
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-        IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           NULLIF(iv.doctor_asignado, '')
-                   )
-            INTO user_registro_var
-            FROM certificado_aptitud_brigadista iv
-                     LEFT JOIN n_orden_firma nof ON iv.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR iv.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
-            name_digitalizacion := 'SELLOFIRMADOCASIG';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-    END IF;
-    
-    IF name_servicio_param = 'ficha_datos_paciente' THEN
-        IF (SELECT firma_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'FIRMA DEL PACIENTE';
-            name_digitalizacion := 'FIRMAP';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT huella_p FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            descripcion := 'HUELLA DEL PACIENTE';
-            name_digitalizacion := 'HUELLA';
-            dni := dni_paciente_var;
-            RETURN NEXT;
-        END IF;
-
-        IF (SELECT sello_prof_s FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
-            SELECT COALESCE(
-                           NULLIF(nof.profesional, ''),
-                           CASE
-                               WHEN a7c.usuario_firma IS NULL THEN a7c.user_registro
-                               ELSE a7c.usuario_firma
-                               END
-                   )
-            INTO user_registro_var
-            FROM ficha_datos_personales a7c
-                     LEFT JOIN n_orden_firma nof ON a7c.n_orden = nof.n_orden
-            WHERE nof.n_orden = norden_param
-               OR a7c.n_orden = norden_param
-            LIMIT 1;
-            SELECT dni_user
-            INTO dni_user_registro_var
-            FROM usuarios
-            WHERE UPPER(usuario_user) = UPPER(user_registro_var);
-            descripcion := 'SELLO DEL PROFESIONAL DE SALUD';
-            name_digitalizacion := 'SELLOFIRMA';
-            dni := dni_user_registro_var;
-            RETURN NEXT;
-        END IF;
-
-        --         IF (SELECT sello_doc_asig FROM config_general_service_digital WHERE name_service = name_servicio_param) THEN
---             IF EXISTS (SELECT 1
---                        FROM n_orden_ocupacional n
---                                 INNER JOIN ficha_audiologica h ON n.n_orden = h.n_orden
---                        WHERE n.cod_sede = 5
---                          AND h.fecha_examen BETWEEN DATE '2025-12-05' AND DATE '2026-01-06'
---                          AND h.n_orden = norden_param) THEN
---                 dni_user_registro_var := 72537588;
---             ELSIF empresa_var = 'OBRASCÓN HUARTE LAIN S.A' THEN
---                 dni_user_registro_var := 42664426;
---             ELSIF empresa_var = 'MONARCA GOLD S.A.C.' THEN
---                 dni_user_registro_var := 66666666;
---             ELSE
---                 dni_user_registro_var := 1;
---             END IF;
---             descripcion := 'SELLO DEL MEDICO OCUPACIONAL ASIGNADO';
---             name_digitalizacion := 'SELLOFIRMADOCASIG';
---             dni := dni_user_registro_var;
---             RETURN NEXT;
---         END IF;
-    END IF;
-END;
-$$;
-
-alter function obtener_parametros_digitalizados(bigint, text) owner to pierola;
-
+alter function obtener_existencias_examenes(integer) owner to pierola;
 
 
 
@@ -5431,6 +687,135 @@ alter table b_certificado_altura add column doctor_asignado text
 
 
 ------------------------------------------------------------------------------------------------------
+
+alter table plantilla_correo add column adicional boolean default false;
+alter table plantilla_correo add column anulado boolean default false;
+
+alter table archivo_plantilla add column anulado boolean default false;
+
+alter table empresa_contrata add column anulado boolean default false;
+
+alter table email_log add column anulado boolean default false;
+
+alter table email_log add column n_orden integer;
+
+create function obtener_tipos_archivo_plantilla_correo()
+    returns TABLE(id_tipo_archivo bigint, nombre_tipo_archivo character varying, nomenclatura character varying)
+    language plpgsql
+as
+$$
+BEGIN
+    RETURN QUERY
+        SELECT ta.id_tipo_archivo, ta.nombre_tipo_archivo, ta.nomenclatura FROM tipo_archivo ta
+        WHERE ta.nomenclatura
+                  IN ('CAMO ADM', 'INFORME RADIOGRAFICO', 'INFORME RADIOGRAFICO 2',
+                      'EMPO', 'RAYOS X TORAX', 'CAMO',
+                      'EMOA', 'EMOR', 'TEST ALTURA', 'PSICOSENSOMETRICO',
+                      'MANIPULADOR ALIMENTOS', 'ANEXO 16A', 'INFORME EMO',
+                      'RX TORAX', 'RX CL', 'RX CL2', 'MTR');
+
+END;
+$$;
+
+create table empresa_contrata
+(
+    id               serial primary key,
+    ruc_empresa      text not null,
+    ruc_contrata     text,
+    usuario_registro text,
+    fecha_registro   timestamp
+);
+
+drop table plantilla_correo;
+
+create table plantilla_correo
+(
+    id                  serial primary key,
+    id_empresa_contrata integer,
+    destino             text,
+    con_copia           text,
+    asunto              text,
+    mensaje             text,
+    usuario_registro    text,
+    fecha_registro      timestamp,
+    CONSTRAINT fk_empresa_contrata
+        FOREIGN KEY (id_empresa_contrata)
+            REFERENCES empresa_contrata (id)
+);
+
+create table archivo_plantilla
+(
+    id                  serial primary key,
+    id_tipo_archivo     integer,
+    id_plantilla_correo integer,
+    usuario_registro    text,
+    fecha_registro      timestamp,
+    CONSTRAINT fk_tipo_archivo
+        FOREIGN KEY (id_tipo_archivo)
+            REFERENCES tipo_archivo (id_tipo_archivo),
+    CONSTRAINT fk_plantilla_correo
+        FOREIGN KEY (id_plantilla_correo)
+            REFERENCES plantilla_correo (id)
+);
+
+
+CREATE INDEX IF NOT EXISTS idx_pc_id_empresa_contrata ON plantilla_correo(id_empresa_contrata);
+CREATE INDEX IF NOT EXISTS idx_ap_id_plantilla_correo ON archivo_plantilla(id_plantilla_correo);
+CREATE INDEX IF NOT EXISTS idx_ec_ruc_empresa ON empresa_contrata(ruc_empresa);
+CREATE INDEX IF NOT EXISTS idx_ec_ruc_contrata ON empresa_contrata(ruc_contrata);
+
+create function obtener_plantilla_correo(id_empresa_contrata_var integer)
+    returns TABLE(idplantillacorreo integer, idempresacontrata integer, destino text, concopia text, asunto text, mensaje text, anulado boolean, rucempresa character varying, razonempresa character varying, ruccontrata character varying, razoncontrata character varying, archivos json, adicional boolean)
+    language plpgsql
+as
+$$
+BEGIN
+    RETURN QUERY
+        SELECT pc.id,
+               ec.id,
+               pc.destino,
+               pc.con_copia,
+               pc.asunto,
+               pc.mensaje,
+               pc.anulado,
+               e.ruc_empresa,
+               e.razon_empresa,
+               c.ruc_contrata,
+               c.razon_contrata,
+               COALESCE(a.archivos, '[]'::JSON),
+               pc.adicional
+        FROM plantilla_correo pc
+                 INNER JOIN empresa_contrata ec ON pc.id_empresa_contrata = ec.id and ec.anulado = false
+                 INNER JOIN empresas e ON ec.ruc_empresa = e.ruc_empresa
+                 LEFT JOIN contratas c ON ec.ruc_contrata = c.ruc_contrata
+                 LEFT JOIN LATERAL (
+            SELECT json_agg(
+                           json_build_object(
+                                   'idArchivoPlantilla', ap.id,
+                                   'idTipoArchivo', ta.id_tipo_archivo,
+                                   'extension', ta.extension,
+                                   'nombreTipoArchivo', ta.nombre_tipo_archivo,
+                                   'nomenclatura', ta.nomenclatura,
+                                   'anulado', ap.anulado
+                           )
+                   ) AS archivos
+            FROM archivo_plantilla ap
+                     INNER JOIN tipo_archivo ta
+                                ON ap.id_tipo_archivo = ta.id_tipo_archivo
+            WHERE ap.id_plantilla_correo = pc.id
+              and ap.anulado = false
+            ) a ON TRUE
+        where ec.id = id_empresa_contrata_var
+          and pc.anulado = false;
+
+END;
+$$;
+
+
+
+
+
+
 CREATE TABLE error_log (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     codigo_error VARCHAR(50) NOT NULL,
